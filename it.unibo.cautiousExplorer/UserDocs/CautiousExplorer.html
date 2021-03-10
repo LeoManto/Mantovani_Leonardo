@@ -248,8 +248,39 @@ The name of the file (in pdf) should be:
 </pre>
 
 <h2>Requirement analysis</h2>
- 
+    <p>After interviewing client, menanig he associates whith nouns have been clarified:</p> 
+    <ul>
+        <li><ks>closed environment</ks>: similar to a room delimited by walls, the robot can't go out from this room.</li>
+        <li><ks>den</ks>: a place where the robot is initially positioned.</li>
+        <li><ks>obstacles</ks>: any object that cause a collision with if robot hits it. Their position are fixed since start of the work.</li>
+        <li><ks>cautious explorer</ks>: robot's behaviour is like a cautious explorer, if he hit any kind of obstacle, he come back to initial position that is <ks>den</ks>.</li>
+        <li><ks>mental map</ks>: the robot needs to remember all moves that he performs until a collision, so that robot can back to initial position with same moves.</li>
+    </ul>
+    <p>Regarding to actions (verbs):</p>
+    <ul>
+        <li><ks>moves</ks>: robot can moves aroud the closed environment using all four principal dirctions.</li>
+        <li><ks>find an obstacle</ks>: when the robot collides with an obstacle.</li>
+    </ul>
 
+    <h3>A first <a href="https://en.wikipedia.org/wiki/User_story" target="web">user story</a></h3>
+    <table style="width:98%">
+        <tbody>
+            <tr>
+                <td style="width:60%">
+
+                    At the start of the work, den can be positioned near one of walls. Once work is started robot can moves in any position he want.
+                    All moves he perform are remembered. When, after a move, robot hit one of obstacles in environment, he re-do all moves in reverse until he come back to initial position.    
+                    <p>User can't stop activity execution: system terminate independently after the completion of activity.</p>
+                </td>
+                <td>
+                    <center><img src="./img/TestPlan0.png" alt="TestPlan0" width="100%"></center>
+                </td>
+                <td> 
+                    <center><img src="./img/TestPlan1.png" alt="TestPlan1" width="100%"></center>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <h2>Problem analysis</h2>
