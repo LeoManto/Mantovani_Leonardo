@@ -217,37 +217,37 @@ div.imagedesc{
 </div>  
 
 <div class="body"> 
-<h2>Introduction</h2>
-This case-study starts to deal with the design and development of proactive/reactive software systems that use aynchronous exchange of information.
- 
-<h2>Requirements</h2>
+    <h2>Introduction</h2>
+    This case-study starts to deal with the design and development of proactive/reactive software systems that use aynchronous exchange of information.
+    
+    <h2>Requirements</h2>
 
- 
-<div class="remark">
-Design and build a software system that allow the robot described in 
-<a href="https://htmlpreview.github.io/?https://github.com/anatali/issLab2021/blob/master/it.unibo.virtualRobot2020/userDocs/VirtualRobot2021.html" target="lab"><em>VirtualRobot2021.html</em></a>
- to exibit the following behaviour:
-<ul>
-<li>the robot lives in a closed environment, delimited by walls that includes one or more devices (e.g. sonar) able to detect its presence;</li>
-<li>the robot has a <ks>den</ks> for refuge, located near a wall;</li>
-<li>the robot works as an <i>explorer of the environment</i>. Starting from its <ks>den</ks>,  the robot moves
-(either randomly or - preferably - in a more organized way) with the aim to find the fixed obstacles around the <ks>den</ks>. 
-The presence of mobile obstacles is (at the moment) excluded;</li>
-<li>since the robot is <i>'cautious'</i>,  it  returns immediately to the <ks>den</ks> as soon as it finds an obstacle.
-Optionally, it should also return to the <ks>den</ks> when a sonar detects its presence;
-</li>
-<li>the robot should remember the position of the obstacles found, by creating a sort of 'mental map' of the environment.</li>
-</ul>
-</div>
+    
+    <div class="remark">
+        Design and build a software system that allow the robot described in 
+        <a href="https://htmlpreview.github.io/?https://github.com/anatali/issLab2021/blob/master/it.unibo.virtualRobot2020/userDocs/VirtualRobot2021.html" target="lab"><em>VirtualRobot2021.html</em></a>
+        to exibit the following behaviour:
+        <ul>
+        <li>the robot lives in a closed environment, delimited by walls that includes one or more devices (e.g. sonar) able to detect its presence;</li>
+        <li>the robot has a <ks>den</ks> for refuge, located near a wall;</li>
+        <li>the robot works as an <i>explorer of the environment</i>. Starting from its <ks>den</ks>,  the robot moves
+        (either randomly or - preferably - in a more organized way) with the aim to find the fixed obstacles around the <ks>den</ks>. 
+        The presence of mobile obstacles is (at the moment) excluded;</li>
+        <li>since the robot is <i>'cautious'</i>,  it  returns immediately to the <ks>den</ks> as soon as it finds an obstacle.
+        Optionally, it should also return to the <ks>den</ks> when a sonar detects its presence;
+        </li>
+        <li>the robot should remember the position of the obstacles found, by creating a sort of 'mental map' of the environment.</li>
+        </ul>
+    </div>
 
- <h3>Delivery</h3>
-The customer requires to receive the completion of the analysis (of the requirments and of the problem)  by <k>Friday 12 March</k>. 
-Hopefully, he/she expects to receive also (in the same document) some detail about the project.<br>
-The name of the file (in pdf) should be:
-<pre>cognome_nome_ce.pdf
-</pre>
+    <h3>Delivery</h3>
+    The customer requires to receive the completion of the analysis (of the requirments and of the problem)  by <k>Friday 12 March</k>. 
+    Hopefully, he/she expects to receive also (in the same document) some detail about the project.<br>
+    The name of the file (in pdf) should be:
+    <pre>cognome_nome_ce.pdf
+    </pre>
 
-<h2>Requirement analysis</h2>
+    <h2>Requirement analysis</h2>
     <p>After interviewing client, menanig he associates whith nouns have been clarified:</p> 
     <ul>
         <li><ks>closed environment</ks>: similar to a room delimited by walls, the robot can't go out from this room.</li>
@@ -271,6 +271,7 @@ The name of the file (in pdf) should be:
                     At the start of the work, den can be positioned near one of walls. Once work is started robot can moves in any position he want.
                     All moves he perform are remembered. When, after a move, robot hit one of obstacles in environment, he re-do all moves in reverse until he come back to initial position.    
                     <p>User can't stop activity execution: system terminate independently after the completion of activity.</p>
+                    <p>In images is reported only an example of a possible path that robot can perform</p>
                 </td>
                 <td>
                     <center><img src="./img/TestPlan0.png" alt="TestPlan0" width="100%"></center>
@@ -284,26 +285,25 @@ The name of the file (in pdf) should be:
 
     <h4>Verification of expected results (Test plans)</h4>
 
-        <table style="width:98%">
-            <tbody>
-                <tr>
-                    <td style="width:50%">
-                        It is necessary to verify that path performerd by robot is as expected.
-                    </td>
-                    <td>
-                        <div class="remark">
-                            Verification of correctness of path, it must be carried out by software, without an
-                            human user's interaction
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-</div>
+    <table style="width:98%">
+        <tbody>
+            <tr>
+                <td style="width:50%">
+                    It is necessary to verify that path performerd by robot is as expected.
+                </td>
+                <td>
+                    <div class="remark">
+                        Verification of correctness of path, it must be carried out by software, without an
+                        human user's interaction
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-<h2>Problem analysis</h2>
- 
-<h3>Aspects noted</h3>
+    <h2>Problem analysis</h2>
+
+    <h3>Aspects noted</h3>
 
     <ol>
         <li>
@@ -313,34 +313,43 @@ The name of the file (in pdf) should be:
                 <li>Our application (<ks>cautiousExplorer</ks>) that send correct commands to robot so as to satisfy requirements</li>
             </ul>
         </li>
+        <li>
+            The robot can be moved by network in two different ways, like described in <a href="./VirtualRobot2021.html #commands">VirtualRobot2021.html</a> <ks>command</ks> section:
+            <ul>
+                <li>Sending messages to port <tt>8090</tt> with HTTP POST protocol</li>
+                <li>sending messages to port <tt>8091</tt> with websocket technology</li>
+            </ul>
+        </li>
     </ol>
 
-<h2>Test plans</h2> 
 
 
-<h2>Project</h2> 
- 
+    <h2>Test plans</h2> 
 
 
-<h2>Testing</h2> 
- 
+    <h2>Project</h2> 
+    
 
-<h2>Deployment</h2> 
 
- 
-<h2>Maintenance</h2> 
- 
-<!-- USEFUL
-<table style="width:100%" border="1">
-<tr>
-<td style="width:50%">
-</td>
-<td></td>
-</tr>
-</table>
--->
-	      	
-<br><br> 	
+    <h2>Testing</h2> 
+    
+
+    <h2>Deployment</h2> 
+
+    
+    <h2>Maintenance</h2> 
+    
+    <!-- USEFUL
+    <table style="width:100%" border="1">
+    <tr>
+    <td style="width:50%">
+    </td>
+    <td></td>
+    </tr>
+    </table>
+    -->
+                
+    <br><br> 	
   
 
     My git repo: <a href="https://github.com/LeoManto/Mantovani_Leonardo"><k>https://github.com/LeoManto/Mantovani_Leonardo</k></a>
@@ -348,5 +357,9 @@ The name of the file (in pdf) should be:
         By Mantovani Leonardo email: leonardo.mantovani2@studio.unibo.it
         <img src="./foto.jpg" alt="mbot" width="15%" height="15%">
     </div>
+
+</div>
+
+
 
 </body></html>
