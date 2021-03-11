@@ -254,7 +254,7 @@ div.imagedesc{
         <li><ks>den</ks>: a place where the robot is initially positioned.</li>
         <li><ks>obstacles</ks>: any object that cause a collision with if robot hits it. Their position are fixed since start of the work.</li>
         <li><ks>cautious explorer</ks>: robot's behaviour is like a cautious explorer, if he hit any kind of obstacle, he come back to initial position that is <ks>den</ks>.</li>
-        <li><ks>mental map</ks>: the robot needs to remember all moves that he performs until a collision, so that robot can back to initial position with same moves.</li>
+        <li><ks>mental map</ks>: the robot needs to remember all space that he have already explored and obstacles he find in his exploration.</li>
     </ul>
     <p>Regarding to actions (verbs):</p>
     <ul>
@@ -269,9 +269,10 @@ div.imagedesc{
                 <td style="width:60%">
 
                     At the start of the work, den can be positioned near one of walls. Once work is started robot can moves in any position he want.
-                    All moves he perform are remembered. When, after a move, robot hit one of obstacles in environment, he re-do all moves in reverse until he come back to initial position.    
+                    All moves he performs are remembered so that is created a <ks>'mental map'</ks> of the environment in where he is. When, after a move, robot hit one of obstacles
+                    in environment, he registers its position in his environment 'mental map' and he comes back to the den.    
                     <p>User can't stop activity execution: system terminate independently after the completion of activity.</p>
-                    <p>In images is reported only an example of a possible path that robot can perform</p>
+                    <p>In images is reported only an example of a possible path that robot can performs in one of his 'cautious' exploration.</p>
                 </td>
                 <td>
                     <center><img src="./img/TestPlan0.png" alt="TestPlan0" width="100%"></center>
@@ -289,11 +290,11 @@ div.imagedesc{
         <tbody>
             <tr>
                 <td style="width:50%">
-                    It is necessary to verify that path performerd by robot is as expected.
+                    It is necessary to verify that expected behavior for robot is respected, and at the end of execution positions of obstacles have been found.
                 </td>
                 <td>
                     <div class="remark">
-                        Verification of correctness of path, it must be carried out by software, without an
+                        Verification of correctness of robot's behavior and final environment map, it must be carried out by software, without an
                         human user's interaction
                     </div>
                 </td>
@@ -307,7 +308,7 @@ div.imagedesc{
 
     <ol>
         <li>
-            It's about realizing a<k>distributed system</k> composed by two macro-component:
+            It's about realizing a <k>distributed system</k> composed by two macro-component:
             <ul>
                 <li>robot (virtual) provided by committent</li>
                 <li>Our application (<ks>cautiousExplorer</ks>) that send correct commands to robot so as to satisfy requirements</li>
@@ -319,6 +320,20 @@ div.imagedesc{
                 <li>Sending messages to port <tt>8090</tt> with HTTP POST protocol</li>
                 <li>sending messages to port <tt>8091</tt> with websocket technology</li>
             </ul>
+        </li>
+        <li>
+            As described in requisites, it's necessary to make a map (planimetry) of the environment in where the robot performs his exploration.
+        </li>
+        <li>
+            As there are a lot of library in a moltitude of programming languages that permit sending of these commands, it's not identified any significative <ks>abstraction-gap</ks> on operation plan.
+            <div class="remark">
+                However exist an <k>abstraction-gap on conceptual plan</k>: there are two possible technologies to communicate
+                with robot, and both require appropriate supports. Anyhow conceptually it's about setting up a 
+                <ks>request-response interaction schema</ks>. 
+            </div>
+        </li>
+        <li>
+            Estimate that a first application prototype, should be realized in three working day (at most).
         </li>
     </ol>
 
