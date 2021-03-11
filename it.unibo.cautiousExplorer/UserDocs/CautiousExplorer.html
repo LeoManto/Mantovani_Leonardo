@@ -251,10 +251,11 @@ div.imagedesc{
     <p>After interviewing client, menanig he associates whith nouns have been clarified:</p> 
     <ul>
         <li><ks>closed environment</ks>: similar to a room delimited by walls, the robot can't go out from this room.</li>
-        <li><ks>den</ks>: a place where the robot is initially positioned.</li>
+        <li><ks>den</ks>: a place where the robot is initially positioned. Is not a fixed place, but can be changed by user discretion.</li>
         <li><ks>obstacles</ks>: any object that cause a collision with if robot hits it. Their position are fixed since start of the work.</li>
         <li><ks>cautious explorer</ks>: robot's behaviour is like a cautious explorer, if he hit any kind of obstacle, he come back to initial position that is <ks>den</ks>.</li>
         <li><ks>mental map</ks>: the robot needs to remember all space that he have already explored and obstacles he find in his exploration.</li>
+        <li><k>(Optional)</k> <ks>sonar</ks>: is a system that acts on entire line where he is positioned and facing. In case the robot enter in sonar zone, he detect it and come back to den.</li>
     </ul>
     <p>Regarding to actions (verbs):</p>
     <ul>
@@ -305,39 +306,63 @@ div.imagedesc{
     <h2>Problem analysis</h2>
 
     <h3>Aspects noted</h3>
+    <p>
+        <ol>
+            <li>
+                It's about realizing a <k>distributed system</k> composed by two macro-component:
+                <ul>
+                    <li>robot (virtual) provided by committent</li>
+                    <li>Our application (<ks>cautiousExplorer</ks>) that send correct commands to robot so as to satisfy requirements</li>
+                </ul>
+            </li>
+            <li>
+                The robot can be moved by network in two different ways, like described in <a href="./VirtualRobot2021.html #commands">VirtualRobot2021.html</a> <ks>command</ks> section:
+                <ul>
+                    <li>Sending messages to port <tt>8090</tt> with HTTP POST protocol</li>
+                    <li>sending messages to port <tt>8091</tt> with websocket technology</li>
+                </ul>
+            </li>
+            <li>
+                As described in requisites, it is strongly recommended to make a map (planimetry) of the environment in where the robot performs his exploration.
+            </li>
+            <li>
+                <k>Optionally</k> we have to hadle the reactive component of the robot in case we want to implement sonar in our application.
+            </li>
+            <li>
+                As there are a lot of library in a moltitude of programming languages that permit sending of these commands, it's not identified any significative <ks>abstraction-gap</ks> on operation plan.
+                <div class="remark">
+                    However, the problem does introduce an <k>abstraction gap at the conceptual level</k>,
+                    since <kc>the required logical interaction</kc> is always a <em>request-response</em>, <b>regardless of the technology</b> used to implement
+                    the interaction with the robot.
+                </div>
+            </li>
+            <li>
+                Estimate that a first application prototype, should be realized by Friday 12 March 2021 (at most).
+            </li>
+        </ol>
+    </p>
+    
 
-    <ol>
-        <li>
-            It's about realizing a <k>distributed system</k> composed by two macro-component:
-            <ul>
-                <li>robot (virtual) provided by committent</li>
-                <li>Our application (<ks>cautiousExplorer</ks>) that send correct commands to robot so as to satisfy requirements</li>
-            </ul>
-        </li>
-        <li>
-            The robot can be moved by network in two different ways, like described in <a href="./VirtualRobot2021.html #commands">VirtualRobot2021.html</a> <ks>command</ks> section:
-            <ul>
-                <li>Sending messages to port <tt>8090</tt> with HTTP POST protocol</li>
-                <li>sending messages to port <tt>8091</tt> with websocket technology</li>
-            </ul>
-        </li>
-        <li>
-            As described in requisites, it's necessary to make a map (planimetry) of the environment in where the robot performs his exploration.
-        </li>
-        <li>
-            As there are a lot of library in a moltitude of programming languages that permit sending of these commands, it's not identified any significative <ks>abstraction-gap</ks> on operation plan.
-            <div class="remark">
-                However exist an <k>abstraction-gap on conceptual plan</k>: there are two possible technologies to communicate
-                with robot, and both require appropriate supports. Anyhow conceptually it's about setting up a 
-                <ks>request-response interaction schema</ks>. 
-            </div>
-        </li>
-        <li>
-            Estimate that a first application prototype, should be realized in three working day (at most).
-        </li>
-    </ol>
-
-
+    <h3>Logical Architecture</h3>
+        <table style="width:98%">
+            <tbody>	
+                <tr>
+                    <td style="width:60%">
+                        We nust design and build a <k>distributed system</k> with two software macro-components:
+                            <ol>
+                            <li>the <a href="VirtualRobot2021.html" target="web"><ks>VirtualRobot</ks></a>, given by the customer</li>
+                            <li>our <ks>cautiousExplorer</ks> application that interacts with the robot with a <i>request-response</i> pattern</li>
+                            </ol>
+                        A first scheme of the logical architecture  of the systems can be defined as shown in the figure
+                        (for the meaning of the symbols, see the <a href="./img/legenda.png" target="web">legenda</a>)
+                    
+                    </td>
+                    <td>  
+                        <center><img src="./img/logicArch0.png" alt="logicArch0" width="100%" ></center>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
     <h2>Test plans</h2> 
 
