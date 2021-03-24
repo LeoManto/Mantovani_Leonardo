@@ -408,10 +408,10 @@ cognome_nome_resumablebw.pdf
 
         <h3>Available resources</h3>
         <p>Since we already have a working code that could be usefully exploited to reduce devolopement time of our firt
-        prototype of this application. Those resources are:</p>
-    
+            prototype of this application. Those resources are:</p>
+
         <ul>
-            <li>Proactive behaviour is already analyzed and designed in a previous project <a
+            <li><em>Proactive</em> behaviour is already analyzed and designed in a previous project <a
                     href="../../it.unibo.virtualrobotclient/userDocs/VirtualrobotClients.html#asynchbwjava2"
                     target="code">
                     <tt>ClientBoundaryWebsockArilAsynch</tt></a>.</li>
@@ -432,6 +432,156 @@ cognome_nome_resumablebw.pdf
                 (in project <a href="../../it.unibo.virtualrobotclient/app/src/main/java/it/unibo/wenv"
                     target="code">it.unibo.virtualrobotclient</a>) </li>
         </ul>
+
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:50%">
+                        Following the
+                        <a href="https://stackify.com/solid-design-principles/" target="web">
+                            <k>Single Responsibility Principle</k>
+                        </a>,
+                        the application component is composed of: <br /><br />
+                        <ul>
+
+                            <li>the controller
+                                <a href="../app/src/main/java/it/unibo/wenv/RobotInputController.java"
+                                    target="code">RobotInputController</a>:
+                                it is a <a href="https://www.baeldung.com/java-pojo-class" target="web">
+                                    <ks>POJO</ks>
+                                </a>
+                                that implements the
+                                <a href="../app/src/main/java/it/unibo/interaction/IssObserver.java"
+                                    target="code"><tt>IssObserver</tt></a> interface
+                                and works as an <a href="https://en.wikipedia.org/wiki/Observer_pattern" target="web">
+                                    <k>Observer</k>
+                                </a> of the
+                                underlying ws-based communication support.
+                                <br />
+                                <m>
+                                    Thus, it is called by the underlying support, and handles the <tt>endmove</tt>
+                                    messages sent by the WEnv on the
+                                    wsconnection by executing the proper operation of the
+                                    <a href="../app/src/main/java/it/unibo/wenv/RobotBoundaryLogic.java"
+                                        target="code"><tt>RobotBoundaryLogic</tt></a>
+                                    that performs the boundary walk <em>without interruptions</em>.</m>
+                                <br /><br />
+                            </li>
+                            <li>the <a href="../app/src/main/java/it/unibo/wenv/RobotBoundaryLogic.java"
+                                    target="code"><tt>RobotBoundaryLogic</tt></a>,
+                                that provides the following operations:<br /><br />
+                                <ul>
+                                    <li><tt>doBoundaryInit</tt>: <m>called at the system start-up</m>
+                                    </li>
+                                    <li><tt>boundaryStep</tt>: <m>called when the controller handles a <tt>endmove</tt>
+                                            message</m>
+                                    </li>
+                                    <li><tt>doBoundaryGoon</tt>: <m>an internal operation that calls a single-step robot
+                                            move</m>
+                                    </li>
+                                </ul>
+                                <m>
+                                    These operations are called by the <a
+                                        href="../app/src/main/java/it/unibo/wenv/RobotInputController.java"
+                                        target="code">
+                                        RobotInputController</a> that handles the <tt>endmove</tt> messages sent by the
+                                    WEnv on the wsconnection
+                                    as answers to the execution of a robot-move done by the
+                                    <a href="../app/src/main/java/it/unibo/wenv/RobotBoundaryLogic.java"
+                                        target="code"><tt>RobotBoundaryLogic</tt></a>
+                                    itself.</m>
+                                <br /><br />
+                            </li>
+
+                            <li>The <a href="../app/src/main/java/it/unibo/wenv/RobotMovesInfo.java"
+                                    target="code"><tt>RobotMovesInfo</tt></a>
+                                that provides an utility to represent the robot journey as a string or as a map.
+                            </li>
+                        </ul>
+
+
+                    </td>
+                    <td>
+                        <center><img src="./img/RobotBoundaryArilZooming.png" alt="RobotBoundaryArilZooming"
+                                width="100%"></center>
+                        <br /><br />
+                        Moreover, our 'company' has already defined:<br /><br />
+
+                        <li>The <a href="../app/src/main/java/it/unibo/consolegui/Consolegui.java"
+                                target="code">Consolegui.java</a> class:
+                            it provides a GUI with the buttons <tt>STOP</tt> and <tt>RESUME</tt> and already accepts a
+                            controller that implements the
+                            <a href="../app/src/main/java/it/unibo/interaction/IssObserver.java"
+                                target="code"><tt>IssObserver</tt></a> interface
+
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Logical Architecture</h3>
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:50%">
+                        We do introduce the following terminology:<br /><br />
+                        <ul>
+                            <li>
+                                <bc>Dispatch</bc>: a message '<i>fire and forget</i>': the sender does not expect any
+                                answer.
+                            </li>
+                            <li>
+                                <bc>Request</bc>: the sender expects an answer sent using a <bc>Reply</bc>.
+                            </li>
+                            <li>
+                                <bc>Invitation</bc>: the sender expects an <tt>ack</tt>.
+                            </li>
+                            <li>
+                                <bc>Event</bc>: the sender '<i>emits information</i>' without specifying any receiver.
+                                <!--(<tt>RECEIVER=none</tt>)-->
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <center><img src="./img/issMsgSymbols.png" alt="issMsgSymbols" width="40%"></center>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:60%">
+                        We must design and build a <k>distributed system</k> with two software macro-components:
+                        <ol>
+                            <li>the <a href="VirtualRobot2021.html" target="web">
+                                    <ks>VirtualRobot</ks>
+                                </a>, given by the customer</li>
+                            <li>our <ks>cautiousExplorer</ks> application that interacts with the robot with a <i>HTTP
+                                    POST protocol</i> or <i>websocket technology</i>.</li>
+                            <ul>
+                                <li>
+                                    With HTTP POST protocol we have consequently a request-receive interaction, however
+                                    in our case we don't need to hadle the reply that robot send us.
+                                    Considering that application doesn't necessarily have to handle reply sended us, we
+                                    can build a system that use a <k>dispatch</k> pattern. In this way the execution
+                                    continue without blocking until the end.
+                                </li>
+                                <li>
+                                    Usind instead <i>websocket technology</i> it does not have this type of problem.
+                                </li>
+                            </ul>
+                        </ol>
+                        A first scheme of the logical architecture of the systems can be defined as shown in the figure
+                        (for the meaning of the symbols, see the <a href="./img/legenda.png" target="web">legenda</a>)
+
+                    </td>
+                    <td>
+                        <center><img src="./img/logicArch0.png" alt="logicArch0" width="100%"></center>
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+
         <h2>Test plans</h2>
 
 
