@@ -395,7 +395,7 @@ cognome_nome_resumablebw.pdf
         <ol>
             <li>System must provide both <em>proactive</em> (that is bondary walk) and <em>reactive</em> (the need to
                 react
-                to <k>STOP/RESUME</k> buttons pressure) behaviour</li>
+                to <k>STOP/RESUME</k> buttons pressure) behaviour.</li>
             <li>
                 <k>STOP</k> button provide to interrupt the robot journey after completion of last given command
             </li>
@@ -403,6 +403,9 @@ cognome_nome_resumablebw.pdf
                 <k>RESUME</k> button provide at the application start to begin journey around room boundary, instead
                 after
                 an interruption, it provide to restart the journey from point where it stopped
+            </li>
+            <li>
+                Buttons are implemented in a <ks>GUI</ks>, user have to interact with this component to effectively change behaviour of the robot.
             </li>
         </ol>
 
@@ -575,13 +578,14 @@ cognome_nome_resumablebw.pdf
             </tbody>
         </table>
 
-
+        
 
         <h2>Test plans</h2>
         <p>We should simulate a user command and check the effects of the user commnds STOP/RESUME.</p>
 
         <h2>Project</h2>
 
+        <p>Considering all resources that we already have, without create other classes, we can customize those resources in order to adapt them to this problem.</p>
 
 
         <h2>Testing</h2>
