@@ -2,15 +2,15 @@ package it.unibo.resumableBoundaryWalker.interaction;
 
 public class MsgRobotUtil {
     //movetimes (used by IssAnnotationUtil.fillMap)
-    public static final int wtime    = 400;
+    public static final int wtime    = 150;
     public static final int stime    = wtime;
     public static final int ltime    = 300;
     public static final int rtime    = ltime;
     public static final int htime    = 100;
 
     //cril
-    public static final String forwardMsg   = "{\"robotmove\":\"moveForward\", \"time\": 400}";
-    public static final String backwardMsg  = "{\"robotmove\":\"moveBackward\", \"time\": 400}";
+    public static final String forwardMsg   = "{\"robotmove\":\"moveForward\", \"time\": 150}";
+    public static final String backwardMsg  = "{\"robotmove\":\"moveBackward\", \"time\": 150}";
     public static final String turnLeftMsg  = "{\"robotmove\":\"turnLeft\", \"time\": 300}";
     public static final String turnRightMsg = "{\"robotmove\":\"turnRight\", \"time\": 300}";
     public static final String haltMsg      = "{\"robotmove\":\"alarm\", \"time\": 100}";
