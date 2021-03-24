@@ -406,6 +406,61 @@ cognome_nome_resumablebw.pdf
             </li>
         </ol>
 
+        <h3>Logical Architecture</h3>
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:50%">
+                        We do introduce the following terminology:<br /><br />
+                        <ul>
+                            <li>
+                                <bc>Dispatch</bc>: a message '<i>fire and forget</i>': the sender does not expect any
+                                answer.
+                            </li>
+                            <li>
+                                <bc>Request</bc>: the sender expects an answer sent using a <bc>Reply</bc>.
+                            </li>
+                            <li>
+                                <bc>Invitation</bc>: the sender expects an <tt>ack</tt>.
+                            </li>
+                            <li>
+                                <bc>Event</bc>: the sender '<i>emits information</i>' without specifying any receiver.
+                                <!--(<tt>RECEIVER=none</tt>)-->
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <center><img src="./img/issMsgSymbols.png" alt="issMsgSymbols" width="40%"></center>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:60%">
+                        We must design and build a <k>distributed system</k> with two software macro-components:
+                        <ol>
+                            <li>the <a href="VirtualRobot2021.html" target="web">
+                                    <ks>VirtualRobot</ks>
+                                </a>, given by the customer</li>
+                            <li>our <ks>resumableBoundaryWalker</ks> application that interacts with the robot with a
+                                <i>websocket technology</i>. We use this technology as we want that the communication
+                                between
+                                application and robot be continuous. This decision was made since the user can have a
+                                continuos interaction with application. Indeed he can interact with robot moves
+                                pressing <k>RESUME/STOP</k> commands</li>
+
+                        </ol>
+                        A first scheme of the logical architecture of the systems can be defined as shown in the figure
+                        (for the meaning of the symbols, see the <a href="./img/legenda.png" target="web">legenda</a>)
+
+                    </td>
+                    <td>
+                        <center><img src="./img/logicArch0.png" alt="logicArch0" width="100%"></center>
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+
         <h3>Available resources</h3>
         <p>Since we already have a working code that could be usefully exploited to reduce devolopement time of our firt
             prototype of this application. Those resources are:</p>
@@ -520,77 +575,45 @@ cognome_nome_resumablebw.pdf
             </tbody>
         </table>
 
-        <h3>Logical Architecture</h3>
-        <table style="width:98%">
-            <tbody>
-                <tr>
-                    <td style="width:50%">
-                        We do introduce the following terminology:<br /><br />
-                        <ul>
-                            <li>
-                                <bc>Dispatch</bc>: a message '<i>fire and forget</i>': the sender does not expect any
-                                answer.
-                            </li>
-                            <li>
-                                <bc>Request</bc>: the sender expects an answer sent using a <bc>Reply</bc>.
-                            </li>
-                            <li>
-                                <bc>Invitation</bc>: the sender expects an <tt>ack</tt>.
-                            </li>
-                            <li>
-                                <bc>Event</bc>: the sender '<i>emits information</i>' without specifying any receiver.
-                                <!--(<tt>RECEIVER=none</tt>)-->
-                            </li>
-                        </ul>
-                    </td>
-                    <td>
-                        <center><img src="./img/issMsgSymbols.png" alt="issMsgSymbols" width="40%"></center>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width:60%">
-                        We must design and build a <k>distributed system</k> with two software macro-components:
-                        <ol>
-                            <li>the <a href="VirtualRobot2021.html" target="web"><ks>VirtualRobot</ks></a>, given by the customer</li>
-                            <li>our <ks>resumableBoundaryWalker</ks> application that interacts with the robot with a <i>websocket technology</i>. We use this technology as we want that the communication between 
-                             application and robot be continuous. This decision was made since the user can have a continuos interaction with application. Indeed he can interact with robot moves 
-                            pressing <k>RESUME/STOP</k> commands</li>
-                            
-                        </ol>
-                        A first scheme of the logical architecture of the systems can be defined as shown in the figure
-                        (for the meaning of the symbols, see the <a href="./img/legenda.png" target="web">legenda</a>)
 
-                    </td>
-                    <td>
-                        <center><img src="./img/logicArch0.png" alt="logicArch0" width="100%"></center>
-                    </td>
-                </tr>
-
-
-            </tbody>
-        </table>
 
         <h2>Test plans</h2>
-
+        <p>We should simulate a user command and check the effects of the user commnds STOP/RESUME.</p>
 
         <h2>Project</h2>
 
+
+
+        <h2>Testing</h2>
+
+
+        <h2>Deployment</h2>
+        The deployment consists in the commit of the application on a project named <ks>iss2021_resumablebw</ks> of the
+        MY
+        GIT repository ( <a href="https://github.com/LeoManto/Mantovani_Leonardo">
+            <k>https://github.com/LeoManto/Mantovani_Leonardo</k>
+        </a> ).
+        <br /><br />
+        The final commit commit has done after <k>XXX</k> hours of work.
+
+        <h2>Maintenance</h2>
+
+        <br /><br />
+
+        <p>My git repo: <a href="https://github.com/LeoManto/Mantovani_Leonardo">
+                <k>https://github.com/LeoManto/Mantovani_Leonardo</k>
+        </p>
+        </a>
+        <div style="background-color:rgba(86, 56, 253, 0.9); color:white">
+            <p style="text-align: center;">By Leonardo Mantovani email: leonardo.mantovani2@studio.unibo.it</p>
+            <center><img src="./img/foto.jpg" alt="teacher" width="15%" height="15%"></center>
+        </div>
     </div>
+</body>
 
-    <h2>Testing</h2>
+</html>
 
-
-    <h2>Deployment</h2>
-    The deployment consists in the commit of the application on a project named <ks>iss2021_resumablebw</ks> of the MY
-    GIT repository ( <a href="https://github.com/LeoManto/Mantovani_Leonardo">
-        <k>https://github.com/LeoManto/Mantovani_Leonardo</k>
-    </a> ).
-    <br /><br />
-    The final commit commit has done after <k>XXX</k> hours of work.
-
-    <h2>Maintenance</h2>
-
-    <!-- USEFUL
+<!-- USEFUL
 <table style="width:100%" border="1">
 <tr>
 <td style="width:50%">
@@ -602,33 +625,20 @@ cognome_nome_resumablebw.pdf
 chiarisce cosa il committente intende con 'Optionally'  
 chiarisce cosa il committente intende con 'should remember' 
 chiarisce cosa il committente intende con 'mental map'
-definisce la user story in modo da comprendere TUTTI i requisiti (anche opzionali)
-discute se sia meglio avvalersi di HTTP o delle websocket e perchè
-discute se sia meglio usare il linguaggio di comando cril, aril (o altro) e perchè
+--definisce la user story in modo da comprendere TUTTI i requisiti (anche opzionali)
+--discute se sia meglio avvalersi di HTTP o delle websocket e perchè
+++discute se sia meglio usare il linguaggio di comando cril, aril (o altro) e perchè
 discute se sia meglio muovere il robot in modo random o in modo organizzato 
 discute se il ritorno alla den debba/possa avvenire senza ricalcare il percorso effettuato
 presenta ogni TestPlan collegandolo ad una user story e in modo 'concreto' (non come un insieme di intenti)
 propone diverse tipologie di scene/situazioni per il testing
-individua e propone (motivandola) una lista di priorità per il soddisfacimento dei requisiti 
-presenta una stima dei tempi di realizzazione 
-presenta un elenco delle risorse che sarebbe opportuno avere e/o procurarsi
-presenta una architettura di progetto
-presenta dettagli di progetto che permettono una precisa implementazione da parte di chi legge
-pone in evidenza le parti di funzionamento proattivo e quelle di funzionamento reattivo
+++individua e propone (motivandola) una lista di priorità per il soddisfacimento dei requisiti 
+--presenta una stima dei tempi di realizzazione 
+++presenta un elenco delle risorse che sarebbe opportuno avere e/o procurarsi
+++presenta una architettura di progetto
+--presenta dettagli di progetto che permettono una precisa implementazione da parte di chi legge
+--pone in evidenza le parti di funzionamento proattivo e quelle di funzionamento reattivo
 ECCEDE nelle dimensioni del file (al momento > 1600Kb)
 
 
 -->
-
-    <br /><br />
-    </div>
-    My git repo: <a href="https://github.com/LeoManto/Mantovani_Leonardo">
-        <k>https://github.com/LeoManto/Mantovani_Leonardo</k>
-    </a>
-    <div style="background-color:rgba(86, 56, 253, 0.9); color:white">
-        By studentName email: student@studio.unibo.it
-        <img src="./img/foto.jpg" alt="teacher" width="10%" height="10%">
-    </div>
-</body>
-
-</html>
