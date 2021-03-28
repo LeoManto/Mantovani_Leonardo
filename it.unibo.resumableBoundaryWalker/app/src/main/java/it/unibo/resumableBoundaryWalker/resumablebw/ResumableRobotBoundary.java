@@ -27,9 +27,6 @@ public class ResumableRobotBoundary {
         controller            = new RobotApplInputController(rsComm, true, true );
         rsComm.registerObserver( controller );
 
-        IssObserver obs = new AnotherObserver();
-        rsComm.registerObserver( obs );
-
         System.out.println("RobotBoundaryArilAsynch | CREATED with rsComm=" + rsComm);
         new ConsoleGui(  controller );
     }
