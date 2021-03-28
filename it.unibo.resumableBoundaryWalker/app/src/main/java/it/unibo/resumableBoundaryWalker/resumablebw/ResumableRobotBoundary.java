@@ -11,7 +11,6 @@ that is 'message-driven'
 package it.unibo.resumableBoundaryWalker.resumablebw;
 import it.unibo.resumableBoundaryWalker.annotations.ArilRobotSpec;
 import it.unibo.resumableBoundaryWalker.consolegui.ConsoleGui;
-import it.unibo.resumableBoundaryWalker.interaction.IssObserver;
 import it.unibo.resumableBoundaryWalker.interaction.IssOperations;
 import it.unibo.resumableBoundaryWalker.supports.IssCommSupport;
 import it.unibo.resumableBoundaryWalker.supports.RobotApplicationStarter;
@@ -27,16 +26,16 @@ public class ResumableRobotBoundary {
         controller            = new RobotApplInputController(rsComm, true, true );
         rsComm.registerObserver( controller );
 
-        System.out.println("RobotBoundaryArilAsynch | CREATED with rsComm=" + rsComm);
+        System.out.println("ResumableRobotBoundary | CREATED with rsComm=" + rsComm);
         new ConsoleGui(  controller );
     }
 
 
     public static void main(String args[]){
         try {
-            System.out.println("RobotBoundaryArilAsynch | main start n_Threads=" + Thread.activeCount());
+            System.out.println("ResumableRobotBoundary | main start n_Threads=" + Thread.activeCount());
             Object appl = RobotApplicationStarter.createInstance(ResumableRobotBoundary.class);
-            System.out.println("RobotBoundaryArilAsynch  | appl n_Threads=" + Thread.activeCount());
+            System.out.println("ResumableRobotBoundary  | appl n_Threads=" + Thread.activeCount());
         } catch ( Exception e) {
             e.printStackTrace();
         }

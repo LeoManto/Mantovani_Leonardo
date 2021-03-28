@@ -11,10 +11,10 @@ import it.unibo.resumableBoundaryWalker.supports.IssCommSupport;
 import org.json.JSONObject;
 
 public class RobotApplInputController implements IssObserver {
-private ResumableBoundaryLogic robotBehaviorLogic  ;
-private IssCommSupport commSupport;
+    private ResumableBoundaryLogic robotBehaviorLogic  ;
+    private IssCommSupport commSupport;
 
-private boolean robotHalted  = true;
+    private boolean robotHalted  = true;
 
     public RobotApplInputController(IssCommSupport support, boolean usearil, boolean doMap){
         commSupport        = support;

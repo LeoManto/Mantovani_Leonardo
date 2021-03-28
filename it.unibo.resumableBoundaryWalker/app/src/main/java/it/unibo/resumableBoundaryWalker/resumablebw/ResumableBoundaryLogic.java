@@ -11,12 +11,12 @@ import it.unibo.resumableBoundaryWalker.supports.IssCommSupport;
 
 
 public class ResumableBoundaryLogic {
-private IssCommSupport rs ;
-private int stepNum              = 1;
-private boolean boundaryWalkDone = false ;
-private boolean usearil          = false;
-private int moveInterval         = 1000;
-private RobotMovesInfo robotInfo;
+    private IssCommSupport rs ;
+    private int stepNum              = 1;
+    private boolean boundaryWalkDone = false ;
+    private boolean usearil          = false;
+    private int moveInterval         = 1000;
+    private RobotMovesInfo robotInfo;
 
     public ResumableBoundaryLogic(IssCommSupport support, boolean usearil, boolean doMap){
         rs           = support;
