@@ -405,7 +405,8 @@ cognome_nome_resumablebw.pdf
                 an interruption, it provide to restart the journey from point where it stopped
             </li>
             <li>
-                Buttons are implemented in a <ks>GUI</ks>, user have to interact with this component to effectively change behaviour of the robot.
+                Buttons are implemented in a <ks>GUI</ks>, user have to interact with this component to effectively
+                change behaviour of the robot.
             </li>
         </ol>
 
@@ -578,15 +579,49 @@ cognome_nome_resumablebw.pdf
             </tbody>
         </table>
 
-        
+
 
         <h2>Test plans</h2>
         <p>We should simulate a user command and check the effects of the user commnds STOP/RESUME.</p>
 
         <h2>Project</h2>
 
-        <p>Considering all resources that we already have, without create other classes, we can customize those resources in order to adapt them to this problem.</p>
+        <p>Considering all resources that we already have, without create other classes, we can customize those
+            resources in order to adapt them to this problem.</p>
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:40%">
+                        <ol>
+                            <li><a href="../app/src/main/java/it/unibo/consolegui/Consolegui.java" target="code">Consolegui.java</a>
+                                connected to the <a href="../..//app/src/main/java/it/unibo/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a>.
+                                This class implements <ks>Observer</ks> class in order to catch every interaction with button on the GUI.
+                                <br /><br />
+                            </li>
 
+                            <li> <a href="../app/src/main/java/it/unibo/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a> an object that handles the JSON messages
+                                <pre><m>{"robotcmd":"STOP"}    {"robotcmd":"RESUME"}  </m></pre> and calls
+                                <a href="../app/src/main/java/it/unibo/resumablebw/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a>.<br />
+                                <br /><br /> </li>
+
+                            <li><a href="../app/src/main/java/it/unibo/resumablebw/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a>
+                                that consider the fact that the journey could have been stopped.
+                                <p>The difference between other locig class is that here we must handle the case in which the robot moves is halted. To do this the function <ks>buondary step</ks>
+                                make a controll on a new variable <k>jouneyHalted</k> that change according to user actions on GUI</p>
+                                <br /><br /></li>
+
+
+                        </ol>
+
+
+                    </td>
+                    <td>
+                        <center><img src="./img/ResumableRobotBoundary.png" alt="ResumableRobotBoundary" width="100%">
+                        </center>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
         <h2>Testing</h2>
 
