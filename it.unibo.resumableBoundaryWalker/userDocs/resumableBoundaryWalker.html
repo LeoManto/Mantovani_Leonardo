@@ -504,13 +504,13 @@ cognome_nome_resumablebw.pdf
                         <ul>
 
                             <li>the controller
-                                <a href="../app/src/main/java/it/unibo/wenv/RobotInputController.java"
+                                <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/wenv/RobotInputController.java"
                                     target="code">RobotInputController</a>:
                                 it is a <a href="https://www.baeldung.com/java-pojo-class" target="web">
                                     <ks>POJO</ks>
                                 </a>
                                 that implements the
-                                <a href="../app/src/main/java/it/unibo/interaction/IssObserver.java"
+                                <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/interaction/IssObserver.java"
                                     target="code"><tt>IssObserver</tt></a> interface
                                 and works as an <a href="https://en.wikipedia.org/wiki/Observer_pattern" target="web">
                                     <k>Observer</k>
@@ -521,12 +521,12 @@ cognome_nome_resumablebw.pdf
                                     Thus, it is called by the underlying support, and handles the <tt>endmove</tt>
                                     messages sent by the WEnv on the
                                     wsconnection by executing the proper operation of the
-                                    <a href="../app/src/main/java/it/unibo/wenv/RobotBoundaryLogic.java"
+                                    <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/wenv/RobotBoundaryLogic.java"
                                         target="code"><tt>RobotBoundaryLogic</tt></a>
                                     that performs the boundary walk <em>without interruptions</em>.</m>
                                 <br /><br />
                             </li>
-                            <li>the <a href="../app/src/main/java/it/unibo/wenv/RobotBoundaryLogic.java"
+                            <li>the <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/wenv/RobotBoundaryLogic.java"
                                     target="code"><tt>RobotBoundaryLogic</tt></a>,
                                 that provides the following operations:<br /><br />
                                 <ul>
@@ -541,18 +541,18 @@ cognome_nome_resumablebw.pdf
                                 </ul>
                                 <m>
                                     These operations are called by the <a
-                                        href="../app/src/main/java/it/unibo/wenv/RobotInputController.java"
+                                        href="../app/src/main/java/it/unibo/resumableBoundaryWalker/wenv/RobotInputController.java"
                                         target="code">
                                         RobotInputController</a> that handles the <tt>endmove</tt> messages sent by the
                                     WEnv on the wsconnection
                                     as answers to the execution of a robot-move done by the
-                                    <a href="../app/src/main/java/it/unibo/wenv/RobotBoundaryLogic.java"
+                                    <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/wenv/RobotBoundaryLogic.java"
                                         target="code"><tt>RobotBoundaryLogic</tt></a>
                                     itself.</m>
                                 <br /><br />
                             </li>
 
-                            <li>The <a href="../app/src/main/java/it/unibo/wenv/RobotMovesInfo.java"
+                            <li>The <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/wenv/RobotMovesInfo.java"
                                     target="code"><tt>RobotMovesInfo</tt></a>
                                 that provides an utility to represent the robot journey as a string or as a map.
                             </li>
@@ -566,11 +566,11 @@ cognome_nome_resumablebw.pdf
                         <br /><br />
                         Moreover, our 'company' has already defined:<br /><br />
 
-                        <li>The <a href="../app/src/main/java/it/unibo/consolegui/Consolegui.java"
+                        <li>The <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/consolegui/Consolegui.java"
                                 target="code">Consolegui.java</a> class:
                             it provides a GUI with the buttons <tt>STOP</tt> and <tt>RESUME</tt> and already accepts a
                             controller that implements the
-                            <a href="../app/src/main/java/it/unibo/interaction/IssObserver.java"
+                            <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/interaction/IssObserver.java"
                                 target="code"><tt>IssObserver</tt></a> interface
 
 
@@ -593,18 +593,18 @@ cognome_nome_resumablebw.pdf
                 <tr>
                     <td style="width:40%">
                         <ol>
-                            <li><a href="../app/src/main/java/it/unibo/consolegui/Consolegui.java" target="code">Consolegui.java</a>
-                                connected to the <a href="../..//app/src/main/java/it/unibo/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a>.
+                            <li><a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/consolegui/Consolegui.java" target="code">Consolegui.java</a>
+                                connected to the <a href="../..//app/src/main/java/it/unibo/resumableBoundaryWalker/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a>.
                                 This class implements <ks>Observer</ks> class in order to catch every interaction with button on the GUI.
                                 <br /><br />
                             </li>
 
-                            <li> <a href="../app/src/main/java/it/unibo/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a> an object that handles the JSON messages
+                            <li> <a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a> an object that handles the JSON messages
                                 <pre><m>{"robotcmd":"STOP"}    {"robotcmd":"RESUME"}  </m></pre> and calls
-                                <a href="../app/src/main/java/it/unibo/resumablebw/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a>.<br />
+                                <a href="../app/src/main/java/it/unibo/resumablebw/resumableBoundaryWalker/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a>.<br />
                                 <br /><br /> </li>
 
-                            <li><a href="../app/src/main/java/it/unibo/resumablebw/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a>
+                            <li><a href="../app/src/main/java/it/unibo/resumableBoundaryWalker/resumablebw/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a>
                                 that consider the fact that the journey could have been stopped.
                                 <p>The difference between other locig class is that here we must handle the case in which the robot moves is halted. To do this the function <ks>buondary step</ks>
                                 make a controll on a new variable <k>jouneyHalted</k> that change according to user actions on GUI</p>
@@ -622,6 +622,46 @@ cognome_nome_resumablebw.pdf
                 </tr>
             </tbody>
         </table>
+
+        <!-- <h3><a href="../app/src/main/java/it/unibo/consolegui/Consolegui.java" target="code">Consolegui.java</a></h3>
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:40%">
+                        <ol>   
+                        </ol>
+                    </td>
+                    <td> 
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h3><a href="../..//app/src/main/java/it/unibo/resumablebw/RobotApplInputController.java" target="code">RobotApplInputController.java</a></h3>
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:40%">
+                        <ol>   
+                        </ol>
+                    </td>
+                    <td> 
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h3><a href="../app/src/main/java/it/unibo/resumablebw/ResumableBoundaryLogic.java" target="code">ResumableBoundaryLogic.java</a></h3>
+        <table style="width:98%">
+            <tbody>
+                <tr>
+                    <td style="width:40%">
+                        <ol>   
+                        </ol>
+                    </td>
+                    <td> 
+                    </td>
+                </tr>
+            </tbody>
+        </table> -->
 
         <h2>Testing</h2>
 
