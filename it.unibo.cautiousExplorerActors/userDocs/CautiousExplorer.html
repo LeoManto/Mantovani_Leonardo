@@ -1,0 +1,709 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0092)https://virtuale.unibo.it/pluginfile.php/784809/mod_resource/content/1/cautiousExplorer.html -->
+<html>
+    <script>
+        (function() {
+            // If GPC on, set DOM property to true if not already true
+            if (true) {
+                if (navigator.globalPrivacyControl) return
+                Object.defineProperty(navigator, 'globalPrivacyControl', {
+                    value: true,
+                    enumerable: true
+                })
+            } else {
+                // If GPC off, set DOM property prototype to false so it may be overwritten
+                // with a true value by user agent or other extensions
+                if (typeof navigator.globalPrivacyControl !== "undefined") return
+                Object.defineProperty(Object.getPrototypeOf(navigator), 'globalPrivacyControl', {
+                    value: false,
+                    enumerable: true
+                })
+            }
+            // Remove script tag after execution
+            document.currentScript.parentElement.removeChild(document.currentScript)
+        })()
+    </script><!--
+<link rel="stylesheet" type="text/css" href="../css/issStyle1.css">
+<script type="text/javascript" src="../css/issStyle.js"></script>
+-->
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type="text/css">
+            body
+            {
+                margin-left:  30px;
+                margin-right: 30px;
+            };
+
+            P
+            {
+                font-family: Tahoma;
+                font-size: 10pt;
+            };
+
+            a, a:visited, a:active, a:link, a:hover {
+                text-decoration: underline;
+                color: #545454;
+                background-color: transparent;
+                font-size: 93%;
+            }
+
+            a:hover {
+                background-color: #cccccc;
+            }
+
+
+            hr {
+                clear: both;
+                height: 1px;
+                color: #242424;
+                background-color: transparent;
+            }
+
+            h1, h2, h3 {
+                color: #242424;
+                clear: left;
+                font: 100% Tahoma, Helvetica, Arial, sans-serif;
+                margin-bottom: 0.5em;
+                padding-top: 0.5em;
+                border-radius: 10px;
+                padding: 5px;
+            }
+
+            top {
+                width: 100%;
+            }
+
+
+            #i {
+                color: #ff1010;
+            }
+            tt{
+                font-family: "Arial";
+                font-size: 90%;
+                color: #006600;
+            }
+            em{
+                font-family: "Arial";
+                font-size: 80%;
+                font-weight: bold;
+                border-style:solid;
+                border-color: #abe876;
+                color: #1632cc;
+            }
+            bc{
+                font-family: "Arial";
+                font-size: 90%;
+                font-weight: bold;
+                color: #990000;
+                background-color: #fcf8c7;
+            }
+            ks{
+                font-family: "Arial";
+                font-weight: bold;
+                color: #0000CD	;
+                font-size: 90%;
+            }
+            kc{
+                font-family: "Arial";
+                font-weight: bold;
+                color: #008000	;
+                font-size: 90%;
+            }
+            pre{
+                font-family: "Consolas";
+                font-size: 85%;
+                background-color: #f5f5f5;
+                border: 1.5px solid silver;
+                padding: 5px;
+            }
+            m{
+                font-family: "Helvetica";
+                line-height: 100%;
+                font-size: 75%;
+            }
+            div.body{
+                
+                font-size: 18px;
+            }
+            k{
+                color: #990000;
+                font-weight: bold;
+                font-size: 90%;
+            }
+            h1 {
+                font-size: 150%;
+                background-color: #b2c0ff;
+                padding: 10px;
+            }
+
+            h2 {
+                background-color: #9ed8ff;
+                font-size: 130%;
+            }
+
+            h3 {
+                background-color: #e6ccff;
+                font-size: 100%;
+            }
+            h4 {
+                background-color: #ccffcc;
+                font-size: 100%;
+                width: 95%;
+                border-radius: 5px;
+                padding: 2px;
+            }
+            h5 {
+                background-color: #d5ffb0;
+                font-size: 100%;
+
+            }
+            div.req{
+                background-color: #d9ffb3;
+                font-size: 18px;
+                width: 700px;
+                border: 3px solid green;
+                padding: 15px;
+                margin: 10px;
+            }
+            div.remark{
+                background-color: #E3F2FD;
+                border: 1.5px solid #d5f2ed;
+                padding: 15px;
+                margin: 10px;
+                border-radius: 25px;
+            }
+            table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            }
+
+            ol, ul, li {
+            margin: 0;
+            margin-left: 10px;
+            padding: 0;
+            padding-bottom: 5px;
+            }
+
+            table, th, td {
+                border: 1px solid black;
+            }
+
+            img {
+                border: 1.5px solid #d5f2ed
+
+            }
+
+            a, a:visited, a:active, a:link, a:hover {
+                text-decoration: underline;
+                color: #545454;
+                background-color: transparent;
+            }
+
+            div.wrapdesc{
+                width: 90%;
+                margin: auto;
+            }
+
+            div.imagedesc{
+                width: 85%;
+                margin: auto;
+            }
+        </style>
+        
+
+    
+        <title>CautiousExplorer</title>
+        <script data-dapp-detection="">
+            !function(){
+                let e=!1;
+                function n(){
+                    if(!e){
+                        const n=document.createElement("meta");n.name="dapp-detected",document.head.appendChild(n),e=!0
+                    }
+                }
+                if(window.hasOwnProperty("ethereum")){
+                    if(window.__disableDappDetectionInsertion=!0,void 0===window.ethereum)
+                    return;
+                    n()
+                }else{
+                    var t=window.ethereum;
+                    Object.defineProperty(window,"ethereum",{configurable:!0,enumerable:!1,set:function(e){window.__disableDappDetectionInsertion||n(),t=e},get:function(){if(!window.__disableDappDetectionInsertion){const e=arguments.callee;e&&e.caller&&e.caller.toString&&-1!==e.caller.toString().indexOf("getOwnPropertyNames")||n()}return t}})
+                }
+            }();
+        </script>
+    </head>
+        
+    <body>
+        <div id="top">
+            <h1>Lab ISS | the project cautiousExplorer<font size="5"></font> </h1>
+        </div>  
+
+        <div class="body"> 
+            <h2>Introduction</h2>
+            This case-study starts to deal with the design and development of proactive/reactive software systems that use aynchronous exchange of information.
+            
+            <h2>Requirements</h2>
+
+            
+            <div class="remark">
+                Design and build a software system that allow the robot described in 
+                <a href="https://htmlpreview.github.io/?https://github.com/anatali/issLab2021/blob/master/it.unibo.virtualRobot2020/userDocs/VirtualRobot2021.html" target="lab"><em>VirtualRobot2021.html</em></a>
+                to exibit the following behaviour:
+                <ul>
+                <li>the robot lives in a closed environment, delimited by walls that includes one or more devices (e.g. sonar) able to detect its presence;</li>
+                <li>the robot has a <ks>den</ks> for refuge, located near a wall;</li>
+                <li>the robot works as an <i>explorer of the environment</i>. Starting from its <ks>den</ks>,  the robot moves
+                (either randomly or - preferably - in a more organized way) with the aim to find the fixed obstacles around the <ks>den</ks>. 
+                The presence of mobile obstacles is (at the moment) excluded;</li>
+                <li>since the robot is <i>'cautious'</i>,  it  returns immediately to the <ks>den</ks> as soon as it finds an obstacle.
+                Optionally, it should also return to the <ks>den</ks> when a sonar detects its presence;
+                </li>
+                <li>the robot should remember the position of the obstacles found, by creating a sort of 'mental map' of the environment.</li>
+                </ul>
+            </div>
+
+            <h3>Delivery</h3>
+            The customer requires to receive the completion of the analysis (of the requirments and of the problem)  by <k>Friday 12 March</k>. 
+            Hopefully, he/she expects to receive also (in the same document) some detail about the project.<br>
+            The name of the file (in pdf) should be:
+            <pre>cognome_nome_ce.pdf
+            </pre>
+
+            <h2>Requirement analysis</h2>
+            <p>After interviewing client, menanig he associates whith nouns have been clarified:</p> 
+            <ul>
+                <li><ks>closed environment</ks>: similar to a room delimited by walls, the robot can't go out from this room.</li>
+                <li><ks>den</ks>: a place where the robot is initially positioned. Is not a fixed place, but can be changed by user discretion.</li>
+                <li><ks>obstacles</ks>: any object that cause a collision with if robot hits it. Their position are fixed since start of the work.</li>
+                <li><ks>cautious explorer</ks>: robot's behaviour is like a cautious explorer, if he hit any kind of obstacle, he come back to initial position that is <ks>den</ks>.</li>
+                <li><ks>mental map</ks>: the robot needs to remember all space that he have already explored and obstacles he find in his exploration.</li>
+                <li><k>(Optional)</k> <ks>sonar</ks>: is a system that acts on entire line where he is positioned and facing. In case the robot enter in sonar zone, he detect it and come back to den.</li>
+            </ul>
+            <p>Regarding to actions (verbs):</p>
+            <ul>
+                <li><ks>moves</ks>: robot can moves aroud the closed environment using all four principal dirctions.</li>
+                <li><ks>find an obstacle</ks>: when the robot collides with an obstacle.</li>
+            </ul>
+
+            <h3>A first <a href="https://en.wikipedia.org/wiki/User_story" target="web">user story</a></h3>
+            <table style="width:98%">
+                <tbody>
+                    <tr>
+                        <td style="width:60%">
+
+                            At the start of the work, den can be positioned near one of walls. Once work is started robot can moves in any position he want.
+                            All moves he performs are remembered so that is created a <ks>'mental map'</ks> of the environment in where he is. When, after a move, robot hit one of obstacles
+                            in environment, he registers its position in his environment 'mental map' and he comes back to the den.    
+                            <p>User can't stop activity execution: system terminate independently after the completion of activity.</p>
+                            <p>Application can be runned more time to build environment map. It is not necessary to complete map in one run.</p>
+                            
+                            <p>In images is reported only an example of a possible path that robot can performs in one of his 'cautious' exploration.</p>
+                        </td>
+                        <td>
+                            <center><img src="./img/TestPlan0.png" alt="TestPlan0" width="100%"></center>
+                        </td>
+                        <td> 
+                            <center><img src="./img/TestPlan1.png" alt="TestPlan1" width="100%"></center>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Verification of expected results (Test plans)</h4>
+
+            <table style="width:98%">
+                <tbody>
+                    <tr>
+                        <td style="width:50%">
+                            It is necessary to verify that expected behavior for robot is respected, and at the end of execution positions of obstacles have been found.
+                        </td>
+                        <td>
+                            <div class="remark">
+                                Verification of correctness of robot's behavior and final environment map, it must be carried out by software, without an
+                                human user's interaction
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Problem analysis</h2>
+
+
+
+            <h3>Aspects noted</h3>
+            <p>
+                <ol>
+                    <li>
+                        It's about realizing a <k>distributed system</k> composed by two macro-component:
+                        <ul>
+                            <li>robot (virtual) provided by committent</li>
+                            <li>Our application (<ks>cautiousExplorer</ks>) that send correct commands to robot so as to satisfy requirements</li>
+                        </ul>
+                    </li>
+                    <li>
+                        The robot can be moved by network in two different ways, like described in <a href="./VirtualRobot2021.html #commands">VirtualRobot2021.html</a> <ks>command</ks> section:
+                        <ul>
+                            <li>Sending messages to port <tt>8090</tt> with HTTP POST protocol</li>
+                            <li>sending messages to port <tt>8091</tt> with websocket technology</li>
+                        </ul>
+                    </li>
+                    <li>
+                        As described in requisites, it is strongly recommended to make a map (planimetry) of the environment in where the robot performs his exploration.
+                    </li>
+                    <li>
+                        <k>Optionally</k> we have to hadle the reactive component of the robot in case we want to implement sonar in our application.
+                    </li>
+                    <li>
+                        As there are a lot of library in a moltitude of programming languages that permit sending of these commands, it's not identified any significative <ks>abstraction-gap</ks> on operation plan.
+                        <div class="remark">
+                            However, the problem does introduce an <k>abstraction gap at the conceptual level</k>,
+                            since <kc>the required logical interaction</kc> is always a <em>request-response</em>, <b>regardless of the technology</b> used to implement
+                            the interaction with the robot.
+                        </div>
+                    </li>
+                    <li>
+                        Estimate that a first application prototype, should be realized by Friday 12 March 2021 (at most).
+                    </li>
+                </ol>
+            </p>
+            
+
+            <h3>Logical Architecture</h3>
+                <table style="width:98%">
+                    <tbody>	
+                        <tr>
+                            <td style="width:50%">
+                                We do introduce the following terminology:<br/><br/>
+                                <ul>
+                                    <li><bc>Dispatch</bc>: a message '<i>fire and forget</i>': the sender does not expect any answer.</li>
+                                    <li><bc>Request</bc>: the sender expects an answer sent using a <bc>Reply</bc>.</li>
+                                    <li><bc>Invitation</bc>: the sender expects an <tt>ack</tt>.</li>
+                                    <li><bc>Event</bc>: the sender '<i>emits information</i>' without specifying any receiver. <!--(<tt>RECEIVER=none</tt>)--> </li>
+                                </ul>
+                            </td>
+                            <td>
+                            <center><img src="./img/issMsgSymbols.png" alt="issMsgSymbols" width="40%" ></center>      
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:60%">
+                                We must design and build a <k>distributed system</k> with two software macro-components:
+                                    <ol>
+                                        <li>the <a href="VirtualRobot2021.html" target="web"><ks>VirtualRobot</ks></a>, given by the customer</li>
+                                        <li>our <ks>cautiousExplorer</ks> application that interacts with the robot with a <i>HTTP POST protocol</i> or <i>websocket technology</i>.</li>
+                                        <ul>
+                                            <li>
+                                                With HTTP POST protocol we have consequently a request-receive interaction, however in our case we don't need to hadle the reply that robot send us.
+                                                Considering that application doesn't necessarily have to handle reply sended us, we can build a system that use a <k>dispatch</k> pattern. In this way the execution
+                                                continue without blocking until the end.
+                                            </li>
+                                            <li>
+                                                Usind instead <i>websocket technology</i> it does not have this type of problem.
+                                            </li>
+                                        </ul>
+                                    </ol>
+                                A first scheme of the logical architecture  of the systems can be defined as shown in the figure
+                                (for the meaning of the symbols, see the <a href="./img/legenda.png" target="web">legenda</a>)
+                            
+                            </td>
+                            <td>  
+                                <center><img src="./img/logicArch0.png" alt="logicArch0" width="100%" ></center>
+                            </td>
+                        </tr>
+                        
+                        
+                    </tbody>
+                </table>
+
+                <p>There are many point on with we can do some observation:</p>
+                <ul>
+                    <li>
+                        To make our <em>cautiousExplorer</em> software <k>as much as possible indipendent</k> from the underlying communication protocols, the 
+                        designer could make reference to proper <a href="https://it.wikipedia.org/wiki/Design_pattern" target="web"><em>design pattern</em></a>,
+                        e.g.
+                        <a href="https://it.wikipedia.org/wiki/Adapter_pattern" target="web"><ks>Adapter</ks></a>, 
+                        <a href="https://it.wikipedia.org/wiki/Bridge_pattern" target="web"><ks>Bridge</ks></a>,
+                        <a href="https://it.wikipedia.org/wiki/Fa%C3%A7ade_pattern" target="web"><ks>Facade</ks></a>.
+                    </li>
+                    <li>
+                        We can say that our software is an application and <g>not a database or a function or an object</g>. In any case exact 'nature' of this software is left to designer.
+                    </li>
+                    <li>
+                        It's easy to describe what the robot has to do to meet requirements
+<pre>
+Let us define <kc>emum direction {UP,DOWN,LEFT,RIGHT}. Those are moves that robot can do.</kc>.
+The robot start in the DEN position, that it could be different every time user run application.
+    1) send to the robot request to start exploration of room and continue to do it, until he collide with a wall or an obstacle. Path that he perform until collision,
+     could be totally random or somehow handled.
+    2) After collision robot re-do in reverse same moves that he have performed previously, so that he return immediately to the den.
+    3) On every run of application robot 'remember' moves he do until a collision, so that he build a 'mental-map' of the environment.
+</pre>
+                    </li>
+                </ul>
+
+            <h2>Test plans</h2> 
+                To check that application fulfills requirements, it's necessary to keep track of the moves done by the robot until a 
+                collision and verify that robot follow same path to return to the den.
+                <p>Two different ways to check the correctness have been devised:</p>
+                <ol>
+                    <li>
+                        <p><k>TESTPLAN-IPOTESIS 1</k></p>
+                        Application at the start generate moves that robot has to follow during his exploration.
+                        Generation of these moves can be totally random or create following some criteria (maybe checking the 'mental map').
+                        At this point the application record those moves in a string during robot exploration. After a collision he has to return to den following
+                        same moves but in reverse. To check the correctness, these moves are recorder in another string. 
+                        At the end, these two strings are compared, and if they are exactly opposite, test is successfully passed. 
+                    </li>
+                    <li>
+                        <p><k>TESTPLAN-IPOTESIS 2</k>: setting time for w,s moves, in order to obtain robot-unit movements, build incrementally a map of room after every move.
+                        In this way we could know position of robot after every command, and then, at the end of execution we could verify the path taken; 
+                        for example (<kc>1</kc> represent 'cells' taken by robot, <kc>X</kc> represent a collision 'cell')</p>
+<pre>
+    |D, 0, 0, 0, 0, 
+    |1, 0, 0, 0, 0, 
+    |1, 0, 1, X, 0, 
+    |1, 0, 1, 0, 0, 
+    |1, 1, 1, 0, 0, 
+</pre>
+                      After a collision robot has to follow same path and return to den increasing by one cells on which it passes. 
+                      At the end his position has to be the den and value of all trampled cells must be <kc>2</kc>. 
+<pre>
+    |D, 0, 0, 0, 0, 
+    |2, 0, 0, 0, 0, 
+    |2, 0, 2, X, 0, 
+    |2, 0, 2, 0, 0, 
+    |2, 2, 2, 0, 0, 
+</pre>
+                    </li>
+                </ol>
+
+                <h1 id="project">Project</h1>
+            <table style="width:98%">
+                <tbody>	
+                    <tr>
+                        <td style="width:50%">
+                        <h3>Nature of the application component</h3>
+                        The <em>cautiousExplorer</em> application is a <k>conventional Java program</k>, represented in the figure as an object with an internal thread.
+                        <br/>
+                        </td>
+                        <td>  
+                        <center><img src="./img/projectArch0.png" alt="projectArch0" width="60%" ></center>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:50%">
+                            <h3>A layered architecture: the basic communication layer</h3>
+                            <div class="remark">
+                            To make the 'business code' as much independent as possibile from the technological details of the interaction with the virtual robot 
+                            (and with any other type of robot in the future), let us structure the code according to a conventional <em>layered architecture</em>,
+                            which is the simplest form of software architectural pattern, where the components are organized in <i>horizontal layers</i>.
+                            </div>
+                            
+                            For each protocol we will introduce a proper support that implements the interface<br/>
+                            <a href="../app/src/main/java/it/unibo/interaction/IssOperations.java" target="web"><em>IssOperations.java</em></a> 
+<pre>
+    public interface IssOperations {
+        void forward( String msg ) ;
+        void request( String msg );
+        void reply( String msg );
+        String requestSynch( String msg );
+    }
+</pre>
+                            These operations are introduced with reference to message-passing rather than to procedure-call.
+                            Thus, <em>forward</em> means just 'fire and forget', while
+                            <em>request</em> assumes that the called entity will execute a <em>reply</em> related to that request.
+                            <br/><br/>
+                            <em>requestSynch</em> is introduced to facilitate the transition from procedure-call tomessage-passing.
+                        </td>
+                        <td>  
+                            <h3>The communication layers</h3>
+                            <center><img src="./img/issCommsLayers.png" alt="issCommsLayers" width="90%" ></center>
+                            <br/>
+                            The implementation of the <a href="../app/src/main/java/it/unibo/robotSupports/IssHttpSupport.java" target="web"><em>IssHttpSupport.java</em></a>
+                            is quite conventional, since the work is mainly done by the library <ks>org.apache.http</ks>.
+                            <br/><br/>
+                            The implementation of the <a href="../app/src/main/java/it/unibo/robotSupports/IssWsSupport.java" target="web"><em>IssWsSupport.java</em></a>
+                            is based on the library <ks>javax.websocket</ks> and requires a new 'style of programming' (that we will discuss later).
+                        </td>
+                    </tr>
+                    
+                    
+                    <tr>
+                        <td style="width:50%">
+                        <h3>IssCommsSupportFactory</h3>
+                        The <a href="../app/src/main/java/it/unibo/robotSupports/IssCommsSupportFactory.java" target="web"><em>IssCommsSupportFactory.java</em></a> provides a 
+                        <a href="https://en.wikipedia.org/wiki/Factory_method_pattern" target="web">factory method</a>
+                        to <ks>create</ks> the proper communicartion support by using a <k>user-defined Java annotation</k> related to the object given in input.
+                        
+                        <center><img src="./img/IssCommsFactory.png" alt="IssCommsFactory" width="90%" ></center>
+                        
+                        </td>
+                        <td>
+                            <h4>Using <a href="aboutAnnotations.html" target="code">Java annotations</a></h4>
+                            The class
+                            <a href="../app/src/main/java/it/unibo/annotations/IssAnnotationUtil.java" target="web"><em>IssAnnotationUtil.java</em></a>
+                            provides utility methods to access the information specified in an annotation.
+                        
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+                    
+            <h2 id="annots">Configuration based on Java annotations (see 
+            <a href="aboutAnnotations.html" target="code">Lab ISS | About annotations</a>) <!--
+            <a href="https://docs.oracle.com/javase/tutorial/java/annotations/index.html" target="code">Java annotations</a>--></h2>
+                    
+                    
+            <table style="width:98%">
+                <tbody>	
+                    <tr>
+                        <td style="width:50%">                        
+                            Our user-defined annotation
+                            <a href="../app/src/main/java/it/unibo/annotations/IssProtocolSpec.java" target="web"><em>IssProtocolSpec.java</em></a>
+                            allows us to configure the protocol by simply prefixing an application class with the annotation <ks>@IssProtocolSpec</ks>.
+<pre>
+<k>@Target( value = {ElementType.CONSTRUCTOR,ElementType.METHOD, ElementType.TYPE} )
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited</k>
+public <k>@interface</k> <ks>IssProtocolSpec</ks> {
+    enum issProtocol {UDP,TCP,HTTP,MQTT,COAP,WS} ;
+    issProtocol protocol() default issProtocol.TCP;
+    String url() default "unknown";
+    String configFile() default "IssProtocolConfig.txt";
+}
+</pre>
+Note that we do introduce also the possibility to specify the protocol configuration by using a file
+that includes sentences (in Prolog syntax) of the form:
+<pre>
+spec( protocol( "WS" ),   url( "localHost:8091" ) ).
+spec( protocol( "HTTP" ), url( "http://localHost:8090/api/move" ) ).
+</pre>
+                            
+                            
+                            .<br/>
+                            The file-based configuration overcomes the configuration specified at code level,
+                            in order to augment flexibility at application level.
+                        </td>
+                    <td>
+                        <h3>Example: using HTTP</h3>
+<pre>
+    <ks>@IssProtocolSpec</ks><kc>(
+            <k>protocol</k> = IssProtocolSpec.issProtocol.HTTP,
+            <k>url</k>      = "http://localHost:8090/api/move"
+    )</kc>
+    public class UsageIssHttp {
+        private IssOperations support;
+
+        public UsageIssHttp(){
+            support = <k>IssCommsFactory.create( this  );</k> <kc>//create the support</kc>
+        }
+        ...
+    }
+</pre>
+                        The full code is in <a href="../app/src/main/java/it/unibo/interactionExamples/UsageIssHttp.java" target="web"><em>UsageIssHttp.java</em></a>.
+                        
+                        <h3>Example: using WS</h3>
+                        An example related to the usage of websockets can be found in 
+                        <a href="../app/src/main/java/it/unibo/interactionExamples/UsageIssWs.java" target="web"><em>UsageIssWs.java</em></a>.
+                        <br/>
+                        We will discuss it later.
+                        
+                        </td>
+                    </tr> 
+                </tbody>
+            </table>
+            <h2 id="aril">The application component (from cril to aril)</h2>
+            <div class="remark">
+                Since we intend to make our 'business code' technology-independent also with respect to the robot, we
+                introduce <ks>a layer
+                    that makes the robot a 'logical entity'</ks> able to 'talk' with clients in a <ks>custom high-level
+                    language</ks>, designed with reference to
+                the application needs.
+                In the following, we will name such a language as <k>aril</k> (<ks>abstract robot interaction language
+                </ks>).
+            </div>
+
+            <h3>The abstract robot interaction language (<ks>aril</ks>)</h3>
+            The language that we will use to talk with out 'logical robot' is defined by the following grammar rule:
+
+            <pre>
+ARIL ::= w | s | l | r | h
+</pre>
+            Morover, if we assume here that the 'logical robot' can be included in a circle of diamater of length <ks>DR
+            </ks>,
+            the meaning of the aril commands can be set as follows:
+            <pre>
+<ks>w</ks> : means 'go forward',  so to cover a length equals to <ks>DR</ks>
+<ks>s</ks> : means 'go backward', so to cover a length equals to <ks>DR</ks>
+<ks>h</ks> : means 'stop moving'
+<ks>l</ks> : means 'turn left of 90'
+<ks>r</ks> : means 'turn right of 90'
+</pre>
+
+
+            <!-- <h2>Towards a layered architecture </h2> -->
+            <h3>From cril to aril (<a href="../app/src/main/java/it/unibo/robotSupports/IssArilRobotSupport.java"
+                    target="web"><em>IssArilRobotSupport</em></a>)</h3>
+
+
+
+            The class <a href="../app/src/main/java/it/unibo/robotSupports/IssArilRobotSupport.java"
+                target="web"><em>IssArilRobotSupport</em></a>
+            is introduced as a component that translates <k>aril</k> commands into <k>cril</k> commands,
+            thus working as an
+            <a href="https://en.wikipedia.org/wiki/Adapter_pattern" target="web">adapter</a>.
+            <br /><br />
+            <center><img src="./img/UseRobotAril.png" alt="UseRobotAril" width="30%"></center>
+            <br />
+            The move-time of aril-commands is set by using the user-defined Java annotation:
+            <a href="../app/src/main/java/it/unibo/annotations/RobotMoveTimeSpec.java" target="web"><em>RobotMoveTimeSpec</em></a>
+<pre>
+<k>@Target(value = { ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.TYPE   })
+@Retention(RetentionPolicy.RUNTIME)</k>
+public <k>@interface</k> <ks>RobotMoveTimeSpec</ks> {
+    int ltime()  default 300;
+    int rtime()  default 300;
+    int wtime()  default 600;
+    int stime()  default 600;
+    int htime()  default 100;
+    String configFile() default "IssRobotConfig.txt";
+}
+</pre>
+                            The move-time can be also specified by means of a file that includes sentences (in Prolog
+                            syntax) of the form:
+                            <pre>
+spec( htime( 100 ),  ltime( 500 ), rtime( 500 ),  wtime( 600 ), wstime( 600 ) ).
+</pre>
+
+            <h2>Testing</h2> 
+            
+
+            <h2>Deployment</h2> 
+
+            
+            <h2>Maintenance</h2> 
+            
+            <!-- USEFUL
+            <table style="width:100%" border="1">
+            <tr>
+            <td style="width:50%">
+            </td>
+            <td></td>
+            </tr>
+            </table>
+            -->
+                        
+            <br><br> 	
+        
+
+            My git repo: <a href="https://github.com/LeoManto/Mantovani_Leonardo"><k>https://github.com/LeoManto/Mantovani_Leonardo</k></a>
+            <div style="background-color:rgba(86, 56, 253, 0.9); width:70%;text-align:left;color:white">
+                By Mantovani Leonardo email: leonardo.mantovani2@studio.unibo.it
+                <img src="./foto.jpg" alt="mbot" width="15%" height="15%">
+            </div>
+        </div>  
+    </body>
+</html>
