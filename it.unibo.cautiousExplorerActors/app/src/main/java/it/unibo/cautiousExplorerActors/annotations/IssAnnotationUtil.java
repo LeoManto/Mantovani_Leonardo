@@ -1,5 +1,6 @@
 package it.unibo.cautiousExplorerActors.annotations;
 
+import javax.imageio.stream.FileImageInputStream;
 import java.io.FileInputStream;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -69,7 +70,51 @@ RELATED TO ROBOT MOVES
         fillMap(mvtimeMap, annotations);
     }
 
-    private static void fillMap(HashMap<String, Integer> mvtimeMap, Annotation[] annotations) {
+    private static void fillMap(HashMap<String, Integer> mvtimeMap, Annotation[] annots) {
+        for(Annotation annotation : annots) {
+            if(annotation instanceof RobotMoveTimeSpec){
+                RobotMoveTimeSpec info = (RobotMoveTimeSpec) annotation;
+                if(!checkRobotConfigFile(info.configFile(), mvtimeMap)){
+
+                }
+            }
+        }
+    }
+
+    private static boolean checkRobotConfigFile(String configFileName, HashMap<String, Integer> mvtimeMap) {
+       try{
+           FileInputStream fis = new FileInputStream(configFileName);
+           Scanner sc = new Scanner(fis);
+           String line = sc.nextLine();
+           String[] items = line.split(",");
+
+           mvtimeMap.put("h", getRobotConfigInfo("htime", items[0]));
+           mvtimeMap.put("l", getRobotConfigInfo("ltime", items[1]));
+           mvtimeMap.put("r", getRobotConfigInfo("rtime", items[2]));
+           mvtimeMap.put("w", getRobotConfigInfo("wtime", items[3]));
+           mvtimeMap.put("s", getRobotConfigInfo("stime", items[4]));
+
+           return true;
+       }catch(Exception e){
+           System.out.println("IssAnnotationUtil | WARNING:" + e.getMessage());
+           return false;
+       }
+    }
+
+    private static Integer getRobotConfigInfo(String functor, String line) {
+        Pattern pattern = Pattern.compile(functor);
+        Matcher matcher = pattern.matcher(line);
+        String content = "0";
+
+        if(matcher.find()){
+            int end = matcher.end();
+            content = line.substring(end, line.indexOf(")"))
+                    .replace("\"","")
+                    .replace("(","")
+                    .trim();
+        }
+
+        return Integer.parseInt(content);
     }
 
 }
