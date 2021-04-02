@@ -75,7 +75,11 @@ RELATED TO ROBOT MOVES
             if(annotation instanceof RobotMoveTimeSpec){
                 RobotMoveTimeSpec info = (RobotMoveTimeSpec) annotation;
                 if(!checkRobotConfigFile(info.configFile(), mvtimeMap)){
-
+                    mvtimeMap.put("w", info.wtime());
+                    mvtimeMap.put("s", info.stime());
+                    mvtimeMap.put("l", info.ltime());
+                    mvtimeMap.put("r", info.rtime());
+                    mvtimeMap.put("h", info.htime());
                 }
             }
         }
