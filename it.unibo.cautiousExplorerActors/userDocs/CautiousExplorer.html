@@ -240,12 +240,12 @@ and a reference to a <i>first working prototype</i> (even with limited capabilit
             <h2>Requirement analysis</h2>
             <p>After interviewing client, menanig he associates whith nouns have been clarified:</p> 
             <ul>
-                <li><ks>closed environment</ks>: similar to a room delimited by walls, the robot can't go out from this room.</li>
-                <li><ks>den</ks>: a place where the robot is initially positioned. Is not a fixed place, but can be changed by user discretion.</li>
+                <li><ks>rectangular room</ks>: sa room delimited by walls with rectangular shape , the robot can't go out from this room.</li>
+                <li><ks>den</ks>: a place where the robot is initially positioned. Is a fixed place, and it's located in the upper left corner of room.</li>
                 <li><ks>obstacles</ks>: any object that cause a collision with if robot hits it. Their position are fixed since start of the work.</li>
                 <li><ks>cautious explorer</ks>: robot's behaviour is like a cautious explorer, if he hit any kind of obstacle, he come back to initial position that is <ks>den</ks>.</li>
                 <li><ks>mental map</ks>: the robot needs to remember all space that he have already explored and obstacles he find in his exploration.</li>
-                <li><k>(Optional)</k> <ks>sonar</ks>: is a system that acts on entire line where he is positioned and facing. In case the robot enter in sonar zone, he detect it and come back to den.</li>
+                <li><ks>sonar</ks>: is a system that acts on entire line where he is positioned and facing. In case the robot enter in sonar zone, he detect it, wait for some seconds and come back to den.</li>
             </ul>
             <p>Regarding to actions (verbs):</p>
             <ul>
