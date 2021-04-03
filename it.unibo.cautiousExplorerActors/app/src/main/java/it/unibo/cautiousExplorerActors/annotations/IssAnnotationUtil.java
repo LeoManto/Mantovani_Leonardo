@@ -24,7 +24,7 @@ public class IssAnnotationUtil {
         return protocolInfo;
     }
 
-    private static ProtocolInfo checkProtocolConfigFile(String configFileName) {
+    public static ProtocolInfo checkProtocolConfigFile(String configFileName) {
         try {
             System.out.println("IssAnnotationUtil | checkProtocolConfigFile configFileName=" + configFileName);
             FileInputStream fis = new FileInputStream(configFileName);
@@ -44,7 +44,7 @@ public class IssAnnotationUtil {
         }
     }
 
-    private static String getprotocolConfigInfo(String functor, String line) {
+    public static String getprotocolConfigInfo(String functor, String line) {
         Pattern pattern = Pattern.compile(functor);
         Matcher matcher = pattern.matcher(line);
         String content = null;
@@ -70,7 +70,7 @@ RELATED TO ROBOT MOVES
         fillMap(mvtimeMap, annotations);
     }
 
-    private static void fillMap(HashMap<String, Integer> mvtimeMap, Annotation[] annots) {
+    public static void fillMap(HashMap<String, Integer> mvtimeMap, Annotation[] annots) {
         for(Annotation annotation : annots) {
             if(annotation instanceof RobotMoveTimeSpec){
                 RobotMoveTimeSpec info = (RobotMoveTimeSpec) annotation;
@@ -85,7 +85,7 @@ RELATED TO ROBOT MOVES
         }
     }
 
-    private static boolean checkRobotConfigFile(String configFileName, HashMap<String, Integer> mvtimeMap) {
+    public static boolean checkRobotConfigFile(String configFileName, HashMap<String, Integer> mvtimeMap) {
        try{
            FileInputStream fis = new FileInputStream(configFileName);
            Scanner sc = new Scanner(fis);
@@ -105,7 +105,7 @@ RELATED TO ROBOT MOVES
        }
     }
 
-    private static Integer getRobotConfigInfo(String functor, String line) {
+    protected static Integer getRobotConfigInfo(String functor, String line) {
         Pattern pattern = Pattern.compile(functor);
         Matcher matcher = pattern.matcher(line);
         String content = "0";

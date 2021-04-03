@@ -1,6 +1,6 @@
 package it.unibo.cautiousExplorerActors.supports;
 
-import it.unibo.interaction.IssObserver;
+import it.unibo.cautiousExplorerActors.interaction.IssObserver;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

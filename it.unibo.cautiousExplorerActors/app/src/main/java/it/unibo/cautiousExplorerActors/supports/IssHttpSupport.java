@@ -1,6 +1,6 @@
 package it.unibo.cautiousExplorerActors.supports;
 
-import it.unibo.interaction.IssObserver;
+import it.unibo.cautiousExplorerActors.interaction.IssObserver;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;

@@ -1,7 +1,7 @@
 package it.unibo.cautiousExplorerActors.supports;
 
-import it.unibo.interaction.IssObserver;
-import it.unibo.interaction.IssOperations;
+import it.unibo.cautiousExplorerActors.interaction.IssOperations;
+import it.unibo.cautiousExplorerActors.interaction.IssObserver;
 
 public interface IssCommSupport extends IssOperations {
     void registerObserver( IssObserver obs );
