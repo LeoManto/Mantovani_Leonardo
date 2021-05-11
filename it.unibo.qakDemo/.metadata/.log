@@ -912,3 +912,6 @@ This warning can be switched off on the Team > Git > Confirmations and Warnings 
 
 !ENTRY org.jetbrains.kotlin.core 2 0 2021-05-11 12:51:14.833
 !MESSAGE Could not check for update (Could not obtain update site)
+
+!ENTRY org.jetbrains.kotlin.core 2 0 2021-05-11 12:53:25.697
+!MESSAGE Could not check for update (Could not obtain update site)
