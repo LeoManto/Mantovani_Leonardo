@@ -48,12 +48,12 @@ QActor sender context ctxdemo0{
  		 forward demo -m msg1 : msg1(1)
 		 delay 300
 		 forward demo -m msg1 : msg1(2)
-//		 delay 300
-//		 forward demo -m msg1 : msg1(3)
+		 delay 300
+		 forward demo -m msg1 : msg1(3)
 		 delay 300
 		 forward demo -m msg2 : msg2(1)		  
-//		 delay 300
-//		 forward demo -m msg2 : msg2(2)		  
+	     delay 300
+	 	 forward demo -m msg2 : msg2(2)		  
 	 
 //		 emit alarm : alarm( fire )  
 //		 delay 1200 
