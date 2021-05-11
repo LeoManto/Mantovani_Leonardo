@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>.org.eclipse.jdt.core.external.folders</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>.link1</name>
+			<type>2</type>
+			<location>F:/Desktop/Scuola/Università/ANNO - IV/Ingegneria dei Sistemi Software/issLab2021 - Copia/unibolibs</location>
+		</link>
+	</linkedResources>
+</projectDescription>
