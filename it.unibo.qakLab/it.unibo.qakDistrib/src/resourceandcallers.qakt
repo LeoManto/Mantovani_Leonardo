@@ -27,9 +27,14 @@ QActor resourceandco context ctxresourceandco {
  	}
 #]
 	State s0 initial { 
-		 //[# CoapObserver.activate() #]
-		 updateResource [# resourceInfo() #]
-		 println("resource waiting ...") 	  	 
+		 [# CoapObserver.activate() #]
+		 delay 1000	  	 
+	}
+	Goto waitRequest
+	
+	State waitRequest{
+		updateResource [# resourceInfo() #]
+		 println("resource waiting ...")
 	}
 	Transition t0  
 		whenRequest cmd -> handleRequestCmd
@@ -43,7 +48,7 @@ QActor resourceandco context ctxresourceandco {
 			replyTo cmd with replytocmd : replytocmd( $ANSW ) 
 		}		 		
 	}
-	Goto s0	
+	Goto waitRequest
 	 
  }
 /*
