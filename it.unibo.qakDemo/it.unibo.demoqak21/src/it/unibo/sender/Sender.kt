@@ -20,7 +20,7 @@ class Sender ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 				state("s0") { //this:State
 					action { //it:State
 						println("			watcher emits fire")
-						emit("alarm", "alarm(fire)" ) 
+						emit("alarm", "alarm(disaster(fire))" ) 
 						delay(1200) 
 						println("			watcher emits tsunami")
 						emit("alarm", "alarm(tsunami)" ) 
