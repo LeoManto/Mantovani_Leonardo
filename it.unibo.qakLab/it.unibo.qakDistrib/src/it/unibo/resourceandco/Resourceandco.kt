@@ -24,6 +24,7 @@ class Resourceandco ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( na
 				state("s0") { //this:State
 					action { //it:State
 						 CoapObserver.activate()  
+						delay(1000) 
 					}
 					 transition( edgeName="goto",targetState="waitRequest", cond=doswitch() )
 				}	 
