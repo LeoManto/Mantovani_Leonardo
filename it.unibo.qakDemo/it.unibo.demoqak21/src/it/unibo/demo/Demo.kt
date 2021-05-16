@@ -19,7 +19,7 @@ class Demo ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, scope
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						discardMessages = true
+						discardMessages = false
 					}
 					 transition( edgeName="goto",targetState="s1", cond=doswitch() )
 				}	 
