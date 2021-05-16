@@ -259,7 +259,8 @@
         <p>After interviewing client, meaning he associates with nouns have been clarified:</p>
         <ul>
             <li><ks>Turn</ks>: there are three turn that represent different moment of the day. Every turn define the behaviour that machine in which is installed the software system has to assume.</li>
-            <li><ks>Handle</ks>: in the requirements are not defined specific actions that the machine assume during message handling. In this case, we have assumed that in case a message has to be handled, it will be printed.</li>
+            <li><ks>Handle</ks>: in the requirements are not defined specific actions that the machine assume during message handling. 
+                In this case, we have assumed that in case a message has to be handled, it will be printed.</li>
             <li><ks>Message</ks>: a simple message with the form specified in requirements <k>m1:m1(V)</k> or <k>m2:m2(V)</k>. Messages can be sended at every time.</li>
             <li><ks>Sleeps</ks>: during this period, the machine do nothing.</li>
             <li><ks>Morning</ks>: period of the day that start around <k>06:00</k> and ends around <k>13:00</k>.</li>
@@ -267,7 +268,7 @@
             <li><ks>Night</ks>: period of the day that start around <k>19:00</k> and ends around <k>06:00</k>.</li>
             <li><ks>Extenarl Entities</ks>: a machine (or a group of machines) that is separate from the internal machine (on which is installed the software system). 
                 This machine have the task of send message, of m1 or m2 type, to internal computer.</li>
-            <li><ks>Send</ks>: we know that the external entity have to send message to the internal computer, but is not specified specified the way with which the message will have to be sended.</li>
+            <li><ks>Send</ks>: we only know that the external entity have to send message to the internal computer, but is not specified specified the way with which the message will have to be sended.</li>
         </ul>
         <!-- MATTINA dalle 06.00 alle 12.00 -->
         <!-- POMERIGGIO dalle 12.00 alle 19.00 -->
@@ -277,6 +278,9 @@
         <!-- TODO analizzare requisiti spiegare bene fatto dei turni che credo descrivano le transizioni tra i diversi stati che l'applicazione può assumere (in che modo l'applicazione "handel message?")-->
         <h3>A first <a href="https://en.wikipedia.org/wiki/User_story" target="web">user story</a></h3>
         <!-- TODO come detto prima fare una prima ipotesi di gestione delle trasizioni tra i diversi stati (turni) -->
+        <p>When the system starts up, according to the time of day the machine is in, a turn is activated. </p>
+
+        <p></p>
     </div>
 
     <h2>Problem analysis</h2>
