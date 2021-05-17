@@ -221,7 +221,7 @@
 
 <head>
 
-    <title>TemplateToFill</title>
+    <title>Workshift</title>
 </head>
 
 <body>
@@ -269,7 +269,7 @@
             </li>
             <li>
                 <ks>Message</ks>: a simple message with the form specified in requirements <k>m1:m1(V)</k> or <k>
-                    m2:m2(V)</k>. Messages can be sended at every time.
+                    m2:m2(V)</k>. Messages can be sent at every time.
             </li>
             <li>
                 <ks>Sleeps</ks>: during this period, the machine do nothing.
@@ -290,24 +290,26 @@
             </li>
             <li>
                 <ks>Send</ks>: we only know that the external entity have to send message to the internal computer, but
-                is not specified specified the way with which the message will have to be sended.
+                is not specified specified the way with which the message will have to be sent.
             </li>
         </ul>
         <h3>A first <a href="https://en.wikipedia.org/wiki/User_story" target="web">user story</a></h3>
-        <!-- TODO come detto prima fare una prima ipotesi di gestione delle trasizioni tra i diversi stati (turni) -->
         <div class="remark">
             <p>
                 When the system starts up, according to the time of day the machine is in, a specific turn is activated.
                 Let's take it as an example, that turn at the start of machine is that of <k>morning</k>.
                 The machine in the <k>morning</k> is able to handle message of <k>m1</k> type. Messages are sent by
                 External entities at any moment of day, and those could be of <k>m1</k> or <k>m2</k> type.
-                If at certain moment a message of <k>m1</k> type arrive, machine that is in the <k>morning</k> state, can immediately
+                If at certain moment a message of <k>m1</k> type arrive, machine that is in the <k>morning</k> state,
+                can immediately
                 hadle this according to the decided behaviour. If instead there is a message of type <k>m2</k>, this
                 is saved in a queue and it will be handled after in the specific turn.
             </p>
             <p>
-                At the end of turn (if we are in morning turn, the end will be at 13:00) there will be a transaction of turn. Then machine will pass from the morning turn to that of aftenoon.
-                In the same way the machine will have a transaction at the end of afternoon turn, when it will pass to night turn.
+                At the end of turn (if we are in morning turn, the end will be at 13:00) there will be a transaction of
+                turn. Then machine will pass from the morning turn to that of aftenoon.
+                In the same way the machine will have a transaction at the end of afternoon, when it will pass to night
+                turn.
             </p>
         </div>
 
@@ -315,7 +317,48 @@
 
 
         <h2>Problem analysis</h2>
-        <!-- TODO fare i diagrammi di rappresentazione degli stati e il modello per visualizzare i diversi contesti nei quali esistono gli attori-->
+        <h3>Aspect noted</h3>
+        <ul>
+            <li>
+                There are three different period of the day, <ks>Morning</ks>, <ks>Afternoon</ks> and <ks>Night</ks>.
+                Any of this periods can be intended as different states in which our machine can be during the day.
+            </li>
+            <li>
+                It's not specified the specific moment in which the machine will be started. For this reason, at startup
+                the machine will take the state according to the time of the day in which it is.
+            </li>
+            <li>
+                Messages are sent from external entities without any kind of request by the internal entity, then
+                those will be sent with <k>Dispatch</k> mode.
+            </li>
+            <li>
+                Considering that messages are sent at any moment and without regulation on which type by the extenarl entities, those will be placed in a queue and handled in their specific turn.
+            </li>
+        </ul>
+        <h3>Logical Architecture</h3>
+        <table style="width:100%" border="1">
+            <tr>
+                <td style="width:40%">
+                    <!-- TODO spiegare che nell'architettura ci sono solo due contesti ma che in realtà potrebbero essercene anche di più, le entità esterne possono anche appartenere a più contesti-->
+                    <!-- l'architettura del nostro software è distribuita e non è locale-->
+                </td>
+                <td>
+                    <center><img src="img/Modello.jpg" width="40%" height="40%"></center>
+                </td>
+            </tr>
+        </table>
+        <h3>State Model</h3>
+        <table style="width:100%" border="1">
+            <tr>
+                <td style="width:40%">
+                    adsadadsa
+                </td>
+                <td>
+                    <center><img src="img/StatiProgetto.jpg" width="50%" height="50%"></center>
+                </td>
+            </tr>
+        </table>
+        
         <!-- TODO spiegare il fatto che si utilizzerà un linguaggio di modellazione qak (studiare problemi che questo comporta)-->
         <!-- per come intendo io il problema, dallo stato s0 iniziale, secondo il momento della giornato avviene una transizione nello stato specifico, 
         ad esempio s1 se mattina, s2 se pomeriggio, se sera/notte nello stato s3. 
