@@ -233,6 +233,7 @@
     <div class="body">
         <h2>Introduction</h2>
 
+        <p><ks>Software System</ks> project using distributed <k>QActorK</k>. Developement of the theme <ks>ES0</ks>.</p>
 
         <h2>Requirements</h2>
 
@@ -292,6 +293,7 @@
                 <ks>Send</ks>: we only know that the external entity have to send message to the internal computer, but
                 is not specified specified the way with which the message will have to be sent.
             </li>
+            <p>The hours that define moments of the day were decided by my personal interpretation.</p>
         </ul>
         <h3>A first <a href="https://en.wikipedia.org/wiki/User_story" target="web">user story</a></h3>
         <div class="remark">
@@ -334,13 +336,29 @@
             <li>
                 Considering that messages are sent at any moment and without regulation on which type by the extenarl entities, those will be placed in a queue and handled in their specific turn.
             </li>
+            <li>
+                For this project is requested the use of the <a href="../qakIntro/LabQakIntro2021.html">QActorK</a>.
+            </li>
         </ul>
         <h3>Logical Architecture</h3>
         <table style="width:100%" border="1">
             <tr>
                 <td style="width:40%">
-                    <!-- TODO spiegare che nell'architettura ci sono solo due contesti ma che in realtà potrebbero essercene anche di più, le entità esterne possono anche appartenere a più contesti-->
-                    <!-- l'architettura del nostro software è distribuita e non è locale-->
+                    <ul>
+                        <li>
+                            This software system is distributed. The <ks>intenarl entity</ks> is situated in a context that we assume as <k>"Internal"</k>. In this contex is situated the machine that have to change on the three
+                            described turn, and have the goal to handle the received messages.
+                        </li>
+                        <li>
+                            The <ks>extenarl entities</ks> intead are situated in another context that we have called <k>"External"</k>. In the picture on the side is rappresented an architecture with only one external context. But this is not specified 
+                            explicitly, then could exist more than one external context. Every context can contain more entities. Those entities have the goal of sending messages to the internal entity at every time
+                            with no specified regulation.
+                        </li>
+                        <li>
+                            Messages that are sended have this kind of syntax: <ks>m1:m1(arg)</ks> or <ks>m2:m2(arg)</ks>. <k>arg</k> indicates the content of the message.<br>
+                            When those arrive to internal machine, it's not for sure that will be handled immediately. For this reason those are placed in a queue and handled in their specific turn.
+                        </li>
+                    </ul>
                 </td>
                 <td>
                     <center><img src="img/Modello.jpg" width="40%" height="40%"></center>
@@ -351,7 +369,25 @@
         <table style="width:100%" border="1">
             <tr>
                 <td style="width:40%">
-                    adsadadsa
+                    <!--TODO potrebbe esserci una qualche entità interna che al cambiare del periodo della giornata manda un evento, il quale ricevuto dall'applicazione fa cambiare stato al sistema-->
+                    <p></p>
+                    <ul>
+                        <li>
+                            Morning turn:
+                            <ul>
+                                <li>Morning turn message:</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Afternoon turn:
+                            <ul>
+                                <li>Afternoon turn message:</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Night turn:
+                        </li>
+                    </ul>
                 </td>
                 <td>
                     <center><img src="img/StatiProgetto.jpg" width="50%" height="50%"></center>
