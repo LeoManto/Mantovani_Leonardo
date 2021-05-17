@@ -331,7 +331,7 @@
             </li>
             <li>
                 Messages are sent from external entities without any kind of request by the internal entity, then
-                those will be sent with <k>Dispatch</k> mode.
+                those will be sent with <k>Dispatch</k> mode (Fire and Forget).
             </li>
             <li>
                 Considering that messages are sent at any moment and without regulation on which type by the extenarl entities, those will be placed in a queue and handled in their specific turn.
@@ -370,24 +370,34 @@
             <tr>
                 <td style="width:40%">
                     <!--TODO potrebbe esserci una qualche entità interna che al cambiare del periodo della giornata manda un evento, il quale ricevuto dall'applicazione fa cambiare stato al sistema-->
-                    <p></p>
+                    <p>At the application startup the machine is in state <ks>s0</ks>. In this state it's checked the actual hour, on the basis of which will be decided the correct state.</p>
                     <ul>
                         <li>
-                            Morning turn:
+                            Morning turn (<ks>s1</ks>)
                             <ul>
-                                <li>Morning turn message:</li>
+                                <li>Morning turn message (<ks>s1 Message</ks>)</li>
                             </ul>
                         </li>
                         <li>
-                            Afternoon turn:
+                            Afternoon turn(<ks>s2</ks>)
                             <ul>
-                                <li>Afternoon turn message:</li>
+                                <li>Afternoon turn message (<ks>s2 Message</ks>)</li>
                             </ul>
                         </li>
                         <li>
-                            Night turn:
+                            Night turn (<ks>s3</ks>)
                         </li>
                     </ul>
+                    <p>
+                        The Internal Entity actor waits for a message, if none have arrived yet, or check the queue. Then passes in the state in which messages are handled. 
+                        At the end it returns to control state.
+                    </p>
+                    <p>
+                        The change of turn (<ks>s1➟s2</ks>, <ks>s2➟s3</ks>, <ks>s3➟s1</ks>) is decided by the arrive of an event.
+                        For this reason it's necessary to introduce an another entity that help the machine. <br>
+                        This new entity is internal (placed in the <k>Internal Context</k>), and cyclically check the current hour.
+                        When the actual time corresponds to the start time of a state, this entity send and event to the machine which switchs to the next state.
+                    </p>
                 </td>
                 <td>
                     <center><img src="img/StatiProgetto.jpg" width="50%" height="50%"></center>
@@ -396,15 +406,6 @@
         </table>
         
         <!-- TODO spiegare il fatto che si utilizzerà un linguaggio di modellazione qak (studiare problemi che questo comporta)-->
-        <!-- per come intendo io il problema, dallo stato s0 iniziale, secondo il momento della giornato avviene una transizione nello stato specifico, 
-        ad esempio s1 se mattina, s2 se pomeriggio, se sera/notte nello stato s3. 
-        -->
-        <!-- I messaggi di tipo m1 o m2 saranno mantenuti in una coda. I messaggi di un certo tipo verranno gestiti nello stato corrispondente. -->
-        <!-- dire dei messaggi mandati come dispatch (fire and forget)-->
-        <!-- Secondo me essendoci un'entità esterna che invia i messaggi (non richiesti), questa si troverà in un'altro contesto, quindi si parla di un sistema distribuito.
-        I messaggi inviati non sono quindi richiesti, in questo caso quindi l'entità esterna provvederà (in domo casuale?) ad inviare sotto forma di dispatch i messaggi alla nostra applicazione.
-        Ogni stato gestirà, secondo le caratteristiche che si vogliono ottenere, da sè i messaggi a lei destinati
-        -->
 
         <h2>Test plans</h2>
 
