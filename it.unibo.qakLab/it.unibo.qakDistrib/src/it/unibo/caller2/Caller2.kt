@@ -26,6 +26,7 @@ class Caller2 ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 				}	 
 				state("waitAnswer") { //this:State
 					action { //it:State
+						println("caller2 waiting ... ")
 					}
 					 transition(edgeName="t01",targetState="handleAlarm",cond=whenEvent("alarm"))
 					transition(edgeName="t02",targetState="handleReply",cond=whenReply("replytocmd"))
