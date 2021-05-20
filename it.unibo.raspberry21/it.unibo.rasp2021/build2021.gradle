@@ -102,8 +102,8 @@ sourceSets {
     //test.java.srcDirs += 'test.kt'		//test.kt is specific
 }
  
-//mainClassName = 'it.unibo.ctxblses1.MainCtxblses1Kt'
-mainClassName = 'it.unibo.ctxsonar.MainCtxsonarKt'
+mainClassName = 'it.unibo.ctxblses1.MainCtxblses1Kt'
+//mainClassName = 'it.unibo.ctxsonar.MainCtxsonarKt'
 
 jar {
     println("executing jar")
