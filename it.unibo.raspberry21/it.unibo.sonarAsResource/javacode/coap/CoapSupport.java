@@ -34,7 +34,7 @@ private CoapObserveRelation relation = null;
 		client.setTimeout( 1000L );	
 		String rep = readResource();
 		System.out.println("CoapSupport | initial rep=" +  rep );
-		//observeResource( new MyHandler() );
+		observeResource( new MyHandler() );
 	}
  
 	
