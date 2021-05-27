@@ -21,7 +21,7 @@
 	//"tcp://broker.hivemq.com" 
 
 System -msglog  sonaronrasp   
-mqttBroker "localhost" :  1883 eventTopic "sonar/data"
+mqttBroker "192.168.178.21" :  1883 eventTopic "sonar/data"
 
 Dispatch sonarstart      : sonarstart(V)  
 Dispatch simulatorstart  : simulator(V)  
