@@ -1,0 +1,71 @@
+/*
+ * sonarResource.qak
+ * A CoAP-observable component
+ * 1) launch sonarresource
+ * 2) launch SonarresourceObserver or SonarresourceObserverRadar
+ * 3a) launch SimulateSonarData that reads  data from the user console and emits the event 
+ *             msg(sonarrobot,event,support,none,sonar(data),1)
+ * 3b) launch on Raspberry an emitter of sonarRobot event e.g. sonar in sonarnaive.qak
+ *    that launches a CodedQactor that reads data from SonarAlone and emits the event
+ * 	            msg(sonarrobot,event,sonarHCSR04Support,none,sonar(data),1)
+ */ 
+   
+System /* -trace */ sonarresource  
+//mqttBroker "192.168.1.43" : 1883  eventTopic "sonar/data"		//broker.hivemq.com
+
+ 
+Event    alarm      : alarm(X)
+
+Event    sonarrobot : sonar( V )
+Dispatch sonarrobot : sonar( V )
+Request  sonarrobot : sonar( V )
+Reply    replysonar : updated(V)
+
+Context ctxsonarresource ip [ host= "localhost"   port= 8028 ]
+
+QActor sonarresource context ctxsonarresource{ 
+	State s0 initial{  
+		//println("sonarresource start") 
+	}
+	Goto work
+	 
+	State work{
+		println("sonarresource waits ... ") 
+	}
+	Transition t0 whenMsg   sonarrobot -> handleSonarData
+	              whenEvent sonarrobot -> handleSonarData
+	              
+	State handleSonarData{
+		printCurrentMessage
+		onMsg( sonarrobot : sonar(V) ){
+			[# val distance = payloadArg(0) #]
+			updateResource [# "$distance" #]  
+ 			println("distance=$distance")
+ 			//emit alarm : alarm(fire) //just to see what happens ...
+		}	 	
+	}
+	Goto work
+}
+
+/*
+ * rapid test
+*/ 
+ 
+QActor sendermock context ctxsonarresource{
+[# val input   = java.util.Scanner(System.`in`) #]
+	State s0 initial{ 
+		println("sendermock start") 
+		emit sonarrobot : sonar(50)	
+		forward sonarresource -m sonarrobot : sonar(10)		
+	}
+	//Goto work	//WARNING: input.nextLine() BLOCKS (also sonarresource)
+	 
+	State work{
+		delay 500     //release the resource
+		[# print("VALUE>")
+			var Data = input.nextLine() #] 
+		emit sonarrobot : sonar($Data)
+	}
+	Goto work
+	
+} 
