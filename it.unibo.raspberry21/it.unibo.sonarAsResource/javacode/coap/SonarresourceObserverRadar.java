@@ -5,7 +5,7 @@ import org.eclipse.californium.core.CoapResponse;
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
 import it.unibo.kactor.ApplMessage;
-import resourceCoap.CoapSupport;
+import coap.CoapSupport;
 
 class DataHandler implements CoapHandler {
 	

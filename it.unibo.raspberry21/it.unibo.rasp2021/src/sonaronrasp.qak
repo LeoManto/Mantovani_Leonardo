@@ -52,9 +52,9 @@ QActor sonar context ctxsonaronrasp {
  		/*
  		 * INTROSPECTION
  		 */
- 		solve( consult("sysRules.pl")	 )
- 		solve( consult("sonaronrasp.pl") )
- 		solve( showSystemConfiguration   )
+ 		//solve( consult("sysRules.pl")	 )
+ 		//solve( consult("sonaronrasp.pl") )
+ 		//solve( showSystemConfiguration   )
  		/*
  		 * CONFIGURATION
  		 */
