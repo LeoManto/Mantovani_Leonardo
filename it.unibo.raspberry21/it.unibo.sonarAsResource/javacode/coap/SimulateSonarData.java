@@ -1,3 +1,4 @@
+
 /*
  * SimulateSonarData
  * Reads a value data from the user console
@@ -5,6 +6,7 @@
  * 		msg(sonarrobot,event,support,none,sonar(data),1)
  * 
  */
+
 package coap;
 
 import java.util.Scanner;

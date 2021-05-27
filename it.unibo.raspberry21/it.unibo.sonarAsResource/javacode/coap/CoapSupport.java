@@ -78,7 +78,7 @@ private CoapObserveRelation relation = null;
 	
 	public static void main(String[] args) {
 		//CoapSupport cs = new CoapSupport("coap://localhost:5683","robot/sonar");
-		CoapSupport cs = new CoapSupport("coap://localhost:8028","ctxsonarresource/sonarresource");
+		CoapSupport cs = new CoapSupport("coap://192.168.178.21:8028","ctxsonarresource/sonarresource");
 		cs.test();		
 	}
 	

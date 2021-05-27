@@ -1,8 +1,9 @@
 %====================================================================================
 % sonarnaive description   
 %====================================================================================
-mqttBroker("broker.hivemq.com", "1883", "unibo/nat/sonar/events").
-context(ctxsonar, "localhost",  "TCP", "8068").
- qactor( sonardatasource, ctxsonar, "resources.rasp.sonar.sonarHCSR04Support2021").
-  qactor( sonar, ctxsonar, "it.unibo.sonar.Sonar").
+mqttBroker("broker.hivemq.com", "1883", "sonar/data").
+context(ctxsonarnaive, "localhost",  "TCP", "8068").
+ qactor( sonarsimulator, ctxsonarnaive, "sonarSimulator").
+  qactor( sonardatasource, ctxsonarnaive, "sonarHCSR04Support2021").
+  qactor( sonarnaive, ctxsonarnaive, "it.unibo.sonarnaive.Sonarnaive").
 msglogging.

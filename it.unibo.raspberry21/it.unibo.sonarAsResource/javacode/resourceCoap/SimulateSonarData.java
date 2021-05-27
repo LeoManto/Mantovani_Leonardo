@@ -9,7 +9,7 @@ public class SimulateSonarData {
 	private CoapSupport coapSupport ;
 	
 	public void doJob() {
-		coapSupport = new CoapSupport( "coap://localhost:5683","robot/sonar" );
+		coapSupport = new CoapSupport( "coap://localhost:8028","robot/sonar" );
 		Scanner in = new Scanner(System.in);
 		String data = "";
 		while( ! data.equals("q")) {
