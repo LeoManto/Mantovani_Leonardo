@@ -551,15 +551,12 @@
 				(0,0).
 				<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
 			</li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
+			<li>
+				<ks>TOKEID: </ks> is the an identification number of the parking operation, strictly associated with the
+				client owner of the parked car.
+				This number will be user at the end when the client decides to withdraw the car from the parking area.
+			</li>
+
 		</ul>
 
 		<p>Regarding to actions (verbs):</p>
@@ -568,9 +565,43 @@
 		</ul>
 
 		<h2>Problem analysis</h2>
-		<p>As mentioned in the <a href="#introduction">Introduction</a> in this document we will analyze a simplified
+		<p>As mentioned in the <a href="#introduction">Introduction</a> for the first SPINT, in this document we will
+			analyze a simplified
 			verision of the problem to provide a prototype in a short time.</p>
+		<p>
+			In this version we assume these simplification:
+			<li>no <k>GUI</k> will be implemented;</li>
+			<li>
+				<k>Parking-Manager</k> will not be implemented;
+			</li>
+			<li>entrance of the car in the system will be automated with use a timer which its duration is chosen
+				randomly in an interval;</li>
+			<li>exit of the car from the system will be automated with use of a timer which its duration is chosen
+				randomly in an interval;</li>
+			<li>the alarm of delay at the exit will be automated, it does not expect any kind of action by anyone;</li>
+			<li>behaviour of the trolley is not actually simulated;</li>
+		</p>
 
+		<h3>User Story</h3>
+		<div class="remark">
+			<p>At the state of current simplifications, we describe this new <ks>User Story</ks>:</p>
+			<!--TODO write a new simplified user story-->
+		</div>
+
+		<h3>Logical Architecture</h3>
+		<p>
+			<table style="width:100%" border="1">
+				<tr>
+					<td style="width:50%">
+						For our system we have implemented four <ks>actors</ks>, everyone providing a different service.
+					</td>
+					<td>
+						<!--TODO pensare a come comunicano e quale tipo di messaggi si scambiano i diversi qaktor-->
+						<img>
+					</td>
+				</tr>
+			</table>
+		</p>
 		<h2>Test plans</h2>
 
 
@@ -587,9 +618,12 @@
 		<br /><br />
 	</div>
 
-	<div style="background-color:rgba(86, 56, 253, 0.9); width:60%;text-align:left;color:white">
-		By studentName email: student@studio.unibo.it
-		<img src="./img/emiglio.png" alt="mbot" width="15%" height="15%">
+	<div style="background-color:rgba(42, 7, 241, 1.0); width:100%;text-align:center;color:white">	
+		<table style="width:100%" border="1">
+			<tr>
+					By Mantovani Leonardo email: leonardo.mantovani2@studio.unibo.it
+			</tr>
+		</table>
 	</div>
 </body>
 
