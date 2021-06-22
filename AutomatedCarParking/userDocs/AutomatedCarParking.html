@@ -226,8 +226,7 @@
 
 <body>
 	<div id="top">
-		<h1>LABORATORIO DI INGEGNERIA DEI SISTEMI SOFTWARE <font size="5"></font>
-		</h1>
+		<h1><font size="5">Automated Car-Parking</font></h1>
 	</div>
 
 	<div class="body">
@@ -241,10 +240,6 @@
 
 		<h2>Requirements</h2>
 		<div class="remark">
-			<h1>Final task ISS-2021 Bologna: Automated Car-Parking</h1>
-
-			<h2>Automated Car-Parking</h2>
-
 			A company intends to build an <i>automating parking service</i> composed of a set of elements:
 
 			<ul>
@@ -320,7 +315,7 @@
 
 				</li>
 				<li>If <tt>SLOTNUM <k>>0</k></tt>, I move my car in front to the <tt>INDOOR</tt>, get out of the car and
-					afterwards press a <em>CARENTER</em> button on the
+					afterwards press a <em>CarEnter</em> button on the
 					<em>ParkServiceGUI</em>. Afterwards, the <tt>transport trolley</tt> takes over my car and moves it
 					from
 					the <tt>INDOOR</tt>
@@ -466,11 +461,10 @@
 				</li>
 
 			</ul>
+		</div>
 
-
-
-
-			<h2>Non functional requirements</h2>
+		<h2>Non functional requirements</h2>
+		<div class="remark">
 			<ol>
 				<li>The ideal work team is composed of <bc>3 persons</bc>. Teams of 1 or 2 persons (<bc>NOT</bc> 4 or
 					more)
@@ -525,9 +519,42 @@
 				</li>
 			</ul>
 		</div>
-
 		<h2>Requirement analysis</h2>
+		<p>After interviewing client, meanings he associates with nouns have been clarified:</p>
+		<ul>
+			<li>
+				<ks>WeigthSensor: </ks> is a sensor that provide weight of the car which is located in the INDOOR-area. Initially this sensor has the purpose of signaling the presence of a car in the entrance area.
+			</li>
+			<li>
+				<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area. Initially this sensor has the purpose of signaling the presence of a car in the exit area
+			</li>
+			<li>
+				<ks>ParkServiceGUI: </ks>this is the GUI associated with Clients. Provides to them all informations concerning parking area status. 
+				Moreover provide buttons that permit them to make a parking request and to withdraw the car from this area.
+			</li>
+			<li>
+				<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the tools concerning parking area management.
+			</li>
+			<li>
+				<ks>Home: </ks>trolley's main parking area. At application start and when there are no work, 
+				this is tha place in where trolley wait. It is situated in the north-west corner of room.
+				<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
+			</li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
 
+		<p>Regarding to actions (verbs):</p>
+		<ul>
+			<li></li>
+		</ul>
 		<u>Spiegare composizione delle GUI?</u>
 
 		<h2>Problem analysis</h2>
