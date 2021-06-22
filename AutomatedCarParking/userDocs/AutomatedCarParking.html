@@ -226,11 +226,13 @@
 
 <body>
 	<div id="top">
-		<h1><font size="5">Automated Car-Parking</font></h1>
+		<h1>
+			<font size="5">Automated Car-Parking</font>
+		</h1>
 	</div>
 
 	<div class="body">
-		<h2>Introduction</h2>
+		<h2><a name="introduction"></a>Introduction - SPRINT 1</h2>
 		<div class="remark">
 			<p>This document contain the analisis of the first SPRINT. To propose first prototype as soon as possible,
 				there will be some simplification compared to original problem.
@@ -523,21 +525,30 @@
 		<p>After interviewing client, meanings he associates with nouns have been clarified:</p>
 		<ul>
 			<li>
-				<ks>WeigthSensor: </ks> is a sensor that provide weight of the car which is located in the INDOOR-area. Initially this sensor has the purpose of signaling the presence of a car in the entrance area.
+				<ks>WeigthSensor: </ks> is a sensor that provide weight of the car which is located in the INDOOR-area.
+				Initially this sensor has the purpose of signaling the presence of a car in the entrance area.
 			</li>
 			<li>
-				<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area. Initially this sensor has the purpose of signaling the presence of a car in the exit area
+				<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area. Initially
+				this sensor has the purpose of signaling the presence of a car in the exit area
 			</li>
 			<li>
-				<ks>ParkServiceGUI: </ks>this is the GUI associated with Clients. Provides to them all informations concerning parking area status. 
-				Moreover provide buttons that permit them to make a parking request and to withdraw the car from this area.
+				<ks>Thermometer: </ks> is a sensor that measures temperature of the environment.
 			</li>
 			<li>
-				<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the tools concerning parking area management.
+				<ks>ParkServiceGUI: </ks>this is the GUI associated with Clients. Provides to them all informations
+				concerning parking area status.
+				Moreover provide buttons that permit them to make a parking request and to withdraw the car from this
+				area.
 			</li>
 			<li>
-				<ks>Home: </ks>trolley's main parking area. At application start and when there are no work, 
-				this is tha place in where trolley wait. It is situated in the north-west corner of room.
+				<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the
+				tools concerning parking area management.
+			</li>
+			<li>
+				<ks>Home: </ks>trolley's main parking area. At application start and when there are no work,
+				this is tha place in where trolley wait. It is situated in the north-west corner of room, coordinates
+				(0,0).
 				<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
 			</li>
 			<li></li>
@@ -555,26 +566,25 @@
 		<ul>
 			<li></li>
 		</ul>
-		<u>Spiegare composizione delle GUI?</u>
 
 		<h2>Problem analysis</h2>
-
+		<p>As mentioned in the <a href="#introduction">Introduction</a> in this document we will analyze a simplified
+			verision of the problem to provide a prototype in a short time.</p>
 
 		<h2>Test plans</h2>
 
 
 		<h2>Project</h2>
 
-	</div>
 
-	<h2>Testing</h2>
+		<h2>Testing</h2>
 
 
-	<h2>Deployment</h2>
+		<h2>Deployment</h2>
 
-	<h2>Maintenance</h2>
+		<h2>Maintenance</h2>
 
-	<br /><br />
+		<br /><br />
 	</div>
 
 	<div style="background-color:rgba(86, 56, 253, 0.9); width:60%;text-align:left;color:white">
