@@ -530,7 +530,7 @@
 			</li>
 			<li>
 				<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area. Initially
-				this sensor has the purpose of signaling the presence of a car in the exit area
+				this sensor has the purpose of signaling the presence of a car in the exit area.
 			</li>
 			<li>
 				<ks>Thermometer: </ks> is a sensor that measures temperature of the environment.
@@ -544,6 +544,22 @@
 			<li>
 				<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the
 				tools concerning parking area management.
+			</li>
+			<li>
+				<ks>Transport Trolley: </ks> is a DDR robot that has the task of parking cars from INDOOR to an assigned park-slot and, on a withdraw request, of moving cars from park-slot to OUTDOOR.
+				Trolley have three operative state: <k>idle</k>, <k>working</k>, <k>stopped</k>. 
+				<ul>
+					<li>
+						When he is in <k>idle</k> state, means that he don't has any request to serve. In this case he returns to his main place (<k>HOME</k>).
+					</li>
+					<li>
+						When he is in <k>working</k> state, means that he has to serve (or is serving) a request.
+					</li>
+					<li>
+						When he is in <k>stopped</k> state, means that there are some problems in the environment and the <ks>Parking Manager</ks> has manually stopped the trolley work. 
+						When he is in this situation, Trolley immediately stops whatever type of work it is doing and stays where he is.
+					</li>
+				</ul>
 			</li>
 			<li>
 				<ks>Home: </ks>trolley's main parking area. At application start and when there are no work,
@@ -562,7 +578,7 @@
 		<p>Regarding to actions (verbs):</p>
 		<ul>
 			<li>
-				When a client notify system that he want to enter in the parking-area receive an answer containing number of free slot, whether they are 0 or >0. 
+				When a client notify system that he wants to enter in the parking-area, receive an answer containing number of free slots, whether they are <k>0</k> or <k>>0</k>. 
 				Presence of other cars in queue arrived earlier may be notified to the client, if not he have to wait ultil his request will be processed.   
 			</li>
 			<li>
