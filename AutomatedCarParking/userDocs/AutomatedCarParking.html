@@ -568,9 +568,9 @@
 				<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
 			</li>
 			<li>
-				<ks>TOKEID: </ks> is the an identification number of the parking operation, strictly associated with the
+				<ks>TOKENID: </ks> is the <k>UNIQUE</k> an identification number of the parking operation, strictly associated with the
 				client owner of the parked car.
-				This number will be user at the end when the client decides to withdraw the car from the parking area.
+				This number will be used at the end when the client decides to withdraw the car from the parking area.
 			</li>
 
 		</ul>
@@ -579,7 +579,7 @@
 		<ul>
 			<li>
 				When a client notify system that he wants to enter in the parking-area, receive an answer containing number of free slots, whether they are <k>0</k> or <k>>0</k>. 
-				Presence of other cars in queue arrived earlier may be notified to the client, if not he have to wait ultil his request will be processed.   
+				His request will be processed when the <k>INDOOR</k> area is free.  
 			</li>
 			<li>
 				When a client make request for withdraw his car from parking-area have to enter manually his <k>TOKENID</k> on ParkServiceGUI.
@@ -607,7 +607,42 @@
 		<h3>User Story</h3>
 		<div class="remark">
 			<p>At the state of current simplifications, we describe this new <ks>User Story</ks>:</p>
-			<!--TODO write a new simplified user story-->
+			<table style="width:100%" border="1">
+				<tr>
+				<td style="width:70%">
+					
+					<bc>Parking phase</bc> :
+						<ul>
+						<li>After each time interval of variable duration, it's simulated the arrival of a new client and the related notification
+						of interest in entering his car in the <tt>parking-area</tt>.
+						<kc>ParkManagerService</kc> must check the number of free parking-slots <em>SLOTNUM</em> (<tt>1&lt;=SLOTNUM&lt;=6</tt>). 
+						<tt>SLOTNUM<k>==0</k></tt> means that no free slot is available.</em>
+				
+						<li>If <tt>SLOTNUM <k>>0</k></tt>, the car in positioned in front of <tt>INDOOR</tt>,then the <tt>transport trolley</tt> takes over the car and moves it from the <tt>INDOOR</tt> 
+						to the selected <tt>parking-slot</tt>.
+						<kc>ParkManagerService</kc> must generates an unique<em>TOKENID</em>, to be used in the <i>car pick up</i> phase.</li>
+						</ul>
+				
+						<bc>Car pick up phase</bc> :
+						<ul>
+						<li>After each time interval of variable duration, it's simulated the submittion by a client of the request to pick up his car, by using the a random <tt>TOKENID</tt> chosen from those previously generated. </li>  
+						<li>Afterwards, the <tt>transport trolley</tt>  takes over the car and moves it from its <tt>parking-slot</tt> to the <tt>OUTDOOR-area</tt>.</li>
+						<li>With a certain random probability, the client clears the <tt>OUTDOOR-area</tt> in a time interval less than <tt>DTFREE</tt>.
+						</li>
+						 </ul>
+				
+					<bc>Parking-manager</bc>:
+						<ul>
+						<li>The features related to the <tt>parking manager</tt> and its GUI are not considered for the time being. Consequently, neither the thermometer or the fans are considered.
+						<li>Any alarm emitted by the OUTDOOR is not managed.
+				
+						</ul>	
+				</td>
+				<td>
+					<center><img src="./img/parkingAreaZone.PNG" alt="parkingAreaZone.PNG" width="99%"/></center>
+				</td>
+				</tr>
+				</table>
 		</div>
 
 		<h3>Logical Architecture</h3>

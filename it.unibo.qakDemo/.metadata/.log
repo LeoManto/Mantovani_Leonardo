@@ -3753,3 +3753,68 @@ java.lang.IllegalArgumentException: Equal objects must have equal hashcodes. Dur
 
 !ENTRY org.jetbrains.kotlin.core 2 0 2021-05-16 11:26:24.161
 !MESSAGE Could not check for update (Could not obtain update site)
+!SESSION 2021-06-23 18:48:03.253 -----------------------------------------------
+eclipse.buildId=4.16.0.I20200604-0540
+java.version=16.0.1
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=it_IT
+Framework arguments:  -product org.eclipse.epp.package.dsl.product -product org.eclipse.epp.package.dsl.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.dsl.product -data F:\Desktop\Scuola\Università\ANNO - IV\Ingegneria dei Sistemi Software\iss2021\it.unibo.qakDemo -product org.eclipse.epp.package.dsl.product
+
+!ENTRY org.eclipse.jface 2 0 2021-06-23 18:48:08.459
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2021-06-23 18:48:08.459
+!MESSAGE A conflict occurred for CTRL+SHIFT+T:
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.navigate.open.type,Open Type,
+		Open a type in a Java editor,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@dd77e0d,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(CTRL+SHIFT+T,
+	ParameterizedCommand(Command(org.eclipse.lsp4e.symbolinworkspace,Go to Symbol in Workspace,
+		,
+		Category(org.eclipse.lsp4e.category,Language Servers,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@799cf32d,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+
+!ENTRY org.eclipse.egit.ui 2 0 2021-06-23 18:48:18.638
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\Leo'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:49:42.058
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@5e02753c
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:49:43.151
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@1d2c5d75
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:49:47.650
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@7c752d6b
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:49:52.239
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@71ad307d
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:50:12.209
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@71ad307d
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:50:13.977
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@1d2c5d75
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:50:14.690
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@5e02753c
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:50:21.771
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@6b3fa2ef
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:51:00.646
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@6b3fa2ef
+
+!ENTRY org.jetbrains.kotlin.core 4 0 2021-06-23 18:51:02.888
+!MESSAGE Failed to retrieve IFile from editor org.jetbrains.kotlin.ui.editors.KotlinFileEditor@6b3fa2ef
