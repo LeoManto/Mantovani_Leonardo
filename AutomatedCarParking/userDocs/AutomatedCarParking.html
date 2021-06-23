@@ -561,7 +561,13 @@
 
 		<p>Regarding to actions (verbs):</p>
 		<ul>
-			<li></li>
+			<li>
+				When a client notify system that he want to enter in the parking-area receive an answer containing number of free slot, whether they are 0 or >0. 
+				Presence of other cars in queue arrived earlier may be notified to the client, if not he have to wait ultil his request will be processed.   
+			</li>
+			<li>
+				When a client make request for withdraw his car from parking-area have to enter manually his <k>TOKENID</k> on ParkServiceGUI.
+			</li>
 		</ul>
 
 		<h2>Problem analysis</h2>
@@ -592,7 +598,7 @@
 		<p>
 			<table style="width:100%" border="1">
 				<tr>
-					<td style="width:50%">
+					<td style="width:50%;">
 						<p>For our system we have implemented four <ks>actors</ks>, everyone providing a different service.</p> 
 						<p>Actors that we implement, will be of <ks><a href="./LabQakIntro2021.html">QActorK</a></ks> type.</p>
 						<ul>
@@ -605,8 +611,8 @@
 					</td>
 					<td>
 						<!--TODO pensare a come comunicano e quale tipo di messaggi si scambiano i diversi qaktor-->
+					<center><img src="./img/ModelloActors.jpg" style="max-width: 265px; max-height: 533px;"></center>
 						
-						<center><img src="./img/ModelloActors.jpg" width="263px" height="531"></center>
 					</td>
 				</tr>
 				<tr>
