@@ -1,0 +1,116 @@
+/*
+ * demoplannertf21.qak
+ 
+ ASSUMPTION: the virtualrobot is running
+  
+ In this model, we use the actors defined in 2020 (project it.unibo.qakactor)
+
+ However, the support to interact with the robot (pathexecutil) 
+ uses the actors defined in 2021
+ (e.g. it.unibo.robotService.BasicStepRobotActor from project it.unibo.kotlinSupports)
+ 
+ We use also the plannerUtil included in project it.unibo.kotlinSupport. 
+  */   
+System   demoplannertf21
+
+Dispatch moveok   : move( MOVESHORT )
+
+Context ctxDemoplannertf21   ip [host="localhost" port=8052]
+      
+/* 
+ * ------------------------------------------------------------------
+ *   
+ * ------------------------------------------------------------------
+*/     
+QActor trolley context ctxDemoplannertf21{         
+[#
+val mapname     = "parkingMap"  		 
+var Myself      = myself   
+var CurrentPlannedMove = "" 
+#] 
+	State s0 initial {	 
+     	run itunibo.planner.plannerUtil.initAI()
+		println("&&&  trolley loads the parking map from the given file ...") 
+		run itunibo.planner.plannerUtil.loadRoomMap("$mapname") 
+		//Set the parking area ...
+  		//run itunibo.planner.plannerUtil.updateMapObstacleOnCurrentDirection()
+		run itunibo.planner.plannerUtil.showMap( )   
+     	run itunibo.planner.plannerUtil.showCurrentRobotState()
+     	
+     	run pathexecutil.register( Myself ) 
+   	}
+   	Goto moveToIndoor  
+   	
+   	State setParkingArea{
+   		//run itunibo.planner.plannerUtil.planForGoal("1","1")
+   		//TODO
+   	}
+
+  	State moveToIndoor{  	
+  		 run itunibo.planner.plannerUtil.planForGoal("6","0")
+   	} 
+    Goto execPlannedMoves     
+    
+	State execPlannedMoves{   
+		delay 300
+ 		[#  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove() #]
+ 		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove")
+ 	}
+ 	Goto doMove if [# CurrentPlannedMove.length>0 #] else parkthecar
+ 
+ 	State doMove{ 		
+ 	}
+ 	Goto wMove if [# CurrentPlannedMove == "w" #] else turnMove
+ 	
+ 	State wMove {     
+ 		qrun pathexecutil.doMove(myself, "p" )  
+ 	}
+ 	Transition t0 whenMsg moveok   -> stepDone   
+  	
+ 	 State stepDone{  
+ 	 	printCurrentMessage
+ 		//updateResource [# itunibo.planner.plannerUtil.getMap() #]
+ 		run itunibo.planner.plannerUtil.updateMap(  "w" )
+ 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
+ 		//updateResource [# "stepDone" # ]
+  	} 
+ 	Goto execPlannedMoves
+ 	
+ 	State turnMove{
+  		if [# CurrentPlannedMove == "l" || CurrentPlannedMove == "r"  #]{
+  			qrun pathexecutil.doMove(myself, "$CurrentPlannedMove")
+  		} 
+ 	}   
+  	Transition t0  whenMsg moveok   -> rotationDone
+
+
+ 	State rotationDone{
+ 		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
+   		//run itunibo.planner.plannerUtil.showCurrentRobotState( )
+ 	} 
+ 	 Goto execPlannedMoves
+ 	
+ 	State parkthecar{
+ 		printCurrentMessage  
+ 		
+ 		run itunibo.planner.plannerUtil.showCurrentRobotState( )  
+ 		//if [# ! itunibo.planner.plannerUtil.atHome() #]{
+ 		if [# ! itunibo.planner.plannerUtil.atPos(4,1) #]{
+ 			//move to a parking cell (3,1)
+ 			run itunibo.planner.plannerUtil.planForGoal("4","1")
+ 		}else{
+ 			run itunibo.planner.plannerUtil.planForGoal("0","0")
+ 		}
+ 	} 
+    Goto execPlannedMoves  if[# ! itunibo.planner.plannerUtil.atHome() #] else  end
+
+	State end{
+		println("AT HOME ...")
+	}
+
+}	
+     
+
+    
+     
+
