@@ -19,6 +19,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 		
 			lateinit var weightSensorActor : ActorBasic
 			lateinit var outSonarActor : ActorBasic
+			lateinit var thermometerActor : ActorBasic
+			lateinit var fanActor : ActorBasic
 			
 			var indoorFree 	  = true
 			var outdoorFree	  = true
@@ -31,13 +33,14 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						
 								outSonarActor     = sysUtil.getActor("outsonar")!!
 								weightSensorActor = sysUtil.getActor("weightsensor")!!
-						println("Park System START | SERVICE")
+								thermometerActor = sysUtil.getActor("thermometer")!!
+								fanActor = sysUtil.getActor("fan")!!
+						forward("startthermometer", "thermometer(V)" ,"thermometer" ) 
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
 				state("ready") { //this:State
 					action { //it:State
-						println("waiting for client | SERVICE")
 					}
 					 transition(edgeName="t04",targetState="handleToken",cond=whenDispatch("pickup"))
 					transition(edgeName="t05",targetState="acceptin",cond=whenRequest("reqenter"))
@@ -50,7 +53,6 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						answer("reqenter", "slotsnum", "slotsnum($SLOTNUM)"   )  
 						updateResourceRep( "slotsnum : slotsnum ($SLOTNUM)"  
 						)
-						println("Trolley is moving to Indoor | SERVICE")
 					}
 					 transition(edgeName="t06",targetState="carenter",cond=whenRequest("carenter"))
 				}	 
@@ -67,9 +69,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 
 												var peso = payloadArg(0)
-												println("Weight: " + peso)
+												//println("Weight: " + peso)
 						}
-						println("Trolley moves from entrance to slot $SLOTNUM | SERVICE")
 						 indoorFree = true  
 						stateTimer = TimerActor("timer_moveToSlotIn", 
 							scope, context!!, "local_tout_parkingmanagerservice_moveToSlotIn", 4000.toLong() )
@@ -93,7 +94,6 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 								 var tokenIN = payloadArg(0)  
 						}
 						delay(500) 
-						println("checking Trolley status | SERVICE")
 						stateTimer = TimerActor("timer_handleToken", 
 							scope, context!!, "local_tout_parkingmanagerservice_handleToken", 500.toLong() )
 					}
@@ -101,9 +101,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("picking") { //this:State
 					action { //it:State
-						println("Trolley picking car | SERVICE")
 						delay(4000) 
-						println("Car is in Outdoor area | SERVICE")
 						emit("caroutdoorarrival", "coa(car_outdoor)" ) 
 						 outdoorFree = false  
 					}
@@ -113,13 +111,11 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				state("withdrawn") { //this:State
 					action { //it:State
 						 outdoorFree = true  
-						println("Car withdrawn!")
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
 				state("timeout") { //this:State
 					action { //it:State
-						println("%%%% TIMEOUT %%%%")
 						emit("alarm", "timeout(alarm)" ) 
 					}
 				}	 

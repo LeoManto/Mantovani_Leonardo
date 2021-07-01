@@ -22,14 +22,12 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						println("Client mock simulation START | CLIENT")
 					}
 					 transition( edgeName="goto",targetState="requestToEnter", cond=doswitch() )
 				}	 
 				state("requestToEnter") { //this:State
 					action { //it:State
 						delay(4000) 
-						println("client notify his interest in entering | CLIENT")
 						request("reqenter", "reqenter(client)" ,"parkingmanagerservice" )  
 					}
 					 transition(edgeName="t00",targetState="cartoindoor",cond=whenReply("slotsnum"))
@@ -44,8 +42,7 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 SLOTNUM = payloadArg(0).toInt()  
 								if(  SLOTNUM > 0  
-								 ){println("SLOTNUM = $SLOTNUM | CLIENT")
-								request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
+								 ){request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
 								}
 						}
 					}
@@ -58,7 +55,6 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 								 TOKENID = payloadArg(0).toInt()  
 								updateResourceRep( "TOKENID"  
 								)
-								println("client's TOKENID is $TOKENID | CLIENT")
 						}
 						stateTimer = TimerActor("timer_afterreceipt", 
 							scope, context!!, "local_tout_client_afterreceipt", 10000.toLong() )
@@ -67,7 +63,6 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 				}	 
 				state("reqpickup") { //this:State
 					action { //it:State
-						println("client notify his interest in picking his car | CLIENT")
 						forward("pickup", "pickup($TOKENID)" ,"parkingmanagerservice" ) 
 					}
 					 transition(edgeName="t03",targetState="pickupcar",cond=whenEvent("caroutdoorarrival"))
