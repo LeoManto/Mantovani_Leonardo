@@ -17,17 +17,21 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		 
-				var SLOTNUM = 0
-				var TOKENID = 0 /* sarà direttamente il num dello slot assegnato */
+				var CLIENTDONE  = 0
+				var SLOTNUM 	= 0 // num degli slot liberi 
+				var TOKENID 	= "0" // sarà direttamente il num dello slot assegnato 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						println("Client mock simulation START | CLIENT")
 					}
 					 transition( edgeName="goto",targetState="requestToEnter", cond=doswitch() )
 				}	 
 				state("requestToEnter") { //this:State
 					action { //it:State
-						delay(4000) 
+						 var t = kotlin.random.Random.nextLong(1000,4000)  
+						 delay(t)  
+						println("client notify his interest in entering | CLIENT")
 						request("reqenter", "reqenter(client)" ,"parkingmanagerservice" )  
 					}
 					 transition(edgeName="t00",targetState="cartoindoor",cond=whenReply("slotsnum"))
@@ -42,7 +46,8 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 SLOTNUM = payloadArg(0).toInt()  
 								if(  SLOTNUM > 0  
-								 ){request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
+								 ){println("There are $SLOTNUM free slots. Moving car to Indoor | CLIENT")
+								request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
 								}
 						}
 					}
@@ -52,17 +57,21 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("receipt(TOKENID)"), Term.createTerm("receipt(TOKENID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 TOKENID = payloadArg(0).toInt()  
+								 TOKENID = payloadArg(0)  
 								updateResourceRep( "TOKENID"  
 								)
+								println("client's TOKENID is $TOKENID | CLIENT")
+								 var t1 = kotlin.random.Random.nextLong(3000, 6000)
+											 delay(t1)  
 						}
 						stateTimer = TimerActor("timer_afterreceipt", 
-							scope, context!!, "local_tout_client_afterreceipt", 10000.toLong() )
+							scope, context!!, "local_tout_client_afterreceipt", 6000.toLong() )
 					}
 					 transition(edgeName="t02",targetState="reqpickup",cond=whenTimeout("local_tout_client_afterreceipt"))   
 				}	 
 				state("reqpickup") { //this:State
 					action { //it:State
+						println("client notify his interest in picking his car | CLIENT")
 						forward("pickup", "pickup($TOKENID)" ,"parkingmanagerservice" ) 
 					}
 					 transition(edgeName="t03",targetState="pickupcar",cond=whenEvent("caroutdoorarrival"))
@@ -71,6 +80,16 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 					action { //it:State
 						delay(2000) 
 						emit("carwithdrawn", "cw(bye)" ) 
+						 CLIENTDONE = CLIENTDONE + 1  
+					}
+					 transition( edgeName="goto",targetState="stop", cond=doswitchGuarded({ CLIENTDONE == 5  
+					}) )
+					transition( edgeName="goto",targetState="requestToEnter", cond=doswitchGuarded({! ( CLIENTDONE == 5  
+					) }) )
+				}	 
+				state("stop") { //this:State
+					action { //it:State
+						println("No more clients")
 					}
 				}	 
 			}

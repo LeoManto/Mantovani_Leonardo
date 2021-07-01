@@ -19,13 +19,12 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 		
 			lateinit var weightSensorActor : ActorBasic
 			lateinit var outSonarActor : ActorBasic
-			lateinit var thermometerActor : ActorBasic
-			lateinit var fanActor : ActorBasic
 			
-			var indoorFree 	  = true
-			var outdoorFree	  = true
-			var trolleyStatus = true
-			var SLOTNUM 	  = 0
+			var SLOTNUM = 1
+			var INDOORTOKEN  = "1" //tokenid dato al client
+			
+			var OUTDOORTOKEN = "1" //tokenid ricevuto dal client
+			var EXITSLOT =  1
 			
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
@@ -35,30 +34,44 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 								weightSensorActor = sysUtil.getActor("weightsensor")!!
 								thermometerActor = sysUtil.getActor("thermometer")!!
 								fanActor = sysUtil.getActor("fan")!!
+						println("Park System START | SERVICE")
 						forward("startthermometer", "thermometer(V)" ,"thermometer" ) 
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
 				state("ready") { //this:State
 					action { //it:State
+						println("waiting for client | SERVICE")
 					}
-					 transition(edgeName="t04",targetState="handleToken",cond=whenDispatch("pickup"))
+					 transition(edgeName="t04",targetState="handleOutdoorToken",cond=whenDispatch("pickup"))
 					transition(edgeName="t05",targetState="acceptin",cond=whenRequest("reqenter"))
 				}	 
 				state("acceptin") { //this:State
 					action { //it:State
-						 SLOTNUM = kotlin.random.Random.nextInt(1,6)  
+						if(  	`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree &&
+										`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.checkSlots() > 0
+						 ){ SLOTNUM = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.findSlot()  
 						updateResourceRep( "SLOTNUM"  
 						)
+						println("SLOTNUM = $SLOTNUM | SERVICE")
 						answer("reqenter", "slotsnum", "slotsnum($SLOTNUM)"   )  
 						updateResourceRep( "slotsnum : slotsnum ($SLOTNUM)"  
 						)
+						println("Trolley is moving to Indoor | SERVICE")
+						}
+						else
+						 {if( checkMsgContent( Term.createTerm("reqenter(V)"), Term.createTerm("reqenter(V)"), 
+						                         currentMsg.msgContent()) ) { //set msgArgList
+						 		 var W = payloadArg(0)  
+						 		request("reqenter", "reqenter($W)" ,"parkingmanagerservice" )  
+						 }
+						 }
 					}
 					 transition(edgeName="t06",targetState="carenter",cond=whenRequest("carenter"))
 				}	 
 				state("carenter") { //this:State
 					action { //it:State
-						 indoorFree = false  
+						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree = false  
 						emit("carindoorarrival", "cia(car_arrived)" ) 
 					}
 					 transition(edgeName="t07",targetState="moveToSlotIn",cond=whenEvent("weightsensor"))
@@ -69,9 +82,11 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 
 												var peso = payloadArg(0)
-												//println("Weight: " + peso)
+												println("Weight: " + peso)
 						}
-						 indoorFree = true  
+						println("Trolley moves from INDOOR to slot $SLOTNUM | SERVICE")
+						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree  = true  
+						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.setSlot(SLOTNUM, false)  
 						stateTimer = TimerActor("timer_moveToSlotIn", 
 							scope, context!!, "local_tout_parkingmanagerservice_moveToSlotIn", 4000.toLong() )
 					}
@@ -79,43 +94,54 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("receipt") { //this:State
 					action { //it:State
-						 var TOKENID = SLOTNUM  
-						answer("carenter", "receipt", "receipt($TOKENID)"   )  
-						updateResourceRep( "receipt : receipt($TOKENID)"  
+						 	INDOORTOKEN = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.generateToken(SLOTNUM)  
+						answer("carenter", "receipt", "receipt($INDOORTOKEN)"   )  
+						updateResourceRep( "receipt : receipt($INDOORTOKEN)"  
 						)
-						emit("carindoorarrival", "cia(car_arrived)" ) 
+						println("TOKENID: $INDOORTOKEN")
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
-				state("handleToken") { //this:State
+				state("handleOutdoorToken") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("pickup(tokenID)"), Term.createTerm("pickup(tokenID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 var tokenIN = payloadArg(0)  
+								  OUTDOORTOKEN = payloadArg(0).toString()
 						}
-						delay(500) 
-						stateTimer = TimerActor("timer_handleToken", 
-							scope, context!!, "local_tout_parkingmanagerservice_handleToken", 500.toLong() )
+						 EXITSLOT = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.checkToken(OUTDOORTOKEN)  
+						println("checking Trolley status | SERVICE")
 					}
-					 transition(edgeName="t09",targetState="picking",cond=whenTimeout("local_tout_parkingmanagerservice_handleToken"))   
+					 transition( edgeName="goto",targetState="picking", cond=doswitchGuarded({ EXITSLOT > 0  
+					}) )
+					transition( edgeName="goto",targetState="tokenError", cond=doswitchGuarded({! ( EXITSLOT > 0  
+					) }) )
+				}	 
+				state("tokenError") { //this:State
+					action { //it:State
+						println("Invalid insert Token!")
+					}
+					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
 				state("picking") { //this:State
 					action { //it:State
+						println("Trolley picking car from slot $EXITSLOT | SERVICE")
 						delay(4000) 
+						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.setSlot(EXITSLOT, true)  
+						println("Car is in Outdoor area | SERVICE")
 						emit("caroutdoorarrival", "coa(car_outdoor)" ) 
-						 outdoorFree = false  
 					}
-					 transition(edgeName="t010",targetState="withdrawn",cond=whenEvent("carwithdrawn"))
-					transition(edgeName="t011",targetState="timeout",cond=whenEvent("timeout"))
+					 transition(edgeName="t09",targetState="withdrawn",cond=whenEvent("carwithdrawn"))
+					transition(edgeName="t010",targetState="timeout",cond=whenEvent("timeout"))
 				}	 
 				state("withdrawn") { //this:State
 					action { //it:State
-						 outdoorFree = true  
+						println("Car withdrawn!")
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
 				state("timeout") { //this:State
 					action { //it:State
+						println("%%%% TIMEOUT %%%%")
 						emit("alarm", "timeout(alarm)" ) 
 					}
 				}	 

@@ -20,7 +20,7 @@ var busy = false
 val DTFREE  = 10 //seconds
 var tmp     = DTFREE
 	
-	private val mainScope = CoroutineScope(Dispatchers.Default)
+private val mainScope = CoroutineScope(Dispatchers.Default)
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi

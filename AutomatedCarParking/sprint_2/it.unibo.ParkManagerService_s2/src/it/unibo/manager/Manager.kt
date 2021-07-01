@@ -17,7 +17,7 @@ class Manager ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		 
-				var init = false
+				var working = true
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -28,24 +28,27 @@ class Manager ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 				state("waitTemp") { //this:State
 					action { //it:State
 						
-									if(init == false){
+									if(working == true){
 										println("Attendo l'evento del termometro | GENERATORE")
 									}else{
+										working = true
+						forward("stopfan", "stopfan(V)" ,"fan" ) 
 						println("Invio messaggio restart")
 						forward("restart", "restart(V)" ,"thermometer" ) 
 						
 									}
+									
 					}
-					 transition(edgeName="t012",targetState="fanActivation",cond=whenEvent("hottemp"))
+					 transition(edgeName="t011",targetState="fanActivation",cond=whenEvent("hottemp"))
 				}	 
 				state("fanActivation") { //this:State
 					action { //it:State
 						println("Ho ricevuto l'allarme, attivo la ventola...")
 						forward("startfan", "fan(V)" ,"fan" ) 
 						
-									init = true
+									working = false
 					}
-					 transition(edgeName="t013",targetState="waitTemp",cond=whenEvent("normtemp"))
+					 transition(edgeName="t012",targetState="waitTemp",cond=whenEvent("normtemp"))
 				}	 
 			}
 		}
