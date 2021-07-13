@@ -19,8 +19,8 @@ import kotlinx.coroutines.Job
  
 class fanSimulator (name : String ) : ActorBasic( name ) {
 	
-	var tempAtt = Temperature
-	var work = true
+	val tempAtt = Temperature
+	var workFan = true
 	
 	val mainScope = CoroutineScope(Dispatchers.Default)
 	
@@ -31,39 +31,35 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	override suspend fun actorBody(msg: ApplMessage) {
-  		if( msg.msgId() == "hottemp" &&  msg.msgType() == "event") { 
+  		if( msg.msgId() == "temp" &&  msg.msgType() == "event") { 
 			var temp = msg.msgContent().toInt()
-			println(temp)
 			if(temp >= maxTemp){
-				work = true
+				workFan = true
 				startFan()
 			}
-			
 		}
  	}
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
-	fun startFan() = runBlocking{
-		println("Fan START | FANSIMU")
-	
+	suspend fun startFan() {
+		println("Fan START | FAN")
 		//-------------------------------------------------------------------------------------------------------
 		//se si vuole inviare un evento al mockActor...
 		//val m5 = MsgUtil.buildEvent(name, "stopinc", "stopinc(temp)")
 		//emit(m5)
 	
 		//se si vuole inviare un dispatch al mockActor...
+		//val stopMsg = MsgUtil.buildDispatch("main","stopinc","stopinc(temp)","thermometer")
 		forward("stopinc", "stopinc(temp)" ,"thermometer" ) 
 		//-------------------------------------------------------------------------------------------------------
-	
 		val job : Job = mainScope.launch{
-			
-			while(work==true){
-				delay(4000)
+
+			while(workFan){
+
 				tempAtt.decTemp()
-				println(tempAtt.getTemp())
 				if(tempAtt.getTemp() <= minTemp){
-					work = false
+					workFan = false
 					
 					//-------------------------------------------------------------------------------------------------------
 					//se si vuole inviare un evento al mockActor...
@@ -73,14 +69,12 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 					//se si vuole inviare un dispatch al mockActor...
 					//forward("normotemp", "norm(temp)" ,"thermometer" ) 
 					//-------------------------------------------------------------------------------------------------------
-					
-					delay(1000)
 				}
-			}
-			
+				delay(3000)
+			}	
 		}
-		job.join()
-		println("done | FAN") 
+		//job.join()
+		//println("done | FAN") 
 	}
 }
 	

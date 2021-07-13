@@ -16,40 +16,62 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
-		 
+		 val tester = `it.unibo`.parkingmanagerservice.test.utils.Tester
 				var SLOTNUM = 0
 				var TOKENID = 0 // sarà direttamente il num dello slot assegnato //
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						println("Client mock simulation START | CLIENT")
+						stateTimer = TimerActor("timer_s0", 
+							scope, context!!, "local_tout_client_s0", 4000.toLong() )
 					}
-					 transition( edgeName="goto",targetState="requestToEnter", cond=doswitch() )
+					 transition(edgeName="t00",targetState="requestToEnter",cond=whenTimeout("local_tout_client_s0"))   
 				}	 
 				state("requestToEnter") { //this:State
 					action { //it:State
-						delay(4000) 
 						println("client notify his interest in entering | CLIENT")
+						 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.reqToEnter)  
 						request("reqenter", "reqenter(client)" ,"parkingmanagerservice" )  
+						stateTimer = TimerActor("timer_requestToEnter", 
+							scope, context!!, "local_tout_client_requestToEnter", 3000.toLong() )
 					}
-					 transition(edgeName="t00",targetState="cartoindoor",cond=whenReply("slotsnum"))
+					 transition(edgeName="t01",targetState="noresponse",cond=whenTimeout("local_tout_client_requestToEnter"))   
+					transition(edgeName="t02",targetState="afterslotnum",cond=whenReply("slotsnum"))
+				}	 
+				state("noresponse") { //this:State
+					action { //it:State
+						 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.noResponse)  
+						println("No SLOTNUM received, System not correctly work")
+					}
 				}	 
 				state("noentry") { //this:State
 					action { //it:State
+						 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.noEntry)  
+						println("No Free Slot, I can't entry")
 					}
 				}	 
-				state("cartoindoor") { //this:State
+				state("afterslotnum") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("slotsnum(SLOTNUM)"), Term.createTerm("slotsnum(SLOTNUM)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 SLOTNUM = payloadArg(0).toInt()  
+								 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.carToIndoor)
+								println("SLOTNUM = $SLOTNUM | CLIENT")
 								if(  SLOTNUM > 0  
-								 ){println("SLOTNUM = $SLOTNUM | CLIENT")
-								request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
+								 ){request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
 								}
 						}
 					}
-					 transition(edgeName="t01",targetState="afterreceipt",cond=whenReply("receipt"))
+					 transition( edgeName="goto",targetState="cartoindoor", cond=doswitchGuarded({ SLOTNUM > 0  
+					}) )
+					transition( edgeName="goto",targetState="noentry", cond=doswitchGuarded({! ( SLOTNUM > 0  
+					) }) )
+				}	 
+				state("cartoindoor") { //this:State
+					action { //it:State
+					}
+					 transition(edgeName="t03",targetState="afterreceipt",cond=whenReply("receipt"))
 				}	 
 				state("afterreceipt") { //this:State
 					action { //it:State
@@ -59,23 +81,27 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 								updateResourceRep( "TOKENID"  
 								)
 								println("client's TOKENID is $TOKENID | CLIENT")
+								 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.afterReceipt) 
+											   tester.setToken(TOKENID)
 						}
 						stateTimer = TimerActor("timer_afterreceipt", 
 							scope, context!!, "local_tout_client_afterreceipt", 10000.toLong() )
 					}
-					 transition(edgeName="t02",targetState="reqpickup",cond=whenTimeout("local_tout_client_afterreceipt"))   
+					 transition(edgeName="t04",targetState="reqpickup",cond=whenTimeout("local_tout_client_afterreceipt"))   
 				}	 
 				state("reqpickup") { //this:State
 					action { //it:State
 						println("client notify his interest in picking his car | CLIENT")
 						forward("pickup", "pickup($TOKENID)" ,"parkingmanagerservice" ) 
+						 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.reqPickup)  
 					}
-					 transition(edgeName="t03",targetState="pickupcar",cond=whenEvent("caroutdoorarrival"))
+					 transition(edgeName="t05",targetState="pickupcar",cond=whenEvent("caroutdoorarrival"))
 				}	 
 				state("pickupcar") { //this:State
 					action { //it:State
 						delay(2000) 
 						emit("carwithdrawn", "cw(bye)" ) 
+						 tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.pickupCar)  
 					}
 				}	 
 			}

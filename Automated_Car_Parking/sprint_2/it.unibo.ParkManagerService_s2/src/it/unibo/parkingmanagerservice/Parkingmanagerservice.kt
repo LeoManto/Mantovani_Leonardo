@@ -37,26 +37,67 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 								weightSensorActor = sysUtil.getActor("weightsensor")!!
 								thermometerActor = sysUtil.getActor("thermometer")!!
 								fanActor = sysUtil.getActor("fan")!!
-						println("Park System START | SERVICE")
 						forward("startthermometer", "thermometer(V)" ,"thermometer" ) 
+						println("Park System START | SERVICE")
 					}
-					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
+					 transition( edgeName="goto",targetState="check", cond=doswitch() )
+				}	 
+				state("check") { //this:State
+					action { //it:State
+					}
+					 transition( edgeName="goto",targetState="okIndoor", cond=doswitchGuarded({ `it.unibo`.utils.ParkingSlotsKb.indoorFree && 
+										 	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0  
+					}) )
+					transition( edgeName="goto",targetState="checkOutdoor", cond=doswitchGuarded({! ( `it.unibo`.utils.ParkingSlotsKb.indoorFree && 
+										 	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0  
+					) }) )
+				}	 
+				state("okIndoor") { //this:State
+					action { //it:State
+					}
+					 transition( edgeName="goto",targetState="ready", cond=doswitchGuarded({ `it.unibo`.utils.ParkingSlotsKb.outdoorFree  
+					}) )
+					transition( edgeName="goto",targetState="readyOnlyIndoor", cond=doswitchGuarded({! ( `it.unibo`.utils.ParkingSlotsKb.outdoorFree  
+					) }) )
+				}	 
+				state("checkOutdoor") { //this:State
+					action { //it:State
+					}
+					 transition( edgeName="goto",targetState="readyOnlyOutdoor", cond=doswitchGuarded({ `it.unibo`.utils.ParkingSlotsKb.outdoorFree  
+					}) )
+					transition( edgeName="goto",targetState="notReady", cond=doswitchGuarded({! ( `it.unibo`.utils.ParkingSlotsKb.outdoorFree  
+					) }) )
 				}	 
 				state("ready") { //this:State
 					action { //it:State
-						println("waiting for client | SERVICE")
-						delay(3000) 
-						println("Trolley returning at HOME | SERVICE")
+						println("INDOOR and OUTDOOR Avaiable | SERVICE")
 					}
-					 transition(edgeName="t00",targetState="acceptout",cond=whenDispatch("pickup"))
-					transition(edgeName="t01",targetState="acceptin",cond=whenRequest("reqenter"))
+					 transition(edgeName="t00",targetState="acceptin",cond=whenRequest("reqenter"))
+					transition(edgeName="t01",targetState="acceptout",cond=whenDispatch("pickup"))
+				}	 
+				state("readyOnlyIndoor") { //this:State
+					action { //it:State
+						println("INDOOR Avaiable | SERVICE")
+					}
+					 transition(edgeName="t02",targetState="acceptin",cond=whenRequest("reqenter"))
+				}	 
+				state("readyOnlyOutdoor") { //this:State
+					action { //it:State
+						println("OUTDOOR Avaiable | SERVICE")
+					}
+					 transition(edgeName="t03",targetState="acceptout",cond=whenDispatch("pickup"))
+				}	 
+				state("notReady") { //this:State
+					action { //it:State
+						stateTimer = TimerActor("timer_notReady", 
+							scope, context!!, "local_tout_parkingmanagerservice_notReady", 2000.toLong() )
+					}
+					 transition(edgeName="t04",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_notReady"))   
 				}	 
 				state("acceptin") { //this:State
 					action { //it:State
-						if(  	`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree &&
-										`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.checkSlots() > 0
-										// TODO (next sprint): controllo sullo stato del Trolley
-						 ){ SLOTNUM = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.findSlot()  
+						 SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot()  
+						 `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false)  
 						updateResourceRep( "SLOTNUM"  
 						)
 						answer("reqenter", "slotsnum", "slotsnum($SLOTNUM)"   )  
@@ -64,28 +105,19 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						updateResourceRep( "slotsnum : slotsnum ($SLOTNUM)"  
 						)
 						println("Trolley is moving to Indoor | SERVICE")
-						}
-						else
-						 {if( checkMsgContent( Term.createTerm("reqenter(V)"), Term.createTerm("reqenter(V)"), 
-						                         currentMsg.msgContent()) ) { //set msgArgList
-						 		 var W = payloadArg(0)  
-						 		request("reqenter", "reqenter($W)" ,"parkingmanagerservice" )  
-						 }
-						 }
 					}
-					 transition(edgeName="t02",targetState="carenter",cond=whenRequest("carenter"))
+					 transition(edgeName="t05",targetState="carenter",cond=whenRequest("carenter"))
 				}	 
 				state("carenter") { //this:State
 					action { //it:State
-						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree = false  
 						emit("carindoorarrival", "cia(car_arrived)" ) 
-						 	INDOORTOKEN = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.generateToken(SLOTNUM)  
+						 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM)  
 						answer("carenter", "receipt", "receipt($INDOORTOKEN)"   )  
 						updateResourceRep( "receipt : receipt($INDOORTOKEN)"  
 						)
 						println("INDOOR TOKENID: $INDOORTOKEN")
 					}
-					 transition(edgeName="t03",targetState="moveToSlotIn",cond=whenEvent("weightsensor"))
+					 transition(edgeName="t06",targetState="moveToSlotIn",cond=whenEvent("weightsensor"))
 				}	 
 				state("moveToSlotIn") { //this:State
 					action { //it:State
@@ -96,30 +128,19 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 												println("Weight: " + peso)
 						}
 						println("Trolley moves from INDOOR to slot $SLOTNUM | SERVICE")
-						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree  = true  
-						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.setSlot(SLOTNUM, false)  
+						 `it.unibo`.utils.ParkingSlotsKb.indoorFree  = true  
 						stateTimer = TimerActor("timer_moveToSlotIn", 
 							scope, context!!, "local_tout_parkingmanagerservice_moveToSlotIn", 3000.toLong() )
 					}
-					 transition(edgeName="t04",targetState="ready",cond=whenTimeout("local_tout_parkingmanagerservice_moveToSlotIn"))   
+					 transition(edgeName="t07",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_moveToSlotIn"))   
 				}	 
 				state("acceptout") { //this:State
 					action { //it:State
-						if(  	`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.outdoorFree
-									// TODO (next sprint): controllo sullo stato del Trolley
-						 ){if( checkMsgContent( Term.createTerm("pickup(OUTDOORTOKEN)"), Term.createTerm("pickup(OUTDOORTOKEN)"), 
+						if( checkMsgContent( Term.createTerm("pickup(OUTDOORTOKEN)"), Term.createTerm("pickup(OUTDOORTOKEN)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								  OUTDOORTOKEN = payloadArg(0).toString()  
 						}
-						 	CARSLOTNUM = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.checkToken(OUTDOORTOKEN)  
-						}
-						else
-						 {if( checkMsgContent( Term.createTerm("pickup(OUTDOORTOKEN)"), Term.createTerm("pickup(V)"), 
-						                         currentMsg.msgContent()) ) { //set msgArgList
-						 		 var W = payloadArg(0)  
-						 		forward("pickup", "pickup($W)" ,"parkingmanagerservice" ) 
-						 }
-						 }
+						 	CARSLOTNUM = `it.unibo`.utils.ParkingSlotsKb.checkToken(OUTDOORTOKEN)  
 					}
 					 transition( edgeName="goto",targetState="picking", cond=doswitchGuarded({ CARSLOTNUM > 0  
 					}) )
@@ -135,14 +156,13 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("Trolley picking car from slot $CARSLOTNUM | SERVICE")
 						delay(3000) 
-						 `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.setSlot(CARSLOTNUM, true)  
+						 `it.unibo`.utils.ParkingSlotsKb.setSlot(CARSLOTNUM, true)  
 						println("Car is in Outdoor area | SERVICE")
 						emit("caroutdoorarrival", "coa(car_outdoor)" ) 
 						stateTimer = TimerActor("timer_picking", 
 							scope, context!!, "local_tout_parkingmanagerservice_picking", 100.toLong() )
 					}
-					 transition(edgeName="t05",targetState="ready",cond=whenTimeout("local_tout_parkingmanagerservice_picking"))   
-					transition(edgeName="t06",targetState="timeout",cond=whenEvent("timeout"))
+					 transition(edgeName="t08",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_picking"))   
 				}	 
 				state("tokenError") { //this:State
 					action { //it:State

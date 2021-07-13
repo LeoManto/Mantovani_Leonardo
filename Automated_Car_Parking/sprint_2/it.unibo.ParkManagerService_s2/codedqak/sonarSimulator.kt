@@ -16,7 +16,6 @@ import kotlinx.coroutines.cancel
  
 class sonarSimulator (name : String ) : ActorBasic( name ) {
 
-var busy = false
 val DTFREE  = 10 //seconds
 var tmp     = DTFREE
 	
@@ -32,8 +31,8 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun startSonar(){
-	
-		 	busy = true
+		
+		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false 
 		 	mainScope = CoroutineScope(Dispatchers.Default)
 		    startTimer()
 		}
@@ -42,7 +41,7 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun stopSonar(){
 	
-		 	busy = false
+		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true 
 		    mainScope.cancel()
 		    tmp = DTFREE
 		}

@@ -232,11 +232,11 @@
 	</div>
 
 	<div class="body">
-		<h2><a name="introduction"></a>Introduction - SPRINT 1</h2>
+		<h2><a name="introduction"></a>Introduction - SPRINT 2</h2>
 		<div class="remark">
-			<p>This document contain the analisis of the first SPRINT. To propose first prototype as soon as possible,
-				there will be some simplification compared to original problem.
-				Simplifications don't concern requirements, which will instead be analyzed in depth right away.
+			<p>In this document it will be analysed the second SPRINT of the project. 
+			In this phase we will extend previous SPRINT's model, adding more features and removing some semplifications,
+			introduced during first SPRINT.
 			</p>
 		</div>
 
@@ -535,80 +535,120 @@
         <li><k>parking-slot:</k> each parking slot is identified as a tuple of values (eg. <i>(3,2)</i>) indicating the position of the parking spaces in the  map.
         <li><k>weightsensor:</k> is a component that is not provided by the customer, so it will be simulated.
         <li><k>outsonar: </k> is a component that may be simulated by a software or implemented by a C library called <ks>SonarAlone.c</ks> provided by customer and handled by a kotlin class called <ks>sonarHCSR04Support2021.kt</ks>
-        <li><k>thermometer:</k> is a RESTful resource and is located on a server
-        <li><k>fan:</k> is an Object that simulates the operation of a fan
+        <li><k>thermometer:</k> it has not been supplied by the customer, so a sensor measuring the ambient temperature will be simulated by software. 
+        <li><k>fan:</k> is a software component that will simulate the operation of a fan
       </ul>
       
       
     </div>
 		<h2>Problem analysis</h2>
 		<div class="remark">
-		<p>As mentioned in the <a href="#introduction">Introduction</a> for the first SPRINT, in this document we will analyze a simplified
-			verision of the problem to provide a prototype in a short time.</p>
+		<p>As mentioned in the <a href="#introduction">Introduction</a> in this SPRINT, we will analyze a simplified
+			verision of the final system, which will presents more features over first model.</p>
 		<p>
 		<h3>Assumptions</h3>
+		<ul>
 			In this version are applied the simplifications below:
 			<li>no <k>GUI</k> will be implemented (neither for the client nor for the parking-manager);</li>
-			<li>
-				Actions of <k>Parking-Manager</k> will not be performed;
-			</li>
-      <li><k>Thermometer</k> and <k>fan</k> are not considered;</li>
-      <li><k>Outsonar</k> is a component simulated by a software;
-      <li><k>WeightSensor</k> will be simulated by a software;</li>
-     
-			<li>entrance of the car in the system will be automated with use a timer which its duration is chosen
-				randomly in an interval;</li>
-      <li>We assume that<k>client</k> withdraws his car in time, before the alarm activation;</li>
-			<li>It will be simulated only a client (SLOTNUM is always > 0);;</li>
-			<li>the alarm of delay at the exit will be automated, it does not expect any kind of action by anyone;</li>
-      <li>no real commands will be sent to the <k>Trolley</k>, but a delay will be added to simulate parking operations;</li>
-      
+			<li>Actions of <k>Parking-Manager</k> will not be performed;</li>
+			<li><k>Outsonar</k> is a component simulated by a software;
+			<li><k>WeightSensor</k> will be simulated by a software;</li>
+			<li><tt>TOKENID</tt> is not simply equals to SLOTNUM, but it will be a unique code composed by 5 digits.
+			<li>Before <em>acceptIN</em> and <em>acceptOUT</em> operations it will be checked INDOOR and OUTDOOR area status (free or not).
+			<li>The sending of messages by clients, which characterises the parking phase and the picking phase, is carried out by several
+			 simulated clients, every certain time interval.
+			<li>The alarm that is triggered when the customer does not take the car outdoors will be emitted, 
+				but no follow-up action is expected yet
+			<li>No real commands will be sent to the <k>Trolley</k>, but a delay will be added to simulate parking operations;</li>
+      </ul>
 		</p>
 
 		<h3>A First Model</h3>
-			
-			<table style="width:50%" border="1">
+			<center><ks><a href="../src/parkingservice.qak">parkingmanagerservice.qak</a></ks></center>
+			<br>
+			<table style="width:100%; border=1; font-family: Consolas; background-color:#f5f5f5;">
 				<tr>
-				<td style="width:20%">
-					<br>
-					<ks><a href="../src/parkingservice.qak">parkingmanagerservice.qak</a></ks>
-					<pre>
-						<bc>Parking phase</bc> :
-						<ul>
-						<li>A simulated <b>client</b> sends a request <tt>reqenter</tt> to notify his interest in entering his car in the <em>parking-area</em>.
-						<li><ks>[acceptIN]</ks> we assumed that all slots are free, the <em>INDOOR</em> is always free and the robot is not STOPPED.
-						<li><ks>[informIN]</ks><b> parkingmanagerservive</b> sends the reply <tt>slotsnum(SLOTNUM)</tt> to <b>client</b>, <em>SLOTNUM</em> will be a random value 
-in [1,6] (the case <em>SLOTNUM == 0</em> is not contemplated in this model).
-						<li>If <em>SLOTNUM > 0</em>, <b>client</b> moves the car in front of <em>INDOOR</em>, (press the <em>CARENTER</em> button) and 
-send request <tt>movetoin</tt> to <b>parkingmanagerservive</b>.
+					<td >
+						<center><ks>parkingmanagerservive</ks> </center>
+					</td>
+					<td>
+						<center><ks>client</ks> </center>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2> <center><bc>Parking Phase</bc></center> </td>
+				</tr>
+				<tr>
+				<td style="width:50%">
+				<br>
+					<ul style="font-family: Consolas; font-size: 15px">
+						<li>It checks if <em>INDOOR</em> is free and if there is at least one <tt>parking-slot</tt> available.
+						<li>After the checks it is determined if <tt>reqenter</tt> can be elaborated.
+						<li>It's received the request <tt>reqenter</tt> sended by a <b>client</b>.
+						<li><ks>[acceptIN]</ks> It's generated <em>SLOTNUM</em> and the related slot is marked as occupied.
+						<li><ks>[informIN]</ks><b> parkingmanagerservive</b> sends the reply <tt>slotsnum(SLOTNUM)</tt> to <b>client</b>.
 						<li><ks>[moveToIn]</ks> it's simulated, with a delay, the movements of <b>Trolley</b> from his current position to <em>INDOOR</em>
-						<li><ks>[receipt]</ks> <b>parkingmanagerservive</b> handles <tt>movetoin</tt> and reply <tt>receipt(TOKENID)</tt>.
-						<li><b>parkingmanagerservive</b> emits an event <tt>carindoorarrival</tt>.
-						<li>The <b>weightsensor</b> perceives <tt>carindoorarrival</tt> and send a dispatch <tt>weight(CARWEIGHT)</tt> to <b>parkingmanagerservive</b>.
+						<li>It's received the request <tt>carenter</tt> sended by the <b>client</b>.
+						<li><em>INDOOR</em> is marked as occupied.
+						<li><b>parkingmanagerservive</b> emits an event <tt>carindoorarrival</tt>, to notify that the client's car is in <em>INDOOR-area</em>.
+						<li><ks>[receipt]</ks> It's generated the <em>TOKENID</em> related to <em>SLOTNUM</em> assigned to <b>client</b> and reply to him
+						with <tt>receipt(TOKENID)</tt>.
+						<li>The <b>weightsensor</b> perceives <tt>carindoorarrival</tt> and emit the event <tt>weight(CARWEIGHT)</tt>.
 						<li><ks>[moveToSlotIn]</ks> <b>Trolley</b> moves the car to his slot, there is not a real movements but it's added a delay to simulate it.
-						<li><ks>[moveToHome]</ks> there is an another delay to simulated Trolley returns to <em>HOME</em> (in this model there in only a client).
+						<li><em>INDOOR</em> is marked as free.
+						<li><ks>[moveToHome]</ks> There is an another delay to simulated Trolley returns to <em>HOME</em> if there are no more requests.
 						</ul>
-						<bc>Car pick up phase</bc> :
-						<ul>
-						<li><ks>[acceptOUT]</ks> The simulated <b>client</b> send a dispatch to notify his interest in pickup his car <tt>reqpickup(TOKENID)</tt>.
-						<li><ks>[findSlot]</ks> in this model <em>TOKENID</em> is already the number of slot where the car is (<em>CARSLOTNUM</em>).
-						<li><ks>[moveToSlotOut]</ks> it's simulated, with a delay, the movements of <b>Trolley</b> from his current position to <em>CARSLOTNUM</em>.
-						<li><ks>[moveToOut]</ks> it's simulated the movements of <b>Trolley</b> to <em>OUTDOOR</em>
-						<li><b>parkingmanagerservive</b> emits an event <tt>caroutdoorarrival</tt>.
-						<li>the <b>ousonar</b> perceives <tt>caroutdoorarrival</tt> and actives itself and its internal timer.
-						<li>the time of <b>outsonar</b> will be cancel when the <b>client</b> emits the event <tt>carwithdrawn</tt>.
-						<li>if timer (set to <tt>DTFREE</tt>) expires, <b>outsonar</b> emit an event <tt>timeout</tt> (which is not yet handled).		
-						<li><ks>[moveToHome]</ks> there is an another delay to simulated Trolley returns to <em>HOME</em> (in this model there in only a client).
-						</li>
-						</ul>
-						<bc>Parking-manager</bc>:
-						<ul>
+						<td>
+							<ul style="font-family: Consolas; font-size: 15px">
+								<li>A simulated <b>client</b> sends a request <tt>reqenter</tt> to notify his interest in entering his car in the <em>parking-area</em>.
+								<li>If <em>SLOTNUM > 0</em>, <b>client</b> moves the car in front of <em>INDOOR</em>, (press the <em>CARENTER</em> button) and 
+								send the request <tt>carenter</tt> to <b>parkingmanagerservive</b>.
+							</ul>
+						</td>
+						<tr>
+							<td colspan=2> <center><bc>Car pick up phase</bc></center> </td>
+						</tr>
+						<tr>
+							<td>
+							<ul style="font-family: Consolas; font-size: 15px">
+								<li>It checks if <em>OUTDOOR</em> is free.
+								<li>After the checks it is determined if <tt>pickup</tt> can be elaborated.
+								<li><ks>[acceptOUT]</ks> It's received the dispatch <tt>pickup(TOKENID)</tt> sended by a <b>client</b>.
+								<li><ks>[findSlot]</ks> It's obtained the <em>CARSLOTNUM</em> from <tt>TOKENID</tt> sended by <b>client</b>.
+								<li><ks>[moveToSlotOut]</ks> it's simulated, with a delay, the movements of <b>Trolley</b> from his current position to <em>CARSLOTNUM</em>.
+								<li><ks>[moveToOut]</ks> it's simulated the movements of <b>Trolley</b> to <em>OUTDOOR</em>
+								<li><em>OUTDOOR</em> is marked as occupied.
+								<li>The slot corrisponding to <em>CARSLOTNUM</em> is marked as free.
+								<li><b>parkingmanagerservive</b> emits an event <tt>caroutdoorarrival</tt>.
+								<li>The <b>ousonar</b> perceives <tt>caroutdoorarrival</tt> and actives itself and its internal timer.
+								<li>Timer of <b>outsonar</b> will be cancel when the <b>client</b> emits the event <tt>carwithdrawn</tt>.
+								<li>If timer (set to <tt>DTFREE</tt>) expires, <b>outsonar</b> emit an event <tt>timeout</tt> (which is not yet handled).		
+								<li><ks>[moveToHome]</ks> There is an another delay to simulated Trolley returns to <em>HOME</em> if there are no more requests.
+								</li>
+								</ul>
+							</td>
+							<td>
+								<ul style="font-family: Consolas; font-size: 15px">
+									<li><b>client</b> send a dispatch to <b>parkingmanagerservice</b> <tt>pickup(TOKENID)</tt> to notify his interest in
+										in picking his car from parking-area.
+									<li>When the car is in <em>OUTDOOR-area</em>, the <b>client</b> takes his car away, then emit an event <tt>carwithdrawn</tt>.
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<td colspan=2>
+								<center><bc>Parking-manager</bc></center>
+							</td>
+						</tr>
+						<tr>
+						<td colspan=2>
+						<ul style="font-family: Consolas; font-size: 15px">
 						<li>The features related to the <tt>parking manager</tt> and its GUI are not considered for the time being. 
-Consequently, neither the thermometer or the fans are considered.
+							Consequently, neither the thermometer or the fans are considered.
 						<li>Any alarm (timeout) emitted by the <b>outsensor</b> is not managed.
 						</ul>	
-					</pre>
 				</td>
+				
 				</tr>
 				</table>
 

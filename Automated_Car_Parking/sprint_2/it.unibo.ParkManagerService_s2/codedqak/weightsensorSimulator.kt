@@ -28,12 +28,10 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun simulateWeight(){
-		
 		    val w = Random.nextInt(750, 3000)
-	
+		    if(w>0)
+				`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false 
 		     val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		     emit(m4)
-	
-		
 	}
 } 

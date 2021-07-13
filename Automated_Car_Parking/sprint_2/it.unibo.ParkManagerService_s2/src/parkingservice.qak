@@ -23,7 +23,8 @@ Event weightsensor		: weight(W)
 Event alarm 			: timeout(alarm)
 
 //------------------------------------------------------------------------------------------------
-Event hottemp			: hot(V)
+// forse non servono piu
+Event temp				: temp(V)
 Event normtemp			: norm(V)
 //------------------------------------------------------------------------------------------------
 
@@ -44,16 +45,16 @@ CodedQActor fan context ctxParkingservice className "fanSimulator"
  *   TODO: 
  * 
  * 			DOCS (sprint 1):  
- *					• prima di ArcLog fare una tabella con tutti gli attori (mock e real)
- * 						• link a ogni componente trattato	
- * 					• Aggiungere considerazioni varie (es: perche dispatch o event)
- * 					• parlare del fatto che il timer è dentro il sonar 			
- * 			Piddo: 
- * 					• MANCANO I CONTROLLI SULLA OUTDOOR ()
- * 					• checkToken da aggiustare			(DONE)
- * 			Leo:
- * 					• Togliere Manager da qak
- * 					• comunicazione Fan/Thermometro con event
+ *					• Spiegazione del perchè dei tagli nei requisiti
+ * 					• Descrizione formale test (Previo funzionamento dei test in JUnit) 
+ * 			
+ * 			General: 
+ * 					• Far funzionare termometro e fan
+ * 					• Cercare qualche metodo per fare i  test in JUnit (sia Sprint1 e Sprint2)
+ *			
+ * 			Sprint 3: 
+ * 					• Pensare a come far funzionare il trolley
+ * 
  * 
  * Assumptions :
  *
@@ -66,9 +67,9 @@ CodedQActor fan context ctxParkingservice className "fanSimulator"
  * ------------------------------------------------------------------
 */  
 
-// Decommentare se non si usa Jupyter Notebook
+// Decommentare se NON si usa Jupyter Notebook
 
-/* 
+/*
 QActor client context ctxParkingservice{
 	[# 
 		var CLIENTDONE  = 0
@@ -79,14 +80,16 @@ QActor client context ctxParkingservice{
 		println("Client mock simulation START | CLIENT")
 	} Goto requestToEnter
 	 
+	 
 	State requestToEnter{
-		[# var t = kotlin.random.Random.nextLong(1000,4000) #]
+		[# var t = kotlin.random.Random.nextLong(2000,4000) #]
 		[# delay(t) #]
 		println("client notify his interest in entering | CLIENT")
 		request parkingmanagerservice -m reqenter : reqenter(client)
 	} Transition t0 
 					//whenTime 2000 -> noentry //se non si gestisce entro 2 sec, il cliente non entra
 					whenReply slotsnum -> cartoindoor
+	
 	
 	State noentry{
 		// non entra
@@ -105,15 +108,17 @@ QActor client context ctxParkingservice{
 	Transition t0 
 					whenReply receipt -> afterreceipt
 
+
 	State afterreceipt{
 		onMsg(receipt : receipt (TOKENID)){
 			[# TOKENID = payloadArg(0) #]
 			updateResource [# "TOKENID" #]
 			println("client's TOKENID is $TOKENID | CLIENT")
 			[# var t1 = kotlin.random.Random.nextLong(3000, 6000)
-			 delay(t1) #]
+			 delay(15000) #]
 		}
 	} Goto reqpickup  
+
 
 	State reqpickup{
 		println("client notify his interest in picking his car | CLIENT")
@@ -121,17 +126,21 @@ QActor client context ctxParkingservice{
 	} Transition t0 
 					whenEvent caroutdoorarrival -> pickupcar
 	
+	
 	State pickupcar{
 		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
 		emit carwithdrawn : cw(bye)
 		[# CLIENTDONE = CLIENTDONE + 1 #]
-	}Goto stop if [# CLIENTDONE == 5 #] else requestToEnter 
+	}Goto stop if [# CLIENTDONE == 1 #] else requestToEnter 
+	
 	
 	State stop{
 		println("No more clients") 
 	}
 }
 */
+//---------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------//
 
 QActor parkingmanagerservice context ctxParkingservice{
 	[#
@@ -155,55 +164,74 @@ QActor parkingmanagerservice context ctxParkingservice{
 		weightSensorActor = sysUtil.getActor("weightsensor")!!
 		thermometerActor = sysUtil.getActor("thermometer")!!
 		fanActor = sysUtil.getActor("fan")!!
-		#]
-	println("Park System START | SERVICE")	
+		#]	
 	forward thermometer -m startthermometer : thermometer(V)
+	println("Park System START | SERVICE")
 	}
-	Goto ready
+	Goto check
 	
 	
+	State check{
+	}
+	Goto okIndoor if [# `it.unibo`.utils.ParkingSlotsKb.indoorFree && 
+					 	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0 #] //TODO:	Trolley status check
+		else checkOutdoor
+		
+		
+	State okIndoor{
+	} Goto ready if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] //TODO:	Trolley status check
+				else readyOnlyIndoor
+				
+	
+	State checkOutdoor{
+	}Goto readyOnlyOutdoor if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] //TODO:	Trolley status check
+				else notReady
+						
+								
 	State ready{
-		println("waiting for client | SERVICE")
-		delay 3000
-		//=================[ moveToHome ]===========================
-		println("Trolley returning at HOME | SERVICE")
-	}
-	Transition t0 
-					whenMsg pickup   	 -> acceptout
-					whenRequest reqenter -> acceptin 
-										
+		println("INDOOR and OUTDOOR Avaiable | SERVICE")
+	}Transition t0 
+					whenRequest reqenter -> acceptin
+					whenMsg		pickup	 -> acceptout
+				
+				
+	State readyOnlyIndoor{
+		println("INDOOR Avaiable | SERVICE")
+	}Transition t0
+					whenRequest reqenter -> acceptin
+				
 	
+	State readyOnlyOutdoor{
+		println("OUTDOOR Avaiable | SERVICE")
+	}Transition t0
+					whenMsg		pickup	 -> acceptout
+					
+					
+	State notReady{
+	}Transition t0
+					whenTime 2000 -> check
+	
+ 	
 	State acceptin{
-		if [# 	`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree &&
-				`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.checkSlots() > 0
-				// TODO (next sprint): controllo sullo stato del Trolley
-			#]{
 			//================[ acceptIN ]=====================	
-			[# SLOTNUM = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.findSlot() #]
+			[# SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot() #]
+			[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
 			updateResource [# "SLOTNUM" #]
 			//================[ informIN ]=====================
 			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
 			println("SLOTNUM = $SLOTNUM | SERVICE" )
 			updateResource [# "slotsnum : slotsnum ($SLOTNUM)" #]
 			//================[ moveToIn ]=====================
-			println("Trolley is moving to Indoor | SERVICE")
-		}
-		// si auto-invia la "reqenter" così da rimettersi in coda [DA RIVEDERE]
-		else {
-			onMsg( reqenter : reqenter(V) ){
-				[# var W = payloadArg(0) #]
-				request parkingmanagerservice -m reqenter:reqenter($W)
-			}
-		} 
+			println("Trolley is moving to Indoor | SERVICE")		
 	} Transition t0
 					whenRequest carenter -> carenter
 				
 					
 	State carenter{
-		[# `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree = false #]	
+		//[# `it.unibo`.utils.ParkingSlotsKb.indoorFree = false #]	
 		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor
 		//======================[ receipt ]=======================
-		[# 	INDOORTOKEN = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.generateToken(SLOTNUM) #]
+		[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
 		replyTo carenter with receipt : receipt($INDOORTOKEN)
 		updateResource [# "receipt : receipt($INDOORTOKEN)" #]
 		println("INDOOR TOKENID: $INDOORTOKEN") //to delete
@@ -220,29 +248,17 @@ QActor parkingmanagerservice context ctxParkingservice{
 			}
 		//========================[ moveToSlotIN ]========================
 		println("Trolley moves from INDOOR to slot $SLOTNUM | SERVICE")
-		[# `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.indoorFree  = true #] 
-		[# `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
+		[# `it.unibo`.utils.ParkingSlotsKb.indoorFree  = true #] 
 	} Transition t0
-			whenTime 3000 -> ready //simuliamo lo spostamento del Trolley fino allo slot
+			whenTime 3000 -> check //simuliamo lo spostamento del Trolley fino allo slot
 			
 	
 	State acceptout{
 		//===========[ acceptOUT ]=====================
-		if [# 	`it.unibo`.ParkManagerService_s2.ParkingSlotsKb.outdoorFree
-			// TODO (next sprint): controllo sullo stato del Trolley
-			#]{
 		//===========[ findSlot ]=====================
 			onMsg (pickup : pickup(OUTDOORTOKEN)){
 				[#  OUTDOORTOKEN = payloadArg(0).toString() #]}
-			[# 	CARSLOTNUM = `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.checkToken(OUTDOORTOKEN) #]
-		}
-		// si auto-invia la "pickup" così da rimettersi in coda [DA RIVEDERE]
-		else {
-			onMsg( pickup : pickup(V) ){
-				[# var W = payloadArg(0) #]
-				forward parkingmanagerservice -m pickup : pickup($W)
-			}
-		} 
+			[# 	CARSLOTNUM = `it.unibo`.utils.ParkingSlotsKb.checkToken(OUTDOORTOKEN) #]
 	} Goto picking if [# CARSLOTNUM > 0 #] else tokenError
 	
 	
@@ -256,19 +272,20 @@ QActor parkingmanagerservice context ctxParkingservice{
 		//====================[moveToOut]========================
 		println("Trolley picking car from slot $CARSLOTNUM | SERVICE")
 		delay 3000
-		[# `it.unibo`.ParkManagerService_s2.ParkingSlotsKb.setSlot(CARSLOTNUM, true) #]
+		[# `it.unibo`.utils.ParkingSlotsKb.setSlot(CARSLOTNUM, true) #]
 		println("Car is in Outdoor area | SERVICE")
+		//[# `it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false #] 
 		emit caroutdoorarrival : coa(car_outdoor)  //deve essere percepito da "outsonar"
 	}
-	Transition t0 	whenTime  100 			-> ready
-					whenEvent timeout 		-> timeout //TODO: Da gestire meglio questo !!!
+	Transition t0 	
+				whenTime  100	-> check
 					
 	
 	State tokenError{
 		println("Invalid insert Token!")
 	} Goto ready
 	 				
-	
+	//Forse inutile
 	State timeout{
 		println("%%%% TIMEOUT %%%%" )
 		emit alarm : timeout(alarm)		

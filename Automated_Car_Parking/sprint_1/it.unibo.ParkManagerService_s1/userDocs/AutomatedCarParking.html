@@ -171,6 +171,14 @@
 		margin: 10px;
 		border-radius: 25px;
 	}
+	
+	div.remark2 {
+		background-color: #F5F5DC;
+		border: 1.5px solid #d5f2ed;
+		padding: 15px;
+		margin: 10px;
+		border-radius: 25px;
+	}
 
 	table,
 	th,
@@ -573,22 +581,29 @@
 			<p>
 				<h3>Assumptions</h3>
 				In this version are applied the simplifications below:
-				<li>no <k>GUI</k> will be implemented (neither for the client nor for the parking-manager);</li>
-				<li>
-					Actions of <k>Parking-Manager</k> will not be performed;
-				</li>
-				<li>
-					<k>Thermometer</k> and <k>fan</k> are not considered;
-				</li>
-				<li>
-					<k>Outsonar</k> is a component simulated by a software;
-				<li><k>WeightSensor</k> will be simulated by a software;</li>
-				<li>We assume that <k>client</k> withdraws his car in time, before the alarm activation;</li>
-				<li>It will be simulated only a client (SLOTNUM is always > 0);;</li>
-				<li>The alarm of delay at the exit will be automated, it does not expect any kind of action by anyone;
-				</li>
+				<li>no <k>GUI</k> will be implemented (neither for the client nor for the parking-manager);
+					<div class="remark2"; >GUIs will not be implemented because, during these early stages of 
+					project development, we will only carry out local tests. </div>
+				<li>Actions of <k>Parking-Manager</k> will not be performed;
+					<div class="remark2">The manager performs its actions through the GUI, as it is not implemented 
+					it cannot perform operations either</div>
+				<li><k>Thermometer</k> and <k>fan</k> are not considered;
+					<div class=remark2>These sensors are not considered because their operation is linked to the virtual 
+					environment and the manager's ability to stop the system but 
+					these components are not yet present in the system. They will be considered in the next SPRINT.</div>
+				<li><k>Outsonar</k> and <k>WeightSensor</k> are components simulated by a software;
+					<div class=remark2>These sensors are simulated because they are not yet physically available. 
+					It is possible that real <b>outsonar</b> will be used in future SPRINTs.</div>
+				<li>We assume that <k>client</k> withdraws his car in time, before the alarm activation;
+					<div class=remark2>With this assumption, the timeout alarm will never be emitted.
+					At this stage, only "standard" customer behaviour will be taken into account. </div>
+				<li>It will be simulated only a client (SLOTNUM is always > 0);
+				<div class=remark2>Only one client is considered, because we only want to consider one iteration of 
+				the parking and pickup operations. so as to obtain a first simple model of the system. </div>
 				<li>No real commands will be sent to the <k>Trolley</k>, but a delay will be added to simulate parking
-					operations;</li>
+					operations;
+					<div class="remark2">No real commands are sent to the Trolley, because we are waiting for 
+					the customer to provide us (as agreed) with this component and its documentation.</div>
 
 			</p>
 
