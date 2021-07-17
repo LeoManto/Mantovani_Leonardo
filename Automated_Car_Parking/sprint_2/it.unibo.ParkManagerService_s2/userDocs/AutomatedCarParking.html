@@ -234,9 +234,10 @@
 	<div class="body">
 		<h2><a name="introduction"></a>Introduction - SPRINT 2</h2>
 		<div class="remark">
-			<p>In this document it will be analysed the second SPRINT of the project. 
-			In this phase we will extend previous SPRINT's model, adding more features and removing some semplifications,
-			introduced during first SPRINT.
+			<p>In this document it will be analysed the second SPRINT of the project.
+				In this phase we will extend previous SPRINT's model, adding more features and removing some
+				semplifications,
+				introduced during first SPRINT.
 			</p>
 		</div>
 
@@ -307,7 +308,7 @@
 				The job of our company is to design, build and deploy the <em>ParkManagerService</em>.
 			</div>
 			<!-- and the <em>ParkMonitoringService</em>.-->
-      The <tt>ParkManagerService</tt> should create the <tt>ParkServiceGUI</tt> (for the client)
+			The <tt>ParkManagerService</tt> should create the <tt>ParkServiceGUI</tt> (for the client)
 			and the <tt>ParkServiceStatusGUI</tt> (for the manager) and then perform the following tasks:
 
 
@@ -339,7 +340,7 @@
 						<tt>home</tt> location,
 						else <em>acceptIN</em> or <em>acceptOUT</em>.</li>
 				</ol>
-				
+
 				If <k>SLOTNUM==0</k>:
 				<ul>
 					<li><em>moveToHome</em>: if not already at home, move the <tt>transport trolley</tt> to its
@@ -438,7 +439,7 @@
 			</ul>
 
 
-			
+
 			<h4>About the devices</h4>
 			All the sensors (<tt>weightsensor</tt>, <tt>outsonar</tt>, <tt>thermometer</tt> ) and the <tt>fan</tt>
 			should be
@@ -463,261 +464,430 @@
 			</ul>
 		</div>
 		<h2>Requirement analysis</h2>
-    <div class="remark">
-		<h3>Meanings analysis</h3>
-		<p>After interviewing client, meanings he associates with nouns have been clarified:</p>
-		<ul>
-			<li>
-				<ks>WeightSensor: </ks> is a sensor that provide weight of the car which is located in the INDOOR-area.
-				Initially this sensor has the purpose of signaling the presence of a car in the entrance area.
-			</li>
-			<li>
-				<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area. Initially
-				this sensor has the purpose of signaling the presence of a car in the exit area.
-			</li>
-			<li>
-				<ks>Thermometer: </ks> is a sensor that measures temperature of the environment.
-			</li>
-			<li>
-				<ks>ParkServiceGUI: </ks>this is the GUI associated with Clients. Provides to them all informations
-				concerning parking area status.
-				Moreover provide buttons that permit them to make a parking request and to withdraw the car from this
-				area.
-			</li>
-			<li>
-				<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the
-				tools concerning parking area management.
-			</li>
-			<li>
-				<ks>Transport Trolley: </ks> is a DDR robot that has the task of parking cars from INDOOR to an assigned park-slot and, on a withdraw request, of moving cars from park-slot to OUTDOOR.
-				Trolley have three operative state: <k>idle</k>, <k>working</k>, <k>stopped</k>. 
-				<ul>
-					<li>
-						When he is in <k>idle</k> state, means that he don't has any request to serve. In this case he returns to his main place (<k>HOME</k>).
-					</li>
-					<li>
-						When he is in <k>working</k> state, means that he has to serve (or is serving) a request.
-					</li>
-					<li>
-						When he is in <k>stopped</k> state, means that there are some problems in the environment and the <ks>Parking Manager</ks> has manually stopped the trolley work. 
-						When he is in this situation, Trolley immediately stops whatever type of work it is doing and stays where he is.
-					</li>
-				</ul>
-			</li>
-			<li>
-				<ks>Home: </ks>trolley's main parking area. At application start and when there are no work,
-				this is tha place in where trolley wait. It is situated in the north-west corner of room, coordinates
-				(0,0).
-				<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
-			</li>
-			<li>
-				<ks>TOKENID: </ks> is the <k>UNIQUE</k> an identification number of the parking operation, strictly associated with the
-				client owner of the parked car.
-				This number will be used at the end when the client decides to withdraw the car from the parking area.
-			</li>
+		<div class="remark">
+			<h3>Meanings analysis</h3>
+			<p>After interviewing client, meanings he associates with nouns have been clarified:</p>
+			<ul>
+				<li>
+					<ks>WeightSensor: </ks> is a sensor that provide weight of the car which is located in the
+					INDOOR-area.
+					Initially this sensor has the purpose of signaling the presence of a car in the entrance area.
+				</li>
+				<li>
+					<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area.
+					Initially
+					this sensor has the purpose of signaling the presence of a car in the exit area.
+				</li>
+				<li>
+					<ks>Thermometer: </ks> is a sensor that measures temperature of the environment.
+				</li>
+				<li>
+					<ks>ParkServiceGUI: </ks>this is the GUI associated with Clients. Provides to them all informations
+					concerning parking area status.
+					Moreover provide buttons that permit them to make a parking request and to withdraw the car from
+					this
+					area.
+				</li>
+				<li>
+					<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the
+					tools concerning parking area management.
+				</li>
+				<li>
+					<ks>Transport Trolley: </ks> is a DDR robot that has the task of parking cars from INDOOR to an
+					assigned park-slot and, on a withdraw request, of moving cars from park-slot to OUTDOOR.
+					Trolley have three operative state: <k>idle</k>, <k>working</k>, <k>stopped</k>.
+					<ul>
+						<li>
+							When he is in <k>idle</k> state, means that he don't has any request to serve. In this case
+							he returns to his main place (<k>HOME</k>).
+						</li>
+						<li>
+							When he is in <k>working</k> state, means that he has to serve (or is serving) a request.
+						</li>
+						<li>
+							When he is in <k>stopped</k> state, means that there are some problems in the environment
+							and the <ks>Parking Manager</ks> has manually stopped the trolley work.
+							When he is in this situation, Trolley immediately stops whatever type of work it is doing
+							and stays where he is.
+						</li>
+					</ul>
+				</li>
+				<li>
+					<ks>Home: </ks>trolley's main parking area. At application start and when there are no work,
+					this is tha place in where trolley wait. It is situated in the north-west corner of room,
+					coordinates
+					(0,0).
+					<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
+				</li>
+				<li>
+					<ks>TOKENID: </ks> is the <k>UNIQUE</k> an identification number of the parking operation, strictly
+					associated with the
+					client owner of the parked car.
+					This number will be used at the end when the client decides to withdraw the car from the parking
+					area.
+				</li>
 
-		</ul>
+			</ul>
 
-		<p>Regarding to actions (verbs):</p>
-		<ul>
-			<li>
-				When a client notify system that he wants to enter in the parking-area, receive an answer containing number of free slots, whether they are <k>0</k> or <k>>0</k>. 
-				His request will be processed when the <k>INDOOR</k> area is free.  
-			</li>
-			<li>
-				When a client make request for withdraw his car from parking-area have to enter manually his <k>TOKENID</k> on ParkServiceGUI.
-			</li>
-		</ul>
-      <h3> Components Analysis </h3>
-      <ul>
-        <li><k>trolley:</k> is a virtual robot that can move in the environment (virtual parking-area). The customer will provide us with this software component, called <kc>ActorBasicRobot</kc>.
-        <li><k>map:</k> is a representation of the parking-area map. We are already in possession of this software component, it was developed previously in the project <kc>it.unibo.kotlinSupports.</kc>
-        <li><k>parking-slot:</k> each parking slot is identified as a tuple of values (eg. <i>(3,2)</i>) indicating the position of the parking spaces in the  map.
-        <li><k>weightsensor:</k> is a component that is not provided by the customer, so it will be simulated.
-        <li><k>outsonar: </k> is a component that may be simulated by a software or implemented by a C library called <ks>SonarAlone.c</ks> provided by customer and handled by a kotlin class called <ks>sonarHCSR04Support2021.kt</ks>
-        <li><k>thermometer:</k> it has not been supplied by the customer, so a sensor measuring the ambient temperature will be simulated by software. 
-        <li><k>fan:</k> is a software component that will simulate the operation of a fan
-      </ul>
-      
-      
-    </div>
+			<p>Regarding to actions (verbs):</p>
+			<ul>
+				<li>
+					When a client notify system that he wants to enter in the parking-area, receive an answer containing
+					number of free slots, whether they are <k>0</k> or <k>>0</k>.
+					His request will be processed when the <k>INDOOR</k> area is free.
+				</li>
+				<li>
+					When a client make request for withdraw his car from parking-area have to enter manually his <k>
+						TOKENID</k> on ParkServiceGUI.
+				</li>
+			</ul>
+			<h3> Components Analysis </h3>
+			<ul>
+				<li>
+					<k>trolley:</k> is a virtual robot that can move in the environment (virtual parking-area). The
+					customer will provide us with this software component, called <kc>ActorBasicRobot</kc>.
+				<li>
+					<k>map:</k> is a representation of the parking-area map. We are already in possession of this
+					software component, it was developed previously in the project <kc>it.unibo.kotlinSupports.</kc>
+				<li>
+					<k>parking-slot:</k> each parking slot is identified as a tuple of values (eg. <i>(3,2)</i>)
+					indicating the position of the parking spaces in the map.
+				<li>
+					<k>weightsensor:</k> is a component that is not provided by the customer, so it will be simulated.
+				<li>
+					<k>outsonar: </k> is a component that may be simulated by a software or implemented by a C library
+					called <ks>SonarAlone.c</ks> provided by customer and handled by a kotlin class called <ks>
+						sonarHCSR04Support2021.kt</ks>
+				<li>
+					<k>thermometer:</k> it has not been supplied by the customer, so a sensor measuring the ambient
+					temperature will be simulated by software.
+				<li>
+					<k>fan:</k> is a software component that will simulate the operation of a fan
+			</ul>
+
+
+		</div>
 		<h2>Problem analysis</h2>
 		<div class="remark">
-		<p>As mentioned in the <a href="#introduction">Introduction</a> in this SPRINT, we will analyze a simplified
-			verision of the final system, which will presents more features over first model.</p>
-		<p>
-		<h3>Assumptions</h3>
-		<ul>
-			In this version are applied the simplifications below:
-			<li>no <k>GUI</k> will be implemented (neither for the client nor for the parking-manager);</li>
-			<li>Actions of <k>Parking-Manager</k> will not be performed;</li>
-			<li><k>Outsonar</k> is a component simulated by a software;
-			<li><k>WeightSensor</k> will be simulated by a software;</li>
-			<li><tt>TOKENID</tt> is not simply equals to SLOTNUM, but it will be a unique code composed by 5 digits.
-			<li>Before <em>acceptIN</em> and <em>acceptOUT</em> operations it will be checked INDOOR and OUTDOOR area status (free or not).
-			<li>The sending of messages by clients, which characterises the parking phase and the picking phase, is carried out by several
-			 simulated clients, every certain time interval.
-			<li>The alarm that is triggered when the customer does not take the car outdoors will be emitted, 
-				but no follow-up action is expected yet
-			<li>No real commands will be sent to the <k>Trolley</k>, but a delay will be added to simulate parking operations;</li>
-      </ul>
-		</p>
+			<p>As mentioned in the <a href="#introduction">Introduction</a> in this SPRINT, we will analyze a simplified
+				verision of the final system, which will presents more features over first model.</p>
+			<p>
+				<h3>Assumptions</h3>
+				<ul>
+					In this version are applied the simplifications below:
+					<li>no <k>GUI</k> will be implemented (neither for the client nor for the parking-manager);</li>
+					<li>Actions of <k>Parking-Manager</k> will not be performed;</li>
+					<li>
+						<k>Outsonar</k> is a component simulated by a software;
+					<li>
+						<k>WeightSensor</k> will be simulated by a software;
+					</li>
+					<li><tt>TOKENID</tt> is not simply equals to SLOTNUM, but it will be a unique code composed by 5
+						digits.
+					<li>Before <em>acceptIN</em> and <em>acceptOUT</em> operations it will be checked INDOOR and OUTDOOR
+						area status (free or not).
+					<li>The sending of messages by clients, which characterises the parking phase and the picking phase,
+						is carried out by several
+						simulated clients, every certain time interval.
+					<li>The alarm that is triggered when the customer does not take the car outdoors will be emitted,
+						but no follow-up action is expected yet
+					<li>No real commands will be sent to the <k>Trolley</k>, but a delay will be added to simulate
+						parking operations;</li>
+				</ul>
+			</p>
 
-		<h3>A First Model</h3>
-			<center><ks><a href="../src/parkingservice.qak">parkingmanagerservice.qak</a></ks></center>
+			<h3>A First Model</h3>
+			<center>
+				<ks><a href="../src/parkingservice.qak">parkingmanagerservice.qak</a></ks>
+			</center>
 			<br>
-			<table style="width:100%; border=1; font-family: Consolas; background-color:#f5f5f5;">
+			<table style="width:100%; border:1px solid; font-family: Consolas; background-color:#f5f5f5;">
 				<tr>
-					<td >
-						<center><ks>parkingmanagerservive</ks> </center>
+					<td>
+						<center>
+							<ks>parkingmanagerservive</ks>
+						</center>
 					</td>
 					<td>
-						<center><ks>client</ks> </center>
+						<center>
+							<ks>client</ks>
+						</center>
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2> <center><bc>Parking Phase</bc></center> </td>
+					<td colspan=2>
+						<center>
+							<bc>Parking Phase</bc>
+						</center>
+					</td>
 				</tr>
 				<tr>
-				<td style="width:50%">
-				<br>
-					<ul style="font-family: Consolas; font-size: 15px">
-						<li>It checks if <em>INDOOR</em> is free and if there is at least one <tt>parking-slot</tt> available.
-						<li>After the checks it is determined if <tt>reqenter</tt> can be elaborated.
-						<li>It's received the request <tt>reqenter</tt> sended by a <b>client</b>.
-						<li><ks>[acceptIN]</ks> It's generated <em>SLOTNUM</em> and the related slot is marked as occupied.
-						<li><ks>[informIN]</ks><b> parkingmanagerservive</b> sends the reply <tt>slotsnum(SLOTNUM)</tt> to <b>client</b>.
-						<li><ks>[moveToIn]</ks> it's simulated, with a delay, the movements of <b>Trolley</b> from his current position to <em>INDOOR</em>
-						<li>It's received the request <tt>carenter</tt> sended by the <b>client</b>.
-						<li><em>INDOOR</em> is marked as occupied.
-						<li><b>parkingmanagerservive</b> emits an event <tt>carindoorarrival</tt>, to notify that the client's car is in <em>INDOOR-area</em>.
-						<li><ks>[receipt]</ks> It's generated the <em>TOKENID</em> related to <em>SLOTNUM</em> assigned to <b>client</b> and reply to him
-						with <tt>receipt(TOKENID)</tt>.
-						<li>The <b>weightsensor</b> perceives <tt>carindoorarrival</tt> and emit the event <tt>weight(CARWEIGHT)</tt>.
-						<li><ks>[moveToSlotIn]</ks> <b>Trolley</b> moves the car to his slot, there is not a real movements but it's added a delay to simulate it.
-						<li><em>INDOOR</em> is marked as free.
-						<li><ks>[moveToHome]</ks> There is an another delay to simulated Trolley returns to <em>HOME</em> if there are no more requests.
-						</ul>
-						<td>
-							<ul style="font-family: Consolas; font-size: 15px">
-								<li>A simulated <b>client</b> sends a request <tt>reqenter</tt> to notify his interest in entering his car in the <em>parking-area</em>.
-								<li>If <em>SLOTNUM > 0</em>, <b>client</b> moves the car in front of <em>INDOOR</em>, (press the <em>CARENTER</em> button) and 
-								send the request <tt>carenter</tt> to <b>parkingmanagerservive</b>.
-							</ul>
-						</td>
-						<tr>
-							<td colspan=2> <center><bc>Car pick up phase</bc></center> </td>
-						</tr>
-						<tr>
-							<td>
-							<ul style="font-family: Consolas; font-size: 15px">
-								<li>It checks if <em>OUTDOOR</em> is free.
-								<li>After the checks it is determined if <tt>pickup</tt> can be elaborated.
-								<li><ks>[acceptOUT]</ks> It's received the dispatch <tt>pickup(TOKENID)</tt> sended by a <b>client</b>.
-								<li><ks>[findSlot]</ks> It's obtained the <em>CARSLOTNUM</em> from <tt>TOKENID</tt> sended by <b>client</b>.
-								<li><ks>[moveToSlotOut]</ks> it's simulated, with a delay, the movements of <b>Trolley</b> from his current position to <em>CARSLOTNUM</em>.
-								<li><ks>[moveToOut]</ks> it's simulated the movements of <b>Trolley</b> to <em>OUTDOOR</em>
-								<li><em>OUTDOOR</em> is marked as occupied.
-								<li>The slot corrisponding to <em>CARSLOTNUM</em> is marked as free.
-								<li><b>parkingmanagerservive</b> emits an event <tt>caroutdoorarrival</tt>.
-								<li>The <b>ousonar</b> perceives <tt>caroutdoorarrival</tt> and actives itself and its internal timer.
-								<li>Timer of <b>outsonar</b> will be cancel when the <b>client</b> emits the event <tt>carwithdrawn</tt>.
-								<li>If timer (set to <tt>DTFREE</tt>) expires, <b>outsonar</b> emit an event <tt>timeout</tt> (which is not yet handled).		
-								<li><ks>[moveToHome]</ks> There is an another delay to simulated Trolley returns to <em>HOME</em> if there are no more requests.
-								</li>
-								</ul>
-							</td>
-							<td>
-								<ul style="font-family: Consolas; font-size: 15px">
-									<li><b>client</b> send a dispatch to <b>parkingmanagerservice</b> <tt>pickup(TOKENID)</tt> to notify his interest in
-										in picking his car from parking-area.
-									<li>When the car is in <em>OUTDOOR-area</em>, the <b>client</b> takes his car away, then emit an event <tt>carwithdrawn</tt>.
-								</ul>
-							</td>
-						</tr>
-						<tr>
-							<td colspan=2>
-								<center><bc>Parking-manager</bc></center>
-							</td>
-						</tr>
-						<tr>
-						<td colspan=2>
+					<td style="width:50%">
+						<br>
 						<ul style="font-family: Consolas; font-size: 15px">
-						<li>The features related to the <tt>parking manager</tt> and its GUI are not considered for the time being. 
-							Consequently, neither the thermometer or the fans are considered.
-						<li>Any alarm (timeout) emitted by the <b>outsensor</b> is not managed.
-						</ul>	
-				</td>
-				
-				</tr>
-				</table>
-
-
-		<h3>Logical Architecture</h3>
-		<p>
-			<table style="width:100%" border="1">
-				<tr>
-					<td style="width:50%;">
-            <p>Our system <tt>ParkingManagerService</tt> it's composed by four <ks>actors</ks>, everyone providing a different service.</p> 
-						<p>Actors that we implement, will be of <ks><a href="./LabQakIntro2021.html">QActor</a></ks> type.</p>
-						<ul>
-							<li>parkingmanagerservice</li>
-							<li>client</li>
-							<li>weightsensor</li>
-							<li>outsonar</li>
+							<li>It checks if <em>INDOOR</em> is free and if there is at least one <tt>parking-slot</tt>
+								available.
+							<li>After the checks it is determined if <tt>reqenter</tt> can be elaborated.
+							<li>It's received the request <tt>reqenter</tt> sended by a <b>client</b>.
+							<li>
+								<ks>[acceptIN]</ks> It's generated <em>SLOTNUM</em> and the related slot is marked as
+								occupied.
+							<li>
+								<ks>[informIN]</ks><b> parkingmanagerservive</b> sends the reply
+								<tt>slotsnum(SLOTNUM)</tt> to <b>client</b>.
+							<li>
+								<ks>[moveToIn]</ks> it's simulated, with a delay, the movements of <b>Trolley</b> from
+								his current position to <em>INDOOR</em>
+							<li>It's received the request <tt>carenter</tt> sended by the <b>client</b>.
+							<li><em>INDOOR</em> is marked as occupied.
+							<li><b>parkingmanagerservive</b> emits an event <tt>carindoorarrival</tt>, to notify that
+								the client's car is in <em>INDOOR-area</em>.
+							<li>
+								<ks>[receipt]</ks> It's generated the <em>TOKENID</em> related to <em>SLOTNUM</em>
+								assigned to <b>client</b> and reply to him
+								with <tt>receipt(TOKENID)</tt>.
+							<li>The <b>weightsensor</b> perceives <tt>carindoorarrival</tt> and emit the event
+								<tt>weight(CARWEIGHT)</tt>.
+							<li>
+								<ks>[moveToSlotIn]</ks> <b>Trolley</b> moves the car to his slot, there is not a real
+								movements but it's added a delay to simulate it.
+							<li><em>INDOOR</em> is marked as free.
+							<li>
+								<ks>[moveToHome]</ks> There is an another delay to simulated Trolley returns to
+								<em>HOME</em> if there are no more requests.
 						</ul>
-					
+					<td>
+						<ul style="font-family: Consolas; font-size: 15px">
+							<li>A simulated <b>client</b> sends a request <tt>reqenter</tt> to notify his interest in
+								entering his car in the <em>parking-area</em>.
+							<li>If <em>SLOTNUM > 0</em>, <b>client</b> moves the car in front of <em>INDOOR</em>, (press
+								the <em>CARENTER</em> button) and
+								send the request <tt>carenter</tt> to <b>parkingmanagerservive</b>.
+						</ul>
+					</td>
+				<tr>
+					<td colspan=2>
+						<center>
+							<bc>Car pick up phase</bc>
+						</center>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul style="font-family: Consolas; font-size: 15px">
+							<li>It checks if <em>OUTDOOR</em> is free.
+							<li>After the checks it is determined if <tt>pickup</tt> can be elaborated.
+							<li>
+								<ks>[acceptOUT]</ks> It's received the dispatch <tt>pickup(TOKENID)</tt> sended by a
+								<b>client</b>.
+							<li>
+								<ks>[findSlot]</ks> It's obtained the <em>CARSLOTNUM</em> from <tt>TOKENID</tt> sended
+								by <b>client</b>.
+							<li>
+								<ks>[moveToSlotOut]</ks> it's simulated, with a delay, the movements of <b>Trolley</b>
+								from his current position to <em>CARSLOTNUM</em>.
+							<li>
+								<ks>[moveToOut]</ks> it's simulated the movements of <b>Trolley</b> to <em>OUTDOOR</em>
+							<li><em>OUTDOOR</em> is marked as occupied.
+							<li>The slot corrisponding to <em>CARSLOTNUM</em> is marked as free.
+							<li><b>parkingmanagerservive</b> emits an event <tt>caroutdoorarrival</tt>.
+							<li>The <b>ousonar</b> perceives <tt>caroutdoorarrival</tt> and actives itself and its
+								internal timer.
+							<li>Timer of <b>outsonar</b> will be cancel when the <b>client</b> emits the event
+								<tt>carwithdrawn</tt>.
+							<li>If timer (set to <tt>DTFREE</tt>) expires, <b>outsonar</b> emit an event
+								<tt>timeout</tt> (which is not yet handled).
+							<li>
+								<ks>[moveToHome]</ks> There is an another delay to simulated Trolley returns to
+								<em>HOME</em> if there are no more requests.
+							</li>
+						</ul>
 					</td>
 					<td>
-						<!--TODO pensare a come comunicano e quale tipo di messaggi si scambiano i diversi qaktor-->
-					<center><img src="./img/ActorsModel.png"></center>
-						
-					</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<p>In this first model, we consider the arrival and pikcup operations related to only a client.</p>
-						<ul>
-							<li>
-								<ks>parkingmanagerservice: </ks> represent the system, that handles client's requests, parking and pickup operations and activation of sensors. 
-							</li>
-							<li>
-								<ks>client: </ks> send requests to the system during the entrance and exit phases. In this model, this actor replaces the <tt>ParkServiceGUI</tt>.
-							</li>
-							<li>
-								<ks>weightsensor: </ks> this actor generates a random value that represents the weight of car in entrance and sends it through an event <tt>weightsensor</tt>. It starts the simulation when perceives the <k>carindoorarrival</k> event.
-							</li>
-							<li>
-                <ks>outsonar: </ks>this actor has a boolean variable <k>busy</k>, that indicates if the car is present in the outdoor, so as to simulate a real sensor. It start the simulation when perceives <k>caroutdoorarrival</k> event. When the simulation stats, it's activated also an internal timer. This timer performs a countdown from <tt>DTFREE</tt> value, if it arrives to 0 it's
-                emitted an event <tt>timeout</tt>.
-              </li>
+						<ul style="font-family: Consolas; font-size: 15px">
+							<li><b>client</b> send a dispatch to <b>parkingmanagerservice</b> <tt>pickup(TOKENID)</tt>
+								to notify his interest in
+								in picking his car from parking-area.
+							<li>When the car is in <em>OUTDOOR-area</em>, the <b>client</b> takes his car away, then
+								emit an event <tt>carwithdrawn</tt>.
 						</ul>
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2">
-						<center><img src="img/logicalArchitecture.png" ></center>
+					<td colspan=2>
+						<center>
+							<bc>Parking-manager</bc>
+						</center>
 					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+						<ul style="font-family: Consolas; font-size: 15px">
+							<li>The features related to the <tt>parking manager</tt> and its GUI are not considered for
+								the time being.
+								Consequently, neither the thermometer or the fans are considered.
+							<li>Any alarm (timeout) emitted by the <b>outsensor</b> is not managed.
+						</ul>
+					</td>
+
 				</tr>
 			</table>
-		</p>
-		</div>
-		<!--TODO fare spiegazione logica del programma con linguaggio naturale.-->
 
+
+			<h3>Logical Architecture</h3>
+			<p>
+				<table style="width:100%" border="1">
+					<tr>
+						<td style="width:50%;">
+							<p>Our system <tt>ParkingManagerService</tt> it's composed by four <ks>actors</ks> in the
+								same
+								context <tt>ctxParkingservice</tt>, everyone of them
+								providing a different service.</p>
+							<p>Actors that we implement, will be of <ks><a
+										href="https://htmlpreview.github.io/?https://github.com/anatali/issLab2021/blob/main/it.unibo.qakactor/userDocs/LabQakIntro2021.html">QActor</a>
+								</ks>
+								type.</p>
+							<ul>
+								<li><b>parkingmanagerservice</b>
+								<li><b>client</b>
+								<li><b>weightsensor</b> (mock-actor)
+								<li><b>outsonar</b> (mock-actor)
+								<li><b>thermometer</b> (mock-actor)
+								<li><b>fan</b> (mock-actor)
+							</ul>
+
+						</td>
+						<td>
+							<!--TODO pensare a come comunicano e quale tipo di messaggi si scambiano i diversi qaktor-->
+							<center><img src="./img/actors.png"></center>
+
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<center>
+								<ks>parkingmanagerservice: </ks>
+							</center>
+							<center> <a href="../src/parkingservice.qak">parkingservice.qak: </a></center><br>
+							This QActor represents the system. It handles all client's request: <tt>reqenter</tt>,
+							<tt>carenter</tt> and <tt>pickup</tt>.
+							It provides the clients the SLOTNUM and the TICKETID. It coordinates the movements of the
+							trolley
+							(in this version they are only simulated with delays). <br>
+							This actor also triggers the activation of <tt>weightsensor</tt> and
+							<tt>outsonar</tt>.<br><br>
+							<center><b>How sensor activation can be triggered?</b></center>
+							<br>
+							<tt>weightsensor</tt> and <tt>outsonar</tt> must be triggered when a car is, respectively,
+							in INDOOR and OUTDOOR area.<br>
+							<k>parkingmanagerservice</k> is the only component who knows when a car is in INDOOR or
+							OUTDOOR area,
+							it can be notify it in two ways:
+							<ol>
+								<li>sending a <k>dispatch</k> to the sensor when a car is in the right area.
+								<li>emitting an <k>event</k>, since the sensor there are in the same context.
+							</ol>
+							During the analysis phase it can already be observed that the second solution is more
+							appropriate because
+							it is independent of the characteristics of the sensors and their quantity and position.
+						</td>
+						<td>
+							<center>
+								<ks>client: </ks>
+							</center>
+							<center> <a href="../src/parkingservice.qak">parkingservice.qak: </a></center><br>
+							It's the QActor that sends the requests (<tt>reqenter</tt> and <tt>carenter</tt>) to the
+							system during the parking phase
+							and sends dispatch (<tt>pickup</tt>) during the picking phase.<br>
+							It replaces, in this version, the role of the <ks>ParkServiceGUI</ks>, in particular, for
+							the moment, it's simulated the
+							operations related to a single client.
+
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<center>
+								<ks>weightsensor: </ks>
+							</center>
+							<center> <a href="../codedqak/weightsensorSimulator.kt">weightsensorSimulator.kt: </a>
+							</center><br>
+							This mock-actor generates a random value that represents the
+							weight of car in entrance and propagates it by emitting an event <tt>weightsensor</tt>.<br>
+							It starts the simulation when perceives the <k>carindoorarrival</k> event.
+						</td>
+						<td>
+							<center>
+								<ks>outsonar: </ks>
+							</center>
+							<center> <a href="../codedqak/sonarSimulator.kt">sonarSimulator.kt: </a></center><br>
+							This actor has a boolean variable <k>busy</k>, that indicates if
+							the car is present in the outdoor, so as to simulate a real sensor. It start the
+							simulation when perceives <k>caroutdoorarrival</k> event. When the simulation stats,
+							it's activated also an internal timer. <br>
+							This timer performs a countdown from <tt>DTFREE</tt> value, if it arrives to 0 it's
+							emitted an event <tt>timeout</tt>.
+							The countdown is implemented with a <a
+								href="https://en.wikipedia.org/wiki/Coroutine">Coroutine</a>,
+							called <tt>mainScope</tt> which is cancelled
+							<pre>mainScope.cancel()</pre> when the
+							outsonar detects the <k>carwithdrawn</k> event, indicating that the car has been taken out
+							of the OUTDOOR-area.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<center>
+								<ks>thermometer: </ks>
+							</center>
+							<center> <a href="../codedqak/thermometerSimulator.kt">thermometerSimulator.kt: </a></center><br>
+							This mock-actor is activated immediately at the start of application. It performs two different task:
+							<li>send continuously an event, in which are the actual temperature of environment, to the fan actor</li>
+							<li>to cyclically increment the value of temperature, this to simulate the increasing of environment temperature during his activity</li>
+							For it's correct working and for coherence with requirements, we have fixed two constant value 
+							<ks>minTemp</ks> and <ks>maxTemp</ks> that indicates the lower and upper temperature limits of system operation. <br>
+							When temperature has reached the upper limit, fan actor send to thermometer a dispatch message, which has the function of ending temperature increase process.
+							On the other hand, when the temperature has returned to the working values, the process of increasing the temperature can restart.
+							With the relaxation of the problem in this analisis thermometer mock-actor doesn't communicate with the main actors.
+						</td>
+						<td>
+							<center>
+								<ks>fan: </ks>
+							</center>
+							<center> <a href="../codedqak/fanSimulator.kt">fanSimulator.kt: </a></center><br>
+							This mock-actor is strictly related with thermometer actor. It evaluates every event that thermometer emit and check if the temperature of the environment 
+							is under the max prefixed temperature values. If temperature exeed the limits, fan actor send a dispatch message to the thermometer; this message is required to stop execution of
+							increasing process.<br>
+							When fan stat his execution, it start to decrease temperature, until this reaches the minimum value. Then an event is emitted that warns that the simulation can restart. 
+							After that, the coroutine of fan that decrease temperature, terminate.
+							With the relaxation of the problem in this analisis thermometer mock-actor doesn't communicate with the main actors.
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<center><img src="img/logicalArchitecture.png"></center>
+						</td>
+					</tr>
+				</table>
+			</p>
+			<!--TODO fare spiegazione logica del programma con linguaggio naturale.-->
+		</div>
 		<h2>Test plans</h2>
-			<p>In this first test plan, considering that all is automated, try application integrally, reporting all its behaviour while performing.</p>
-			<p>With report of its execution it's checked that instruction performed by the application follow all the rules.</p>
-			<!--REVIEW direi nulla di che, semplicemente essendo tutto automatizzato, fare una prova integrale dell'aplicazione, salvarsi ogni indicazione dei suoi 
-			comportamenti durante l'esecuzione e vedere se rispetta le regole assegnate-->
+		<p>
+			<b>TODO</b>: tutto!!
+		</p>
 
 		<h2>Project</h2>
-  <p>The system <tt>ParkingManagerService</tt> it's collocated into a single context <ks>ctxParkingservice</ks>.</p>
-  It's composed by two real <ks>QActors</ks> and two <ks>mock-Actors</ks>.
-  <table>
-    <tr>
-      <td>
-        <center><ks>client</ks> in <tt>parkingservice.qak</tt></center>
-        <pre>QActor client context ctxParkingservice{
+		<p>The system <tt>ParkingManagerService</tt> it's collocated into a single context <ks>ctxParkingservice
+			</ks>.</p>
+		It's composed by two real <ks>QActors</ks> and four <ks>mock-Actors</ks>.
+		<table>
+			<tr>
+				<td>
+					<center>
+						<ks>client</ks> in <tt>parkingservice.qak</tt>
+					</center>
+					<pre>QActor client context ctxParkingservice{
 	[# 
 		var SLOTNUM = 0
 		var TOKENID = 0 /* sarà direttamente il num dello slot assegnato */
@@ -777,12 +947,14 @@
 	}
 	
 }</pre>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <center><ks>parkingmanagerservice</ks> in <tt>parkingservice.qak</tt></center>
-        <pre>QActor parkingmanagerservice context ctxParkingservice{
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<center>
+						<ks>parkingmanagerservice</ks> in <tt>parkingservice.qak</tt>
+					</center>
+					<pre>QActor parkingmanagerservice context ctxParkingservice{
 	[#
 	lateinit var weightSensorActor : ActorBasic
 	lateinit var outSonarActor : ActorBasic
@@ -883,12 +1055,14 @@
 	}
 		
 }</pre>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <center><ks>outsonar</ks> in file <tt>codedqak/sonarSimulator.kt</tt></center>
-        <pre>class sonarSimulator (name : String ) : ActorBasic( name ) {
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<center>
+						<ks>outsonar</ks> in file <tt>codedqak/sonarSimulator.kt</tt>
+					</center>
+					<pre>class sonarSimulator (name : String ) : ActorBasic( name ) {
 
 var busy = false
 val DTFREE  = 10 //seconds
@@ -937,12 +1111,14 @@ var tmp     = DTFREE
 }
 
 }</pre>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <center><ks>weightsensor</ks> in file <tt>codedqak/weightsensorSimulator.kt</tt></center>
-        <pre>class weightsensorSimulator (name : String ) : ActorBasic( name ) {
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<center>
+						<ks>weightsensor</ks> in file <tt>codedqak/weightsensorSimulator.kt</tt>
+					</center>
+					<pre>class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 	
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -965,23 +1141,24 @@ var tmp     = DTFREE
 		
 	}
 } </pre>
-      </td>
-    </tr>
-  </table>
+				</td>
+			</tr>
+		</table>
 
 		<h2>Deployment</h2>
-  The deployment of SPRINT 1 consists in a release on a <a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_1">Github repository</a>.
+		The deployment of SPRINT 1 consists in a release on a <a
+			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_1">Github repository</a>.
 
 		<h2>Maintenance</h2>
-  			This is the first Sprint, more features will be released in the next (Second) Sprint.
+		This is the first Sprint, more features will be released in the next (Second) Sprint.
 		<br /><br />
 	</div>
 
-	<div style="background-color:rgba(42, 7, 241, 1.0); width:100%;text-align:center;color:white">	
+	<div style="background-color:rgba(42, 7, 241, 1.0); width:100%;text-align:center;color:white">
 		<table style="width:100%" border="1">
 			<tr>
 				By Mantovani Leonardo and Pier Domenico d'Amicis
-				
+
 			</tr>
 		</table>
 	</div>

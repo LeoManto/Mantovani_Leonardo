@@ -24,12 +24,15 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 			var outdoorFree	  = true
 			var trolleyStatus = true
 			var SLOTNUM 	  = 0
+			var WEIGHT 		  = 0
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						
 								outSonarActor     = sysUtil.getActor("outsonar")!!
 								weightSensorActor = sysUtil.getActor("weightsensor")!!
+								subscribeLocalActor("parkingmanagerservice")
+						discardMessages = false
 						println("Park System START | SERVICE")
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
@@ -38,67 +41,77 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("waiting for client | SERVICE")
 					}
-					 transition(edgeName="t06",targetState="handleToken",cond=whenDispatch("pickup"))
-					transition(edgeName="t07",targetState="acceptin",cond=whenRequest("reqenter"))
+					 transition(edgeName="t00",targetState="handleToken",cond=whenDispatch("pickup"))
+					transition(edgeName="t01",targetState="acceptin",cond=whenRequest("reqenter"))
 				}	 
 				state("acceptin") { //this:State
 					action { //it:State
-						 SLOTNUM = `it.unibo`.parkingmanagerservice.test.utils.Tester.getSlot()  
-						updateResourceRep( "SLOTNUM"  
+						println("$name in ${currentState.stateName} | $currentMsg")
+						if( checkMsgContent( Term.createTerm("reqenter(V)"), Term.createTerm("reqenter(V)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 var msg = payloadArg(0)  
+						}
+						 SLOTNUM = 1 //`it.unibo`.parkingmanagerservice.test.utils.Tester.getSlot()  
+						updateResourceRep( "slotnum(${SLOTNUM})"  
 						)
 						answer("reqenter", "slotsnum", "slotsnum($SLOTNUM)"   )  
-						updateResourceRep( "slotsnum : slotsnum ($SLOTNUM)"  
-						)
 						println("Trolley is moving to Indoor | SERVICE")
 					}
-					 transition(edgeName="t08",targetState="carenter",cond=whenRequest("carenter"))
+					 transition(edgeName="t02",targetState="carenter",cond=whenRequest("carenter"))
 				}	 
 				state("carenter") { //this:State
 					action { //it:State
 						 indoorFree = false  
 						emit("carindoorarrival", "cia(car_arrived)" ) 
 					}
-					 transition(edgeName="t09",targetState="moveToSlotIn",cond=whenEvent("weightsensor"))
+					 transition(edgeName="t03",targetState="moveToSlotIn",cond=whenEvent("weightsensor"))
 				}	 
 				state("moveToSlotIn") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("weight(W)"), Term.createTerm("weight(W)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 
-												var peso = payloadArg(0)
-												println("Weight: " + peso)
+												WEIGHT = payloadArg(0).toInt()
+												println("Weight: " + WEIGHT)
 						}
 						println("Trolley moves from entrance to slot $SLOTNUM | SERVICE")
 						 indoorFree = true  
-						stateTimer = TimerActor("timer_moveToSlotIn", 
-							scope, context!!, "local_tout_parkingmanagerservice_moveToSlotIn", 4000.toLong() )
 					}
-					 transition(edgeName="t010",targetState="receipt",cond=whenTimeout("local_tout_parkingmanagerservice_moveToSlotIn"))   
+					 transition( edgeName="goto",targetState="receipt", cond=doswitchGuarded({ WEIGHT > 0  
+					}) )
+					transition( edgeName="goto",targetState="weightError", cond=doswitchGuarded({! ( WEIGHT > 0  
+					) }) )
+				}	 
+				state("weightError") { //this:State
+					action { //it:State
+						println("Car too light !!")
+					}
 				}	 
 				state("receipt") { //this:State
 					action { //it:State
 						 var TOKENID = SLOTNUM  
 						answer("carenter", "receipt", "receipt($TOKENID)"   )  
-						updateResourceRep( "receipt : receipt($TOKENID)"  
+						updateResourceRep( "receipt(${TOKENID})"  
 						)
-						emit("carindoorarrival", "cia(car_arrived)" ) 
 						println("Trolley moves to Home | SERVICE")
 						stateTimer = TimerActor("timer_receipt", 
 							scope, context!!, "local_tout_parkingmanagerservice_receipt", 1000.toLong() )
 					}
-					 transition(edgeName="t011",targetState="ready",cond=whenTimeout("local_tout_parkingmanagerservice_receipt"))   
+					 transition(edgeName="t04",targetState="ready",cond=whenTimeout("local_tout_parkingmanagerservice_receipt"))   
 				}	 
 				state("handleToken") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("pickup(tokenID)"), Term.createTerm("pickup(tokenID)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 var tokenIN = payloadArg(0)  
+								  var tokenIN = payloadArg(0)  
+								updateResourceRep( "tokenID(${tokenIN})" 
+								)
 						}
 						println("checking Trolley status | SERVICE")
 						stateTimer = TimerActor("timer_handleToken", 
 							scope, context!!, "local_tout_parkingmanagerservice_handleToken", 500.toLong() )
 					}
-					 transition(edgeName="t012",targetState="picking",cond=whenTimeout("local_tout_parkingmanagerservice_handleToken"))   
+					 transition(edgeName="t05",targetState="picking",cond=whenTimeout("local_tout_parkingmanagerservice_handleToken"))   
 				}	 
 				state("picking") { //this:State
 					action { //it:State
@@ -109,13 +122,15 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						emit("caroutdoorarrival", "coa(car_outdoor)" ) 
 						 outdoorFree = false  
 					}
-					 transition(edgeName="t013",targetState="withdrawn",cond=whenEvent("carwithdrawn"))
-					transition(edgeName="t014",targetState="timeout",cond=whenEvent("timeout"))
+					 transition(edgeName="t06",targetState="withdrawn",cond=whenEvent("carwithdrawn"))
+					transition(edgeName="t07",targetState="timeout",cond=whenEvent("timeout"))
 				}	 
 				state("withdrawn") { //this:State
 					action { //it:State
 						 outdoorFree = true  
 						println("Car withdrawn!")
+						updateResourceRep( "end(bob)"  
+						)
 					}
 					 transition( edgeName="goto",targetState="ready", cond=doswitch() )
 				}	 
@@ -123,6 +138,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("%%%% TIMEOUT %%%%")
 						emit("alarm", "timeout(alarm)" ) 
+						updateResourceRep( "alarm(timeout)"  
+						)
 					}
 				}	 
 			}

@@ -11,43 +11,43 @@ object Tester {
 	
 	@Override
 	fun setSlot(s : Int) : Unit {
-		slotnum = s
+		 slotnum = s
 	}
 	
 	@Override
 	fun getSlot() : Int{
-		return slotnum
+		return  slotnum
 	}
 	
 	@Override
 	fun setToken(t : Int){
-		tokenID = t
+		 tokenID = t
 	}
 	
 	@Override
 	fun getToken() : Int {
-		return tokenID
+		return  tokenID
 	}
 	
 	@Override
 	fun setclientstate(state : ClientState) : Unit{
-		clientState = state
-		changed = true
+		 clientState = state
+		 setchanged(true)
 	}
 
-	
+	@Override
 	fun getclientstate() : ClientState{
-		return clientState
+		return  clientState
 }
 	
 	@Override
 	fun setchanged(c : Boolean) : Unit{
-		changed = c
+		 changed = c
 	}
 	
 	@Override
 	fun getchanged() : Boolean{
-		return changed
+		return  changed
 	}
 	
 }

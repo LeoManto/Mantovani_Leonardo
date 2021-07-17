@@ -34,6 +34,7 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 	  suspend fun startSonar(){
 	
 		 	busy = true
+		 	updateResourceRep( "outsonar(${busy.toString()})"  )
 		 	mainScope = CoroutineScope(Dispatchers.Default)
 		    startTimer()
 		}

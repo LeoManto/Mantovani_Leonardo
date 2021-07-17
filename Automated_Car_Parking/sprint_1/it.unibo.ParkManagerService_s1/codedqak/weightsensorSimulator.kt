@@ -33,6 +33,8 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 	
 		     val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		     emit(m4)
+		     
+		     updateResourceRep( "weight($w)"  )
 	
 		
 	}

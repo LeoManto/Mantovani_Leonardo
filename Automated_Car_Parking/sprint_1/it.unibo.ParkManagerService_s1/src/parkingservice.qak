@@ -17,7 +17,7 @@ Event weightsensor		: weight(W)
 Event alarm 			: timeout(alarm)
 
 
-Context ctxParkingservice  ip [host="localhost" port=8052]
+Context ctxParkingservice  ip [host="localhost" port=5683]
 
 CodedQActor outsonar context ctxParkingservice className "sonarSimulator"
 CodedQActor weightsensor context ctxParkingservice className "weightsensorSimulator"
@@ -29,7 +29,7 @@ CodedQActor weightsensor context ctxParkingservice className "weightsensorSimula
  * ------------------------------------------------------------------
 */  
   
- 
+/*
 QActor client context ctxParkingservice{
 	[# val tester = `it.unibo`.parkingmanagerservice.test.utils.Tester
 		var SLOTNUM = 0
@@ -82,7 +82,6 @@ QActor client context ctxParkingservice{
 	State afterreceipt{
 		onMsg(receipt : receipt (TOKENID)){
 			[# TOKENID = payloadArg(0).toInt() #]
-			updateResource [# "TOKENID" #]
 			println("client's TOKENID is $TOKENID | CLIENT")
 			[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.afterReceipt) 
 			   tester.setToken(TOKENID)
@@ -93,7 +92,7 @@ QActor client context ctxParkingservice{
 					whenTime 10000 -> reqpickup  //10 secs prima di chiedere il pickup
 
 	State reqpickup{
-		/*==========[acceptOUT]==========*/
+		// ==========[acceptOUT]==========
 		println("client notify his interest in picking his car | CLIENT")
 		forward parkingmanagerservice -m pickup : pickup($TOKENID)
 		[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.reqPickup) #]
@@ -108,7 +107,7 @@ QActor client context ctxParkingservice{
 	}
 	
 }
-
+*/
  
 QActor parkingmanagerservice context ctxParkingservice{
 	[#
@@ -119,16 +118,21 @@ QActor parkingmanagerservice context ctxParkingservice{
 	var outdoorFree	  = true
 	var trolleyStatus = true
 	var SLOTNUM 	  = 0
+	var WEIGHT 		  = 0
 	#]
-	
+	 
 	State s0 initial{
 		[#
 		outSonarActor     = sysUtil.getActor("outsonar")!!
 		weightSensorActor = sysUtil.getActor("weightsensor")!!
+		subscribeLocalActor("parkingmanagerservice")
 		#]   
+		//updateResource [# "systemReady(prova)" #]
+		discardMsg Off 
 	println("Park System START | SERVICE")	
 	}
 	Goto ready
+	
 	
 	State ready{
 		println("waiting for client | SERVICE")
@@ -137,43 +141,52 @@ QActor parkingmanagerservice context ctxParkingservice{
 					whenRequest reqenter -> acceptin //non c'è controllo sui posti liberi per assunzione
 	
 	State acceptin{
+		printCurrentMessage
+		onMsg(reqenter : reqenter( V )){
+			[# var msg = payloadArg(0) #]
+			//updateResource [# "clientstate(${msg})" #]
+		}
 		/*==========[acceptIN]==========*/
-		[# SLOTNUM = `it.unibo`.parkingmanagerservice.test.utils.Tester.getSlot() #] //Per ora è settato manualmente in fase di test
-		updateResource [# "SLOTNUM" #]
+		[# SLOTNUM = 1 //`it.unibo`.parkingmanagerservice.test.utils.Tester.getSlot() #] //Per ora è settato manualmente in fase di test
 		/*==========[informIN]==========*/
+		updateResource [# "slotnum(${SLOTNUM})" #]
 		replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
-		updateResource [# "slotsnum : slotsnum ($SLOTNUM)" #]
 		/*==========[moveToIn]==========*/
 		println("Trolley is moving to Indoor | SERVICE")
 	} Transition t0
 					whenRequest carenter -> carenter
+				
 					
 	State carenter{
-		[# indoorFree = false #]	
+		[# indoorFree = false #]
 		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor		
 	} Transition t0
 				whenEvent weightsensor -> moveToSlotIn
 				
+				
 	State moveToSlotIn{
 		onMsg(weightsensor : weight(W)){
 			[# 
-				var peso = payloadArg(0)
-				println("Weight: " + peso)
-			#]
+				WEIGHT = payloadArg(0).toInt()
+				println("Weight: " + WEIGHT)
+			#] 
 			}
 		/*==========[moveToSlotIn]==========*/
 		println("Trolley moves from entrance to slot $SLOTNUM | SERVICE")
 		[# indoorFree = true #]
-	} Transition t0
-			whenTime 4000 -> receipt //simuliamo lo spostamento del Trolley
+	} Goto receipt if [# WEIGHT > 0 #] else weightError
 					
+				
+	State weightError{ 
+		println("Car too light !!")
+	}			
+				
 					
 	State receipt{ 
 		[# var TOKENID = SLOTNUM #]	//si elabora un token-id (in questo caso è lo SLOTNUM usato prima)
 		/*==========[receipt]==========*/
 		replyTo carenter with receipt : receipt($TOKENID)
-		updateResource [# "receipt : receipt($TOKENID)" #]
-		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor
+		updateResource [# "receipt(${TOKENID})" #]
 		/*==========[moveToHome]==========*/
 		println("Trolley moves to Home | SERVICE")
 	} Transition t0 
@@ -183,7 +196,9 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State handleToken{
 		onMsg (pickup : pickup(tokenID)){
 			/*==========[findSlot]==========*/
-				[# var tokenIN = payloadArg(0) #]} //tokenIN è il token fornito dal client
+				[#  var tokenIN = payloadArg(0) #] //tokenIN è il token fornito dal client
+				updateResource [# "tokenID(${tokenIN})"#]
+		}
 		//elaborazioni sul tokenIN per ottenere lo slotnum corrispondente(non in questo modello)
 		
 		println("checking Trolley status | SERVICE")
@@ -210,12 +225,14 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State withdrawn{
 		[# outdoorFree = true #]
 		println("Car withdrawn!")
+		updateResource[# "end(bob)" #]
 	} 
 	Goto ready
 	
 	State timeout{
 		println("%%%% TIMEOUT %%%%" )
 		emit alarm : timeout(alarm)		
+		updateResource[# "alarm(timeout)" #]
 	}
 		
 }
