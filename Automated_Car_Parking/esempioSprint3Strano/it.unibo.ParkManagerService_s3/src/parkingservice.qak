@@ -312,6 +312,8 @@ QActor basicrobot context ctxParkingservice{
   var CurrentPlannedMove = ""
   var CurPath	= ""
   var CurSlot   = ""
+  val planner = `it.unibo`.utils.CoordinatesKb
+
 
 #]  
  	State s0 initial { 	      
@@ -324,7 +326,7 @@ QActor basicrobot context ctxParkingservice{
 
 		run itunibo.planner.plannerUtil.showCurrentRobotState()  	
      	//run pathexecutil.register( Myself )
-
+		
     	run unibo.robot.robotSupport.move( "h" )
  		delay 1000 
    		run unibo.robot.robotSupport.move( "l" )
@@ -354,13 +356,17 @@ QActor basicrobot context ctxParkingservice{
 					//whenMsg    obstacle   -> handleObstacle  //in virtualrobot caused by the move w/s
 				  	//whenMsg     end       -> endwork			  
 	
+	
 	State path{
 		//onMsg( slot : slot(SLOT) ){
 		//	[# CurSlot =  "${payloadArg(0)}" #] 
 		//}
 		
 		//elaborazioni per tradurre slot in goal
-		run itunibo.planner.plannerUtil.planForGoal("3","3")
+		//run itunibo.planner.plannerUtil.planForGoal("6", "4") 
+		
+		run planner.getPathPlan("indoor")
+		
 	} Goto execPlannedMoves
     
     
@@ -387,7 +393,6 @@ QActor basicrobot context ctxParkingservice{
  	 State stepDone{  
  	 	printCurrentMessage
  	 	[#if (CurrentPlannedMove == "w") {#]
- 	 		println("FORWARDDDD")
  	 		run unibo.robot.robotSupport.move( "h" ) 
  	 	[#}#]
  	 	
@@ -401,7 +406,6 @@ QActor basicrobot context ctxParkingservice{
  	
  	State turnMove{
   		if [# CurrentPlannedMove == "l" || CurrentPlannedMove == "r"  #]{
-  			//qrun pathexecutil.doMove(myself, "$CurrentPlannedMove")
   			run unibo.robot.robotSupport.move( "$CurrentPlannedMove" )
   		} 
  	}

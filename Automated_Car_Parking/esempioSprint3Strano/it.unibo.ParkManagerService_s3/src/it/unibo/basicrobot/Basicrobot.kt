@@ -29,6 +29,8 @@ class Basicrobot ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 		  var CurrentPlannedMove = ""
 		  var CurPath	= ""
 		  var CurSlot   = ""
+		  val planner = `it.unibo`.utils.CoordinatesKb
+		
 		
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
@@ -57,7 +59,7 @@ class Basicrobot ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 				}	 
 				state("path") { //this:State
 					action { //it:State
-						itunibo.planner.plannerUtil.planForGoal( "3", "3"  )
+						planner.getPathPlan( "indoor"  )
 					}
 					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitch() )
 				}	 
@@ -90,7 +92,6 @@ class Basicrobot ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name,
 					action { //it:State
 						println("$name in ${currentState.stateName} | $currentMsg")
 						if (CurrentPlannedMove == "w") { 
-						println("FORWARDDDD")
 						unibo.robot.robotSupport.move( "h"  )
 						} 
 						itunibo.planner.plannerUtil.updateMap( "$CurrentPlannedMove"  )

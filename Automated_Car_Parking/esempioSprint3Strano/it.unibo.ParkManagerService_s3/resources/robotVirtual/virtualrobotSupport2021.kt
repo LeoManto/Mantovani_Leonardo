@@ -99,7 +99,7 @@ val doafterConn : (CoroutineScope, IssWsHttpKotlinSupport) -> Unit =
 		}catch(e: Exception){
 			println("		--- virtualrobotSupport2021 |  move answer JSON ERROR $answer")
 		}
-		return 0
+		return 100
     } 
     //translates application-language in cril
     fun translate(cmd: String) : String{ //cmd is written in application-language
