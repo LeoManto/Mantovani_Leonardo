@@ -14,8 +14,7 @@ Dispatch restart : restart(V)
 Dispatch startfan : fan(V)
 Dispatch stopfan : stopfan(V)
 
-Dispatch slot	  : slot(SLOT)
-Dispatch moveok   : move( MOVESHORT )
+Dispatch move : move(V)
 //------------------------------------------------------------------------------------------------
 
 Event timeout 			: timeout(V)
@@ -26,13 +25,10 @@ Event weightsensor		: weight(W)
 Event alarm 			: timeout(alarm)
 
 //------------------------------------------------------------------------------------------------
-// forse non servono piu
-Event temp				: temp(V)
-Event normtemp			: norm(V)
+Event finished 			: finished(V) 
 //------------------------------------------------------------------------------------------------
 
-
-Context ctxParkingservice  ip [host="localhost" port=8020]
+Context ctxParkingservice  ip [host="localhost" port=8052]
       
 
 CodedQActor outsonar context ctxParkingservice className "sonarSimulator"
@@ -73,7 +69,7 @@ CodedQActor fan context ctxParkingservice className "fanSimulator"
 // Decommentare se NON si usa Jupyter Notebook
 
 
-/*QActor client context ctxParkingservice{
+QActor client context ctxParkingservice{
 	[# 
 		var CLIENTDONE  = 0
 		var SLOTNUM 	= 0 //slot assegnato
@@ -159,6 +155,8 @@ QActor parkingmanagerservice context ctxParkingservice{
 	var OUTDOORTOKEN = "1" //tokenid ricevuto dal client
 	var CARSLOTNUM =  0
 	
+	var GOAL = ""
+	
 	#]
 	
 	State s0 initial{
@@ -237,9 +235,15 @@ QActor parkingmanagerservice context ctxParkingservice{
 		[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
 		replyTo carenter with receipt : receipt($INDOORTOKEN)
 		updateResource [# "receipt : receipt($INDOORTOKEN)" #]
-		println("INDOOR TOKENID: $INDOORTOKEN") //to delete
+		//println("INDOOR TOKENID: $INDOORTOKEN") //to delete
+		
+		[#
+			GOAL = "indoor"
+		#]
+		forward trolley -m move : move($GOAL)
+		
 	} Transition t0
-				whenEvent weightsensor -> moveToSlotIn
+				whenEvent finished -> moveToSlotIn
 			
 			
 	State moveToSlotIn{
@@ -251,10 +255,23 @@ QActor parkingmanagerservice context ctxParkingservice{
 			}
 		//========================[ moveToSlotIN ]========================
 		println("Trolley moves from INDOOR to slot $SLOTNUM | SERVICE")
-		[# `it.unibo`.utils.ParkingSlotsKb.indoorFree  = true #] 
+		[# 
+			`it.unibo`.utils.ParkingSlotsKb.indoorFree  = true
+			GOAL = "p" + SLOTNUM.toString()
+		#] 
+		forward trolley -m move : move($GOAL)
 	} Transition t0
-			whenTime 3000 -> check //simuliamo lo spostamento del Trolley fino allo slot
+			whenEvent finished -> toHome //simuliamo lo spostamento del Trolley fino allo slot
 			
+	State toHome{
+		
+		[# 
+			GOAL = "home"
+		#] 
+		forward trolley -m move : move($GOAL)
+	} Transition t0
+			whenEvent finished -> check //simuliamo lo spostamento del Trolley fino allo slot
+	
 	
 	State acceptout{
 		//===========[ acceptOUT ]=====================
@@ -265,23 +282,34 @@ QActor parkingmanagerservice context ctxParkingservice{
 	} Goto picking if [# CARSLOTNUM > 0 #] else tokenError
 	
 	
-	State moveToSlotOut{
-		//====================[moveToSlotOut]========================
-		println("Trolley moves to slot $CARSLOTNUM | SERVICE")
-	}
-	
-	                                                                 
 	State picking{	 	
 		//====================[moveToOut]========================
 		println("Trolley picking car from slot $CARSLOTNUM | SERVICE")
 		delay 3000
-		[# `it.unibo`.utils.ParkingSlotsKb.setSlot(CARSLOTNUM, true) #]
-		println("Car is in Outdoor area | SERVICE")
+		[# `it.unibo`.utils.ParkingSlotsKb.setSlot(CARSLOTNUM, true) 
+			GOAL = "p" + CARSLOTNUM.toString()
+		#]
+		forward trolley -m move : move($GOAL)
+		
 		//[# `it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false #] 
 		emit caroutdoorarrival : coa(car_outdoor)  //deve essere percepito da "outsonar"
 	}
 	Transition t0 	
-				whenTime  100	-> check
+				whenEvent finished -> moveToSlotOut
+	
+	State moveToSlotOut{
+		//====================[moveToSlotOut]========================
+		
+		[#
+			GOAL = "outdoor"
+		#]
+		forward trolley -m move : move($GOAL)
+		println("Car is in Outdoor area | SERVICE")
+	}Transition t0 	
+				whenEvent  finished	-> check
+	
+	                                                                 
+	
 					
 	
 	State tokenError{
@@ -294,26 +322,27 @@ QActor parkingmanagerservice context ctxParkingservice{
 		println("%%%% TIMEOUT %%%%" )
 		emit alarm : timeout(alarm)		
 	}
-}*/
+}
 
+//---------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------//
 
-
-QActor basicrobot context ctxParkingservice{
+QActor trolley context ctxParkingservice{         
 [#
-  var StepTime      = 0L
-  var StartTime     = 0L     
-  var Duration      = 0L  
-  var RobotType     = "" 
-  var CurrentMove   = "moveUnknown"
+	//var CurPath	= ""
+  	//var CurSlot   = ""
+  	//var StartTime     = 0L     
+  	//var Duration      = 0L  
+  	//var CurrentMove   = "moveUnknown"
+  	
+	var StepTime      = 0L
+	var RobotType     = "" 
+	var GOAL = ""
+	val mapname     = "parkingMap" 		 
+	var Myself      = myself  
+	var CurrentPlannedMove = ""
   
- 
-  val mapname     = "parkingMap" 		 
-  var Myself      = myself  
-  var CurrentPlannedMove = ""
-  var CurPath	= ""
-  var CurSlot   = ""
-  val planner = `it.unibo`.utils.CoordinatesKb
-
+  	val util = `it.unibo`.utils.TrolleyUtilityKb
 
 #]  
  	State s0 initial { 	      
@@ -323,9 +352,6 @@ QActor basicrobot context ctxParkingservice{
  		
  		run itunibo.planner.plannerUtil.initAI()
 		run itunibo.planner.plannerUtil.loadRoomMap("$mapname")
-
-		run itunibo.planner.plannerUtil.showCurrentRobotState()  	
-     	//run pathexecutil.register( Myself )
 		
     	run unibo.robot.robotSupport.move( "h" )
  		delay 1000 
@@ -333,39 +359,28 @@ QActor basicrobot context ctxParkingservice{
 		run unibo.robot.robotSupport.move( "r" )
  		discardMsg Off  //WE want receive any msg
  		
- 				
-     	
-		//Set the parking area ...
-  		//run itunibo.planner.plannerUtil.updateMapObstacleOnCurrentDirection()
-		//run itunibo.planner.plannerUtil.showMap( )   
      	run itunibo.planner.plannerUtil.showCurrentRobotState()
      	
      	run pathexecutil.register( Myself ) 
+     	//run planner.setObstacle("p2")
  		
  	}
 	Goto work
 	
 	
 	State work{ 
-		println("basicrobot  | waiting .................. ")  
-	} 
-	Goto path
-	//Transition t1   whenMsg 	  slot	    -> path
-					//whenMsg     cmd       -> execcmd
-					//whenRequest step      -> doStep			
-					//whenMsg    obstacle   -> handleObstacle  //in virtualrobot caused by the move w/s
-				  	//whenMsg     end       -> endwork			  
+		println("Waiting | TROLLEY ")  
+	} Transition t0
+				whenMsg move -> path	  
 	
 	
 	State path{
-		//onMsg( slot : slot(SLOT) ){
-		//	[# CurSlot =  "${payloadArg(0)}" #] 
-		//}
+		onMsg(move : move(GOAL)){
+			[# GOAL = payloadArg(0).toString() #]
+			println("TROLLEY is going to $GOAL | TROLLEY")
+			run util.getPathPlan(GOAL)
+		}
 		
-		//elaborazioni per tradurre slot in goal
-		//run itunibo.planner.plannerUtil.planForGoal("6", "4") 
-		
-		run planner.getPathPlan("indoor")
 		
 	} Goto execPlannedMoves
     
@@ -373,15 +388,9 @@ QActor basicrobot context ctxParkingservice{
 	State execPlannedMoves{   
 		delay 300
  		[#  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove() #]
- 		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove")
+ 		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove | TROLLEY")
  	}
- 	Goto doMove if [# CurrentPlannedMove.length>0 #] else halt //parkthecar
- 
- 	
- 	State halt{
- 		println("path finished")
- 	}
- 	
+ 	Goto doMove if [# CurrentPlannedMove.length>0 #] else halt //parkthecar 	
  
  	State doMove{ 	
  		[#StepTime = #] run unibo.robot.robotSupport.move( "$CurrentPlannedMove" ) 
@@ -397,14 +406,40 @@ QActor basicrobot context ctxParkingservice{
  	 	[#}#]
  	 	
  		//updateResource [# itunibo.planner.plannerUtil.getMap() #]
+ 		
  		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
- 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
+ 		
+ 		//run itunibo.planner.plannerUtil.showCurrentRobotState( )
  		//updateResource [# "stepDone" # ]
  		
   	} 
  	Transition t0 whenTime 300 -> execPlannedMoves
  	
- 	State turnMove{
+ 	State halt{
+ 		
+ 		//se libero allora setObstacle altrimenti removeObstacle
+ 		[#
+ 			if(util.isObstacle(GOAL)){	
+ 		#]
+		 		run util.removeObstacle(GOAL)
+		 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
+ 		[#
+ 			}else{
+ 		#]
+		 		run util.setObstacle(GOAL)
+		 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
+ 		[#
+ 			}
+ 		#]
+ 		
+ 		println("path finished | TROLLEY")
+ 		emit finished : finished(V) 
+ 	}Goto work
+
+}	
+
+
+/*State turnMove{
   		if [# CurrentPlannedMove == "l" || CurrentPlannedMove == "r"  #]{
   			run unibo.robot.robotSupport.move( "$CurrentPlannedMove" )
   		} 
@@ -417,8 +452,8 @@ QActor basicrobot context ctxParkingservice{
  		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
    		run itunibo.planner.plannerUtil.showCurrentRobotState( )
  	} 
- 	 Transition t0 whenTime 300 -> execPlannedMoves
-		
+ 	 Transition t0 whenTime 300 -> execPlannedMoves */
+
 /* 
 	State execcmd{
 		printCurrentMessage
@@ -525,100 +560,4 @@ QActor basicrobot context ctxParkingservice{
 		}
  		emit endall : endall(normal) 
  		terminate 1
-	}   
- }
-
-
-QActor trolley context ctxParkingservice{         
-[#
-val mapname     = "parkingMap" 		 
-var Myself      = myself  
-var CurrentPlannedMove = ""
-#]
-	State s0 initial {	 
-		qrun unibo.robot.robotSupport.create(myself,"basicrobotConfig.json")		
-     	run itunibo.planner.plannerUtil.initAI()
-		println("&&&  trolley loads the parking map from the given file ...") 
-		run itunibo.planner.plannerUtil.loadRoomMap("$mapname")
-		//Set the parking area ...
-  		//run itunibo.planner.plannerUtil.updateMapObstacleOnCurrentDirection()
-		//run itunibo.planner.plannerUtil.showMap( )   
-     	run itunibo.planner.plannerUtil.showCurrentRobotState()
-     	
-     	run pathexecutil.register( Myself ) 
-   	}
-   	Goto moveToIndoor  
-
-   	
-   	State setParkingArea{
-   		//run itunibo.planner.plannerUtil.planForGoal("1","1")
-   		//TODO
-   	}
-
-  	State moveToIndoor{  	
-  		 run itunibo.planner.plannerUtil.planForGoal("2","2")
-   	} 
-    Goto execPlannedMoves
-    
-    
-	State execPlannedMoves{   
-		delay 300
- 		[#  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove() #]
- 		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove")
- 	}
- 	Goto doMove // if [# CurrentPlannedMove.length>0 #] else parkthecar
- 
- 	State doMove{ 		
- 	}
- 	Goto wMove if [# CurrentPlannedMove == "w" #] else turnMove
- 	
- 	State wMove {     
- 		delay 300
- 		qrun pathexecutil.doMove(myself, "p" )  
- 	}
- 	Transition t0 whenMsg moveok   -> stepDone   
-  	
- 	 State stepDone{  
- 	 	printCurrentMessage
- 		//updateResource [# itunibo.planner.plannerUtil.getMap() #]
- 		run itunibo.planner.plannerUtil.updateMap(  "w" )
- 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
- 		//updateResource [# "stepDone" # ]
- 		
-  	} 
- 	Transition t0 whenTime 300 -> execPlannedMoves
- 	
- 	State turnMove{
-  		if [# CurrentPlannedMove == "l" || CurrentPlannedMove == "r"  #]{
-  			qrun pathexecutil.doMove(myself, "$CurrentPlannedMove")
-  		} 
- 	}
-  	Transition t0  whenMsg moveok   -> rotationDone
-
-
- 	State rotationDone{
- 		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
-   		run itunibo.planner.plannerUtil.showCurrentRobotState( )
- 	} 
- 	 Transition t0 whenTime 300 -> execPlannedMoves
- 	
- 	
- 	State parkthecar{
- 		printCurrentMessage  
- 		
- 		run itunibo.planner.plannerUtil.showCurrentRobotState( )  
- 		//if [# ! itunibo.planner.plannerUtil.atHome() #]{
- 		if [# ! itunibo.planner.plannerUtil.atPos(4,1) #]{
- 			//move to a parking cell (3,1)
- 			run itunibo.planner.plannerUtil.planForGoal("4","1")
- 		}else{
- 			run itunibo.planner.plannerUtil.planForGoal("0","0")
- 		}
- 	} 
-    Goto execPlannedMoves  if[# ! itunibo.planner.plannerUtil.atHome() #] else  end
-
-	State end{
-		println("AT HOME ...")
-	}
-*/
-}	
+	}  */

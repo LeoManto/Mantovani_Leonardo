@@ -17,28 +17,53 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
-		val mapname     = "parkingMap" 		 
-		var Myself      = myself  
-		var CurrentPlannedMove = ""
+			//var CurPath	= ""
+		  	//var CurSlot   = ""
+		  	//var StartTime     = 0L     
+		  	//var Duration      = 0L  
+		  	//var CurrentMove   = "moveUnknown"
+		  	
+			var StepTime      = 0L
+			var RobotType     = "" 
+			var GOAL = ""
+			val mapname     = "parkingMap" 		 
+			var Myself      = myself  
+			var CurrentPlannedMove = ""
+		  
+		  	val util = `it.unibo`.utils.TrolleyUtilityKb
+		
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						println("basicrobot | START")
 						unibo.robot.robotSupport.create(myself ,"basicrobotConfig.json" )
+						 RobotType = unibo.robot.robotSupport.robotKind  
 						itunibo.planner.plannerUtil.initAI(  )
-						println("&&&  trolley loads the parking map from the given file ...")
 						itunibo.planner.plannerUtil.loadRoomMap( "$mapname"  )
+						unibo.robot.robotSupport.move( "h"  )
+						delay(1000) 
+						unibo.robot.robotSupport.move( "l"  )
+						unibo.robot.robotSupport.move( "r"  )
+						discardMessages = false
 						itunibo.planner.plannerUtil.showCurrentRobotState(  )
 						pathexecutil.register( Myself  )
 					}
-					 transition( edgeName="goto",targetState="moveToIndoor", cond=doswitch() )
+					 transition( edgeName="goto",targetState="work", cond=doswitch() )
 				}	 
-				state("setParkingArea") { //this:State
+				state("work") { //this:State
 					action { //it:State
+						println("Waiting | TROLLEY ")
 					}
+					 transition(edgeName="t014",targetState="path",cond=whenDispatch("move"))
 				}	 
-				state("moveToIndoor") { //this:State
+				state("path") { //this:State
 					action { //it:State
-						itunibo.planner.plannerUtil.planForGoal( "2", "2"  )
+						if( checkMsgContent( Term.createTerm("move(V)"), Term.createTerm("move(GOAL)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 GOAL = payloadArg(0).toString()  
+								println("TROLLEY is going to $GOAL | TROLLEY")
+								util.getPathPlan( GOAL  )
+						}
 					}
 					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitch() )
 				}	 
@@ -46,72 +71,50 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 					action { //it:State
 						delay(300) 
 						  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove()  
-						println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove")
+						println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove | TROLLEY")
 					}
-					 transition( edgeName="goto",targetState="doMove", cond=doswitch() )
+					 transition( edgeName="goto",targetState="doMove", cond=doswitchGuarded({ CurrentPlannedMove.length>0  
+					}) )
+					transition( edgeName="goto",targetState="halt", cond=doswitchGuarded({! ( CurrentPlannedMove.length>0  
+					) }) )
 				}	 
 				state("doMove") { //this:State
 					action { //it:State
+						StepTime =  
+						unibo.robot.robotSupport.move( "$CurrentPlannedMove"  )
+						stateTimer = TimerActor("timer_doMove", 
+							scope, context!!, "local_tout_trolley_doMove", StepTime )
 					}
-					 transition( edgeName="goto",targetState="wMove", cond=doswitchGuarded({ CurrentPlannedMove == "w"  
-					}) )
-					transition( edgeName="goto",targetState="turnMove", cond=doswitchGuarded({! ( CurrentPlannedMove == "w"  
-					) }) )
-				}	 
-				state("wMove") { //this:State
-					action { //it:State
-						delay(300) 
-						pathexecutil.doMove(myself ,"p" )
-					}
-					 transition(edgeName="t00",targetState="stepDone",cond=whenDispatch("moveok"))
+					 transition(edgeName="t015",targetState="stepDone",cond=whenTimeout("local_tout_trolley_doMove"))   
 				}	 
 				state("stepDone") { //this:State
 					action { //it:State
 						println("$name in ${currentState.stateName} | $currentMsg")
-						itunibo.planner.plannerUtil.updateMap( "w"  )
-						itunibo.planner.plannerUtil.showCurrentRobotState(  )
+						if (CurrentPlannedMove == "w") { 
+						unibo.robot.robotSupport.move( "h"  )
+						} 
+						itunibo.planner.plannerUtil.updateMap( "$CurrentPlannedMove"  )
 						stateTimer = TimerActor("timer_stepDone", 
 							scope, context!!, "local_tout_trolley_stepDone", 300.toLong() )
 					}
-					 transition(edgeName="t01",targetState="execPlannedMoves",cond=whenTimeout("local_tout_trolley_stepDone"))   
+					 transition(edgeName="t016",targetState="execPlannedMoves",cond=whenTimeout("local_tout_trolley_stepDone"))   
 				}	 
-				state("turnMove") { //this:State
+				state("halt") { //this:State
 					action { //it:State
-						if(  CurrentPlannedMove == "l" || CurrentPlannedMove == "r"   
-						 ){pathexecutil.doMove(myself ,"$CurrentPlannedMove" )
-						}
-					}
-					 transition(edgeName="t02",targetState="rotationDone",cond=whenDispatch("moveok"))
-				}	 
-				state("rotationDone") { //this:State
-					action { //it:State
-						itunibo.planner.plannerUtil.updateMap( "$CurrentPlannedMove"  )
+						
+						 			if(util.isObstacle(GOAL)){	
+						util.removeObstacle( GOAL  )
 						itunibo.planner.plannerUtil.showCurrentRobotState(  )
-						stateTimer = TimerActor("timer_rotationDone", 
-							scope, context!!, "local_tout_trolley_rotationDone", 300.toLong() )
-					}
-					 transition(edgeName="t03",targetState="execPlannedMoves",cond=whenTimeout("local_tout_trolley_rotationDone"))   
-				}	 
-				state("parkthecar") { //this:State
-					action { //it:State
-						println("$name in ${currentState.stateName} | $currentMsg")
+						
+						 			}else{
+						util.setObstacle( GOAL  )
 						itunibo.planner.plannerUtil.showCurrentRobotState(  )
-						if(  ! itunibo.planner.plannerUtil.atPos(4,1)  
-						 ){itunibo.planner.plannerUtil.planForGoal( "4", "1"  )
-						}
-						else
-						 {itunibo.planner.plannerUtil.planForGoal( "0", "0"  )
-						 }
+						
+						 			}
+						println("path finished | TROLLEY")
+						emit("finished", "finished(V)" ) 
 					}
-					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitchGuarded({ ! itunibo.planner.plannerUtil.atHome()  
-					}) )
-					transition( edgeName="goto",targetState="end", cond=doswitchGuarded({! ( ! itunibo.planner.plannerUtil.atHome()  
-					) }) )
-				}	 
-				state("end") { //this:State
-					action { //it:State
-						println("AT HOME ...")
-					}
+					 transition( edgeName="goto",targetState="work", cond=doswitch() )
 				}	 
 			}
 		}

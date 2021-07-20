@@ -28,6 +28,7 @@ object virtualrobotSupport2021 {
 	private lateinit var hostName : String 	
 	private lateinit var support21 : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
 	private lateinit var support21ws : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
+	//per Leo time:149, normalmente time:350
     private val forwardlongtimeMsg  = "{\"robotmove\":\"moveForward\", \"time\": 149}"
     private val backwardlongtimeMsg = "{\"robotmove\":\"moveBackward\", \"time\": 350}"
 
