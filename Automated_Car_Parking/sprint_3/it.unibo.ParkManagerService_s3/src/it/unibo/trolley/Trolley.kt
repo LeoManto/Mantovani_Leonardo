@@ -38,7 +38,7 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 				}	 
 				state("moveToIndoor") { //this:State
 					action { //it:State
-						itunibo.planner.plannerUtil.planForGoal( "2", "2"  )
+						itunibo.planner.plannerUtil.planForGoal( "6", "0"  )
 					}
 					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitch() )
 				}	 

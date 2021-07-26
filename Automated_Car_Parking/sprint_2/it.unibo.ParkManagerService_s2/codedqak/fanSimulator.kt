@@ -44,31 +44,19 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	suspend fun startFan() {
 		println("Fan START | FAN")
-		//-------------------------------------------------------------------------------------------------------
-		//se si vuole inviare un evento al mockActor...
-		//val m5 = MsgUtil.buildEvent(name, "stopinc", "stopinc(temp)")
-		//emit(m5)
-	
-		//se si vuole inviare un dispatch al mockActor...
-		//val stopMsg = MsgUtil.buildDispatch("main","stopinc","stopinc(temp)","thermometer")
+		updateResourceRep( "fan(ON)"  )
 		forward("stopinc", "stopinc(temp)" ,"thermometer" ) 
 		//-------------------------------------------------------------------------------------------------------
 		val job : Job = mainScope.launch{
-
+			
 			while(workFan){
 
 				tempAtt.decTemp()
 				if(tempAtt.getTemp() <= minTemp){
 					workFan = false
-					
-					//-------------------------------------------------------------------------------------------------------
-					//se si vuole inviare un evento al mockActor...
+					updateResourceRep( "fan(OFF)"  )
 					val m5 = MsgUtil.buildEvent(name, "normtemp", "norm(temp)")
 					emit(m5)
-					
-					//se si vuole inviare un dispatch al mockActor...
-					//forward("normotemp", "norm(temp)" ,"thermometer" ) 
-					//-------------------------------------------------------------------------------------------------------
 				}
 				delay(3000)
 			}	

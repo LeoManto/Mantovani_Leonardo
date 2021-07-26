@@ -29,7 +29,7 @@ Event normtemp			: norm(V)
 //------------------------------------------------------------------------------------------------
 
 
-Context ctxParkingservice  ip [host="localhost" port=8052]
+Context ctxParkingservice  ip [host="localhost" port=5683]
       
 
 CodedQActor outsonar context ctxParkingservice className "sonarSimulator"
@@ -78,9 +78,13 @@ QActor client context ctxParkingservice{
 	#]
 	State s0 initial{
 		println("Client mock simulation START | CLIENT")
-	} Goto requestToEnter
+	} Transition t0
+					whenTime 4000 -> init
 	 
-	 
+	State init{
+	}
+	
+	/*
 	State requestToEnter{
 		[# var t = kotlin.random.Random.nextLong(2000,4000) #]
 		[# delay(t) #]
@@ -131,12 +135,13 @@ QActor client context ctxParkingservice{
 		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
 		emit carwithdrawn : cw(bye)
 		[# CLIENTDONE = CLIENTDONE + 1 #]
-	}Goto stop if [# CLIENTDONE == 1 #] else requestToEnter 
+	}Goto stop if [# CLIENTDONE == 4 #] else requestToEnter 
 	
 	
 	State stop{
 		println("No more clients") 
 	}
+	  */
 }
 
 //---------------------------------------------------------------------------------------//
@@ -152,6 +157,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	var SLOTNUM = 1
 	var INDOORTOKEN  = "1" //tokenid dato al client
+	var WEIGHT 		  = 0
 	
 	var OUTDOORTOKEN = "1" //tokenid ricevuto dal client
 	var CARSLOTNUM =  0
@@ -168,7 +174,8 @@ QActor parkingmanagerservice context ctxParkingservice{
 	forward thermometer -m startthermometer : thermometer(V)
 	println("Park System START | SERVICE")
 	}
-	Goto check
+	Transition t0
+			whenTime 1000 -> check
 	
 	
 	State check{
@@ -190,6 +197,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 								
 	State ready{
 		println("INDOOR and OUTDOOR Avaiable | SERVICE")
+		
 	}Transition t0 
 					whenRequest reqenter -> acceptin
 					whenMsg		pickup	 -> acceptout
@@ -198,12 +206,15 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State readyOnlyIndoor{
 		println("INDOOR Avaiable | SERVICE")
 	}Transition t0
+					whenTime 2000 -> check
 					whenRequest reqenter -> acceptin
+					
 				
 	
 	State readyOnlyOutdoor{
 		println("OUTDOOR Avaiable | SERVICE")
 	}Transition t0
+					whenTime 2000 -> check
 					whenMsg		pickup	 -> acceptout
 					
 					
@@ -213,52 +224,66 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
  	
 	State acceptin{
+			[# `it.unibo`.utils.ParkingSlotsKb.indoorFree  = false #]
 			//================[ acceptIN ]=====================	
 			[# SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot() #]
 			[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
-			updateResource [# "SLOTNUM" #]
+			updateResource [# "slotnum(${SLOTNUM}) " #]
 			//================[ informIN ]=====================
 			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
 			println("SLOTNUM = $SLOTNUM | SERVICE" )
-			updateResource [# "slotsnum : slotsnum ($SLOTNUM)" #]
 			//================[ moveToIn ]=====================
 			println("Trolley is moving to Indoor | SERVICE")		
 	} Transition t0
 					whenRequest carenter -> carenter
 				
-					
+	
 	State carenter{
-		//[# `it.unibo`.utils.ParkingSlotsKb.indoorFree = false #]	
-		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor
-		//======================[ receipt ]=======================
-		[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
-		replyTo carenter with receipt : receipt($INDOORTOKEN)
-		updateResource [# "receipt : receipt($INDOORTOKEN)" #]
-		println("INDOOR TOKENID: $INDOORTOKEN") //to delete
+		emit carindoorarrival : cia(car_arrived) //suppose that the car is actually in INDOOR-Area
 	} Transition t0
-				whenEvent weightsensor -> moveToSlotIn
+			whenEvent weightsensor -> weightcheck
 			
 			
-	State moveToSlotIn{
+	State weightcheck{
 		onMsg(weightsensor : weight(W)){
 			[# 
-				var peso = payloadArg(0)
-				println("Weight: " + peso)
-			#]
+				WEIGHT = payloadArg(0).toInt()
+				println("Weight: " + WEIGHT)
+			#] 
 			}
+	} Goto moveToSlotIn if [# WEIGHT > 0 #] else weightError	//check if car is actual in INDOOR		
+	
+	
+	State moveToSlotIn{
 		//========================[ moveToSlotIN ]========================
 		println("Trolley moves from INDOOR to slot $SLOTNUM | SERVICE")
-		[# `it.unibo`.utils.ParkingSlotsKb.indoorFree  = true #] 
-	} Transition t0
-			whenTime 3000 -> check //simuliamo lo spostamento del Trolley fino allo slot
+		[# `it.unibo`.utils.ParkingSlotsKb.indoorFree  = true #]
+	} Goto receipt 
 			
+		
+	State receipt{ 
+		[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
+		/*==========[receipt]==========*/
+		replyTo carenter with receipt : receipt($INDOORTOKEN)
+		updateResource [# "receipt($INDOORTOKEN)" #]
+		/*==========[moveToHome]==========*/
+		println("Trolley moves to Home | SERVICE")
+	} Transition t0 
+					whenTime 1000 -> check  //simuliamo il ritorno ad Home del Trolley
+		
+		
+	State weightError{ 
+		println("Car not actual in INDOOR-AREA")
+	} Goto check				
+		
 	
 	State acceptout{
-		//===========[ acceptOUT ]=====================
-		//===========[ findSlot ]=====================
-			onMsg (pickup : pickup(OUTDOORTOKEN)){
-				[#  OUTDOORTOKEN = payloadArg(0).toString() #]}
+		//===========[ acceptOUT / findSlot ]=====================
+		onMsg (pickup : pickup(OUTDOORTOKEN)){
+				[#  OUTDOORTOKEN = payloadArg(0).toString() #]
+			}
 			[# 	CARSLOTNUM = `it.unibo`.utils.ParkingSlotsKb.checkToken(OUTDOORTOKEN) #]
+		updateResource [# "pickup($CARSLOTNUM)" #]
 	} Goto picking if [# CARSLOTNUM > 0 #] else tokenError
 	
 	
@@ -284,51 +309,8 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State tokenError{
 		println("Invalid insert Token!")
 	} Goto ready
-	 				
-	//Forse inutile
-	State timeout{
-		println("%%%% TIMEOUT %%%%" )
-		emit alarm : timeout(alarm)		
-	}
+	 		
+	 			
 }
-
-/*QActor manager context ctxParkingservice{
-	[#  
-		var working = true
-	#]
-	State s0 initial{ 
-		//println("ManagerMockSimulation START | MANAGER")
-	} Goto waitTemp
-	 
-	State waitTemp{
-		[#
-			if(working == true){
-				println("Attendo l'evento del termometro | GENERATORE")
-			}else{
-				working = true
-		#]
-				forward fan -m stopfan : stopfan(V)
-				//println("Invio messaggio restart")
-				forward thermometer -m restart : restart(V)
-		[#
-			}
-			
-		#]
-		
-	} Transition t0 
-					whenEvent hottemp -> fanActivation
-					
-	State fanActivation{
-		println("Ho ricevuto l'allarme, attivo la ventola...")
-		forward fan -m startfan : fan(V)
-		[#
-			working = false
-		#]
-	}Transition t0
-		whenEvent normtemp -> waitTemp
-		
-	
-	
-}*/
 
 

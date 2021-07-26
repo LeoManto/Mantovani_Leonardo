@@ -1,5 +1,5 @@
 System   parkingservice
-  
+
 Request reqenter : reqenter(V)
 Reply slotsnum : slotsnum(SLOTNUM)
  
@@ -324,7 +324,7 @@ var CurrentPlannedMove = ""
    	}
 
   	State moveToIndoor{  	
-  		 run itunibo.planner.plannerUtil.planForGoal("2","2")
+  		 run itunibo.planner.plannerUtil.planForGoal("6","0")
    	} 
     Goto execPlannedMoves
     

@@ -16,10 +16,9 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	@kotlinx.coroutines.ExperimentalCoroutinesApi			
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
-		 
-				var CLIENTDONE  = 0
-				var SLOTNUM 	= 0 //slot assegnato
-				var TOKENID 	= "0"
+		
+				var SLOTNUM = 0
+				var TOKENID = 0 // sarà direttamente il num dello slot assegnato //
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State

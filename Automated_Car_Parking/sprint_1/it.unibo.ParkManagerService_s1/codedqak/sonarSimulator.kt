@@ -42,8 +42,9 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun stopSonar(){
-	
+			
 		 	busy = false
+		 	updateResourceRep( "outsonar(${busy.toString()})"  )
 		    mainScope.cancel()
 		    tmp = DTFREE
 		}
@@ -60,7 +61,7 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 
 	  val m1 = MsgUtil.buildEvent(name, "timeout", "timeout(alarm)")
 	  emit(m1)
-				}	
+				}
 }
 
 }

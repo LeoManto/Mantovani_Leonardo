@@ -33,5 +33,7 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 				`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false 
 		     val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		     emit(m4)
+	
+		     updateResourceRep( "weight($w)"  )
 	}
 } 

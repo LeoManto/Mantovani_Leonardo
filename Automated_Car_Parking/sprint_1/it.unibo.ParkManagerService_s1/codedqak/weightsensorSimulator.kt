@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
  
 class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 	
+	var w = 0
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,12 +30,14 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun simulateWeight(){
 		
-		    val w = Random.nextInt(750, 3000)
+		    w = Random.nextInt(750, 3000)
 	
 		     val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		     emit(m4)
 		     
 		     updateResourceRep( "weight($w)"  )
+	
+		     w = 0
 	
 		
 	}

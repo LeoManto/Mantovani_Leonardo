@@ -117,6 +117,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						answer("carenter", "receipt", "receipt($INDOORTOKEN)"   )  
 						updateResourceRep( "receipt : receipt($INDOORTOKEN)"  
 						)
+						println("INDOOR TOKENID: $INDOORTOKEN")
 						
 									GOAL = "indoor"
 						forward("move", "move($GOAL)" ,"trolley" ) 

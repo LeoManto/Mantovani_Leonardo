@@ -235,7 +235,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 		[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
 		replyTo carenter with receipt : receipt($INDOORTOKEN)
 		updateResource [# "receipt : receipt($INDOORTOKEN)" #]
-		//println("INDOOR TOKENID: $INDOORTOKEN") //to delete
+		println("INDOOR TOKENID: $INDOORTOKEN") //to delete
 		
 		[#
 			GOAL = "indoor"
@@ -329,20 +329,21 @@ QActor parkingmanagerservice context ctxParkingservice{
 
 QActor trolley context ctxParkingservice{         
 [#
-	//var CurPath	= ""
-  	//var CurSlot   = ""
-  	//var StartTime     = 0L     
-  	//var Duration      = 0L  
-  	//var CurrentMove   = "moveUnknown"
-  	
-	var StepTime      = 0L
-	var RobotType     = "" 
-	var GOAL = ""
-	val mapname     = "parkingMap" 		 
-	var Myself      = myself  
-	var CurrentPlannedMove = ""
-  
-  	val util = `it.unibo`.utils.TrolleyUtilityKb
+  var StepTime      = 0L
+  var StartTime     = 0L     
+  var Duration      = 0L  
+  var RobotType     = "" 
+  var CurrentMove   = "moveUnknown"
+ 
+  var GOAL = ""
+ 
+  val mapname     = "parkingMap" 		 
+  var Myself      = myself  
+  var CurrentPlannedMove = ""
+  var CurPath	= ""
+  var CurSlot   = ""
+  val planner = `it.unibo`.utils.CoordinatesKb
+
 
 #]  
  	State s0 initial { 	      
@@ -352,6 +353,9 @@ QActor trolley context ctxParkingservice{
  		
  		run itunibo.planner.plannerUtil.initAI()
 		run itunibo.planner.plannerUtil.loadRoomMap("$mapname")
+
+		run itunibo.planner.plannerUtil.showCurrentRobotState()  	
+     	//run pathexecutil.register( Myself )
 		
     	run unibo.robot.robotSupport.move( "h" )
  		delay 1000 
@@ -359,17 +363,17 @@ QActor trolley context ctxParkingservice{
 		run unibo.robot.robotSupport.move( "r" )
  		discardMsg Off  //WE want receive any msg
  		
+     	run itunibo.planner.plannerUtil.showMap()
      	run itunibo.planner.plannerUtil.showCurrentRobotState()
      	
      	run pathexecutil.register( Myself ) 
-     	//run planner.setObstacle("p2")
  		
  	}
 	Goto work
 	
 	
 	State work{ 
-		println("Waiting | TROLLEY ")  
+		println("basicrobot  | waiting .................. ")  
 	} Transition t0
 				whenMsg move -> path	  
 	
@@ -377,8 +381,8 @@ QActor trolley context ctxParkingservice{
 	State path{
 		onMsg(move : move(GOAL)){
 			[# GOAL = payloadArg(0).toString() #]
-			println("TROLLEY is going to $GOAL | TROLLEY")
-			run util.getPathPlan(GOAL)
+			println("afdsfgoafhgofaughoifauh $GOAL")
+			run planner.getPathPlan(GOAL)
 		}
 		
 		
@@ -388,7 +392,7 @@ QActor trolley context ctxParkingservice{
 	State execPlannedMoves{   
 		delay 300
  		[#  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove() #]
- 		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove | TROLLEY")
+ 		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove")
  	}
  	Goto doMove if [# CurrentPlannedMove.length>0 #] else halt //parkthecar 	
  
@@ -419,20 +423,20 @@ QActor trolley context ctxParkingservice{
  		
  		//se libero allora setObstacle altrimenti removeObstacle
  		[#
- 			if(util.isObstacle(GOAL)){	
+ 			if(planner.isObstacle(GOAL)){	
  		#]
-		 		run util.removeObstacle(GOAL)
+		 		run planner.removeObstacle(GOAL)
 		 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
  		[#
  			}else{
  		#]
-		 		run util.setObstacle(GOAL)
+		 		run planner.setObstacle(GOAL)
 		 		run itunibo.planner.plannerUtil.showCurrentRobotState( )
  		[#
  			}
  		#]
  		
- 		println("path finished | TROLLEY")
+ 		println("path finished")
  		emit finished : finished(V) 
  	}Goto work
 

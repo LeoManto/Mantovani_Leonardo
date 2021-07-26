@@ -842,25 +842,21 @@
 							</center>
 							<center> <a href="../codedqak/thermometerSimulator.kt">thermometerSimulator.kt: </a></center><br>
 							This mock-actor is activated immediately at the start of application. It performs two different task:
-							<li>send continuously an event, in which are the actual temperature of environment, to the fan actor</li>
+							<li>emit continuously an event, in which are the actual temperature of environment</li>
 							<li>to cyclically increment the value of temperature, this to simulate the increasing of environment temperature during his activity</li>
-							For it's correct working and for coherence with requirements, we have fixed two constant value 
-							<ks>minTemp</ks> and <ks>maxTemp</ks> that indicates the lower and upper temperature limits of system operation. <br>
-							When temperature has reached the upper limit, fan actor send to thermometer a dispatch message, which has the function of ending temperature increase process.
-							On the other hand, when the temperature has returned to the working values, the process of increasing the temperature can restart.
-							With the relaxation of the problem in this analisis thermometer mock-actor doesn't communicate with the main actors.
+							For it's coherence with requirements, we have fixed a constant value 
+							<ks>maxTemp</ks> that indicates upper temperature limits of system operation. <br> It's necessary to decide a value that represent the optimal temperature at which fan can be stopped, we indicate this with constant value <k>minTemp</k>.
+							When temperature has reached the upper limit, fan actor send to thermometer a dispatch message <tt>stopinc</tt>, which has the function of ending temperature increase process.
+							On the other hand, when the temperature has returned to the working values, this is reported through an event <tt>normtemp</tt> emitted by fan, the process of increasing the temperature can restart.
 						</td>
 						<td>
 							<center>
 								<ks>fan: </ks>
 							</center>
 							<center> <a href="../codedqak/fanSimulator.kt">fanSimulator.kt: </a></center><br>
-							This mock-actor is strictly related with thermometer actor. It evaluates every event that thermometer emit and check if the temperature of the environment 
-							is under the max prefixed temperature values. If temperature exeed the limits, fan actor send a dispatch message to the thermometer; this message is required to stop execution of
-							increasing process.<br>
-							When fan stat his execution, it start to decrease temperature, until this reaches the minimum value. Then an event is emitted that warns that the simulation can restart. 
-							After that, the coroutine of fan that decrease temperature, terminate.
-							With the relaxation of the problem in this analisis thermometer mock-actor doesn't communicate with the main actors.
+              This mock-actor is strictly related with thermometer actor. It evaluates every <tt>temp</tt> event that thermometer emit and check if the temperature of the environment 
+							is under the max prefixed temperature values. If temperature exeed the limits, fan actor send a dispatch message <tt>stopinc</tt> to the thermometer; this message is required to 							stop execution of increasing process.<br>
+							When fan stat his execution, it start to decrease temperature, until this reaches <k>minTemp</k>. Then an event is emitted <tt>normtemp</tt> that warns that the simulation can 							restart adn fan actor terminate his work.
 						</td>
 					</tr>
 					<tr>
@@ -873,278 +869,55 @@
 			<!--TODO fare spiegazione logica del programma con linguaggio naturale.-->
 		</div>
 		<h2>Test plans</h2>
+		<a href="../test/it/unibo/parkingmanagerservicetest/TestPlan1.kt">TestPlan1.kt </a><br>
 		<p>
-			<b>TODO</b>: tutto!!
+		In this test plan are considered only <ks>non-distributed</ks> tests.
+		<br>
+		<p>
+      Tests is built using CoapObserver provided by the costumer in the project <ks>it.unibo.qak21.basicrobot</ks> (<a href="../test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">CoapObserverForTesting.kt</a>).
+      <br>
+  
+		</p>
+		<kc>TestPlans1 goals:</kc>
+		<ul>
+		<li>Ensure that the workflow of the system meets a set of requirements <k><b>(integration testing)</b></k>. <br> <br>
+      In this testing plan are employed <tt>parkingmanagerservice</tt> and <tt>client</tt>. In particular, to start system simulation <tt>client</tt> sends a request <tt>reqenter</tt> and the others messages necessary to continue properly the entire workflow. Test is performed observing some significant resouces updated by <tt>parkingmanagerservice</tt> so as to verify the correct functioning of the system.
+			<div class=remark2>
+			<h3>Parking phase with a free slot - INDOOR-AREA FREE</h3>
+				It's tested if the value of <em>SLOTNUM</em> provided by the 
+				<b>parkingmanagerservive</b> it's greater than 0 and if <em>TOKENID</em> provided to client it's greater than 0 and equals to 
+				<em>SLOTNUM</em> (this requirement is introduced by the assumptions made for sprint 1).
+			<h3>Picking phase with valid token - OUTDOOR-AREA FREE</h3>
+				It's tested if the <em>TOKENID</em> provided by client is greater than 0
+			<h3>Parking phase without free slot - INDOOR-AREA FREE</h3>
+      <h3>Picking phase with invalid token - OUTDOOR-AREA FREE</h3>
+      <h3>Simultaneous arrival of more clients</h3>
+        At the moment of the arrival of first client the INDOOR-AREA is free [....]
+      <h3>Client arrival with occupied INDOOR-area</h3>
+      <h3>picking request with occupied OUTDOOR-area</h3>
+		</div>
+      
+		<li>Ensure that some components work properly individually. <k><b>(unit testing)</b></k> <br>
+     <br>
+      Here it's tested the correct behaviour of <tt>weightsensor</tt> and <tt>outsonar</tt>. During this kind of test, like in the <k>integration test</k>, the components updates some resouces whose values are observed and then checked.
+		<div class=remark2>
+		<h3>Testing the weightsensor</h3>
+			It's tested if the value provided by <b>weightsensor</b> when a car is in <em>INDOOR</em> it's greater than 0 
+			(indicating the actual presence of the car).
+		<h3>Testing the outsonar - NO ALARM</h3>
+		It's tested if <b>outsonar</b> detects the presence of a car in <em>OUTDOOR</em>.
+			(indicating the actual presence of the car).
+      <h3>Testing the outsonar - ALARM</h3>
+     <h3>Testing the thermometer</h3>
+     <h3>Testing the fan</h3>
+		
+		</div>
+		</ul>
+	
 		</p>
 
 		<h2>Project</h2>
-		<p>The system <tt>ParkingManagerService</tt> it's collocated into a single context <ks>ctxParkingservice
-			</ks>.</p>
-		It's composed by two real <ks>QActors</ks> and four <ks>mock-Actors</ks>.
-		<table>
-			<tr>
-				<td>
-					<center>
-						<ks>client</ks> in <tt>parkingservice.qak</tt>
-					</center>
-					<pre>QActor client context ctxParkingservice{
-	[# 
-		var SLOTNUM = 0
-		var TOKENID = 0 /* sarà direttamente il num dello slot assegnato */
-	#]
-	State s0 initial{
-		println("Client mock simulation START | CLIENT")
-	} Goto requestToEnter
-	 
-	State requestToEnter{
-		delay 4000
-		println("client notify his interest in entering | CLIENT")
-		request parkingmanagerservice -m reqenter : reqenter(client)
-	} Transition t0 
-					//whenTime 2000 -> noentry //se non si gestisce entro 2 sec, il cliente non entra
-					whenReply slotsnum -> cartoindoor
-	
-	State noentry{
-		// non entra
-	}
-	
-	State cartoindoor{
 		
-		onMsg(slotsnum : slotsnum (SLOTNUM)){
-			[# SLOTNUM = payloadArg(0).toInt() #]	
-			if [# SLOTNUM > 0 #]{
-				println("There are ($SLOTNUM) free slots, move in the car | CLIENT") 
-				request parkingmanagerservice -m movetoin : movetoin(V) 
-			}
-		}
-		
-		// riceve slotsnum, se SLOTNUM > 0 (in questo caso si verifica sempre) 
-		// invia request  "movetoin : movetoin(V)"
-		// (Come si esprime questa regola?) sennò Goto in noentry
-	}
-	Transition t0 
-					whenReply receipt -> afterreceipt
-
-	State afterreceipt{
-		onMsg(receipt : receipt (TOKENID)){
-			[# TOKENID = payloadArg(0).toInt() #]
-			updateResource [# "TOKENID" #]
-			println("client's TOKENID is $TOKENID | CLIENT")
-		}
-	} 
-	Transition t0
-					whenTime 10000 -> reqpickup  //10 secs prima di chiedere il pickup
-
-	State reqpickup{
-		println("client notify his interest in picking his car | CLIENT")
-		forward parkingmanagerservice -m pickup : pickup($TOKENID) //come si passa come argomento un var kotlin??
-	} Transition t0 
-					whenEvent caroutdoorarrival -> pickupcar
-	
-	State pickupcar{
-		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
-		emit carwithdrawn : cw(bye)
-	}
-	
-}</pre>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<center>
-						<ks>parkingmanagerservice</ks> in <tt>parkingservice.qak</tt>
-					</center>
-					<pre>QActor parkingmanagerservice context ctxParkingservice{
-	[#
-	lateinit var weightSensorActor : ActorBasic
-	lateinit var outSonarActor : ActorBasic
-	
-	var indoorFree 	  = true
-	var outdoorFree	  = true
-	var trolleyStatus = true
-	var SLOTNUM 	  = 0
-	
-	#]
-	
-	State s0 initial{
-		[#
-		outSonarActor     = sysUtil.getActor("outsonar")!!
-		weightSensorActor = sysUtil.getActor("weightsensor")!!
-		#]
-	println("Park System START | SERVICE")	
-	}
-	Goto ready
-	
-	State ready{
-		println("waiting for client | SERVICE")
-	}
-	Transition t0 	whenMsg pickup   -> handleToken
-					whenRequest reqenter -> acceptin //non c'è controllo sui posti liberi per assunzione
-	
-	State acceptin{
-		[# SLOTNUM = kotlin.random.Random.nextInt(1,6) #] //sostituisce per ora il check sui posti liberi
-		updateResource [# "SLOTNUM" #]
-		println("Free slot... $SLOTNUM | SERVICE" )
-		replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
-		updateResource [# "slotsnum : slotsnum ($SLOTNUM)" #]
-	} Transition t0
-					whenRequest movetoin -> moveToIn
-					
-	State moveToIn{
-		[# indoorFree = false #]
-		println("Trolley is moving to entrance ... | SERVICE")
-	}Transition t0
-				whenTime 3000 -> receipt //simuliamo lo spostamento verso l'INDOOR
-					
-	State receipt{ 
-		[# var TOKENID = SLOTNUM #]
-		//updateResource [# "currTOKENID" #]
-		//si elabora un token id (in questo caso è lo SLOTNUM usato prima)
-		replyTo movetoin with receipt : receipt($TOKENID)
-		updateResource [# "receipt : receipt($TOKENID)" #]
-		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor
-	} Transition t0 
-		whenEvent weightsensor -> moveToSlotIn
-	
-	State moveToSlotIn{
-		onMsg(weightsensor : weight(W)){
-			[# 
-				var peso = payloadArg(0)
-				println("Weight: " + peso)
-			#]
-			}
-		[# indoorFree = true #]
-		println("Trolley moves from entrance to slot ... | SERVICE")
-	} Transition t0
-			whenTime 4000 -> ready //simuliamo lo spostamento del Trolley
-	
-	State handleToken{
-		onMsg (pickup : pickup(tokenID)){
-				[# var tokenIN = payloadArg(0) #]} //tokenIN è il token fornito dal client
-
-		//elaborazioni sul tokenIN per ottenere lo slotnum corrispondente(non in questo modello)
-		
-		delay 500 //attesa per l'elaborazione del tokenhandler
-		println("checking Trolley status | SERVICE")
-	}  
-	Transition t0
-				whenTime 500 -> picking  //simuliamo l'elaborazione del tokenIN
-	
-	 
-	State picking{	 	
-		[# trolleyStatus = false #]
-		println("Trolley picking car | SERVICE")
-		delay 4000
-		println("Car is in Outdoor area | SERVICE")
-		emit caroutdoorarrival : coa(car_outdoor)  //deve essere percepito dal sensore
-		[# outdoorFree = false #]
-	}
-	Transition t0 	whenEvent carwithdrawn  -> withdrawn
-					whenEvent timeout -> timeout
- 
-	
-	State withdrawn{
-		[# outdoorFree = true #]
-		println("Car withdrawn!")
-	} 
-	Goto ready
-	
-	State timeout{
-		println("%%%% TIMEOUT %%%%" )
-		emit timeout : timeout(alarm)		
-	}
-		
-}</pre>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<center>
-						<ks>outsonar</ks> in file <tt>codedqak/sonarSimulator.kt</tt>
-					</center>
-					<pre>class sonarSimulator (name : String ) : ActorBasic( name ) {
-
-var busy = false
-val DTFREE  = 10 //seconds
-var tmp     = DTFREE
-	
-	private val mainScope = CoroutineScope(Dispatchers.Default)
-	
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-    override suspend fun actorBody(msg: ApplMessage) {
-  		if( msg.msgId() == "caroutdoorarrival" &&  msg.msgType() == "event") startSonar()
-  		else if ( msg.msgId() == "carwithdrawn" &&  msg.msgType() == "event") stopSonar()
- 	}
-	
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-	  suspend fun startSonar(){
-	
-		 	busy = true
-		    startTimer()
-		}
-	
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-	  suspend fun stopSonar(){
-	
-		 	busy = false
-		    mainScope.cancel()
-		    tmp = DTFREE
-		}
-	
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
- 	fun startTimer(){
-		mainScope.launch{
-			  tmp = DTFREE
-			  println("inizio timer")
-			  while( tmp > 0){  		
-			  	tmp = tmp - 1 
-			  	delay(1000)
-	  }
-
-	  val m1 = MsgUtil.buildEvent(name, "timeout", "timeout(alarm)")
-	  emit(m1)
-				}	
-}
-
-}</pre>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<center>
-						<ks>weightsensor</ks> in file <tt>codedqak/weightsensorSimulator.kt</tt>
-					</center>
-					<pre>class weightsensorSimulator (name : String ) : ActorBasic( name ) {
-	
-	
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-    override suspend fun actorBody(msg: ApplMessage) {
-  		if( msg.msgId() == "carindoorarrival" && msg.msgType() == "event") {
-			simulateWeight()
-		}
- 	}
-	
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-	  suspend fun simulateWeight(){
-		
-		    val w = Random.nextInt(750, 3000)
-	
-		     val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
-		     emit(m4)
-	
-		
-	}
-} </pre>
-				</td>
-			</tr>
-		</table>
-
 		<h2>Deployment</h2>
 		The deployment of SPRINT 1 consists in a release on a <a
 			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_1">Github repository</a>.

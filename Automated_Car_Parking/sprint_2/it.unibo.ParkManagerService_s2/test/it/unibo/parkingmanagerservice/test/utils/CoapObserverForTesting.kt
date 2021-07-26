@@ -12,7 +12,7 @@ class UpdateHandler(val name : String, val channel : Channel<String>,
             
 	override fun onLoad(response: CoapResponse) {
 		val content = response.responseText
-        println("	%%%%%% $name | content=$content  expected=$expected RESP-CODE=${response.code} " )
+        //println("	%%%%%% $name | content=$content  expected=$expected RESP-CODE=${response.code} " )
 		/*
             2.05 means content (like HTTP 200 "OK" but only used in response to GET requests)
 			4.04 means NOT FOUND

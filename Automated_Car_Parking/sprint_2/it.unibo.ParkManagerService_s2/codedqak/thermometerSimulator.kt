@@ -73,6 +73,7 @@ class thermometerSimulator (name : String ) : ActorBasic( name ) {
 				var t = tempAtt.getTemp().toString()
 				val m5 = MsgUtil.buildEvent(name, "temp", t)
 				emit(m5)
+				updateResourceRep( "temp($t)"  )
 				delay(3000)
 			}
 		}

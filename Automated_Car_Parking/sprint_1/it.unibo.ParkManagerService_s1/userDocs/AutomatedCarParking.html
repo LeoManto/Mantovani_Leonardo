@@ -588,18 +588,21 @@
 					<div class="remark2">The manager performs its actions through the GUI, as it is not implemented 
 					it cannot perform operations either</div>
 				<li><k>Thermometer</k> and <k>fan</k> are not considered;
-					<div class=remark2>These sensors are not considered because their operation is linked to the virtual 
-					environment and the manager's ability to stop the system but 
-					these components are not yet present in the system. They will be considered in the next SPRINT.</div>
+					<div class=remark2>These sensors are not considered because in this phase, we want to consider
+					only the component to build a first woking prototype of the parking system as soon possible.
+					They will be considered in the next SPRINT.</div>
 				<li><k>Outsonar</k> and <k>WeightSensor</k> are components simulated by a software;
 					<div class=remark2>These sensors are simulated because they are not yet physically available. 
 					It is possible that real <b>outsonar</b> will be used in future SPRINTs.</div>
 				<li>We assume that <k>client</k> withdraws his car in time, before the alarm activation;
 					<div class=remark2>With this assumption, the timeout alarm will never be emitted.
 					At this stage, only "standard" customer behaviour will be taken into account. </div>
-				<li>It will be simulated only a client (SLOTNUM is always > 0);
+				<li>It will be simulated only a client
 				<div class=remark2>Only one client is considered, because we only want to consider one iteration of 
 				the parking and pickup operations. so as to obtain a first simple model of the system. </div>
+				<li>At least a parking slot is always free (SLOTNUM > 0).
+				<div class=remark2>This assumption is necessary because, we simply want to model the behaviour of the system in 
+				"standard" situation.</div>
 				<li>No real commands will be sent to the <k>Trolley</k>, but a delay will be added to simulate parking
 					operations;
 					<div class="remark2">No real commands are sent to the Trolley, because we are waiting for 
@@ -618,7 +621,7 @@
 						<bc>Parking phase</bc> :
 						<ul>
 						<li>A simulated <b>client</b> sends a request <tt>reqenter</tt> to notify his interest in entering his car in the <em>parking-area</em>.
-						<li><ks>[acceptIN]</ks> we assumed that all slots are free, the <em>INDOOR</em> is always free and the robot is not STOPPED.
+						<li><ks>[acceptIN]</ks> we assumed that at least one slot is free, the <em>INDOOR</em> is always free and the robot is not STOPPED.
 						<li><ks>[informIN]</ks><b> parkingmanagerservive</b> sends the reply <tt>slotsnum(SLOTNUM)</tt> to <b>client</b>, <em>SLOTNUM</em> will be a random value 
 in [1,6] (the case <em>SLOTNUM == 0</em> is not contemplated in this model).
 						<li>If <em>SLOTNUM > 0</em>, <b>client</b> moves the car in front of <em>INDOOR</em> and then he press the <em>CARENTER</em> button, so it's sended 
@@ -639,7 +642,7 @@ a request <tt>carenter</tt> to <b>parkingmanagerservive</b>.
 						<li><b>parkingmanagerservive</b> emits an event <tt>caroutdoorarrival</tt>, to notify that a car is present in the <em>OUTDOOR-area</em>.
 						<li>the <b>ousonar</b> perceives <tt>caroutdoorarrival</tt> and actives itself and its internal timer.
 						<li>the timer of <b>outsonar</b> will be cancel when the <b>client</b> emits the event <tt>carwithdrawn</tt>, to notify that a car is left the <em>OUTDOOR-area</em>.
-						<li>if timer (set to <tt>DTFREE</tt>) expires, <b>outsonar</b> emit an event <tt>timeout</tt> (which is not yet handled).		
+						<li>if timer (set to <tt>DTFREE</tt>) expires, <b>outsonar</b> emits an event <tt>timeout</tt> (which is not yet handled).		
 						<li><ks>[moveToHome]</ks> there is an another delay to simulated Trolley returns to <em>HOME</em> (in this model there in only a client).
 						</li>
 						</ul>
@@ -716,6 +719,10 @@ Consequently, neither the thermometer or the fans are considered.
 							This mock-actor generates a random value that represents the
 									weight of car in entrance and propagates it by emitting an event <tt>weightsensor</tt>.<br>
 									It starts the simulation when perceives the <k>carindoorarrival</k> event.
+									<br>
+									The purpose of this component is to ensure that a car in actual in INDOOR-area when a client press the
+									<tt>carenter</tt> button. Weight simulation takes place only once for each car arrived at INDOOR-area, after
+									that weight value is setted to 0.
 						</td>
 						<td>
 							<center><ks>outsonar: </ks></center>
@@ -733,7 +740,7 @@ Consequently, neither the thermometer or the fans are considered.
 					</tr>
 					<tr>
 						<td colspan="2">
-							<center><img src="img/logicalArchitecture.png"></center>
+							<center><img src="img/logicalArchitecture.png" width="60%"></center>
 						</td>
 					</tr>
 				</table>
@@ -742,9 +749,42 @@ Consequently, neither the thermometer or the fans are considered.
 		<!--TODO fare spiegazione logica del programma con linguaggio naturale.-->
 
 		<h2>Test plans</h2>
-		<p>In this first test plan, considering that all is automated, try application integrally, reporting all its
-			behaviour while performing.</p>
-		<p>With report of its execution it's checked that instruction performed by the application follow all the rules.
+		<a href="../test/it/unibo/parkingmanagerservicetest/TestPlan0.kt">TestPlan0.kt </a><br>
+		<p>
+		In this first test plan are considered only <ks>non-distributed</ks> tests.<br>
+		<br>
+		<p>
+      Tests is built using CoapObserver provided by the costumer in the project <ks>it.unibo.qak21.basicrobot</ks> (<a href="../test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">CoapObserverForTesting.kt</a>).
+      <br>
+  
+		</p>
+		<kc>TestPlans0 goals:</kc>
+		<ul>
+		<li>Ensure that the workflow of the system meets a set of requirements <k><b>(integration testing)</b></k>. <br> <br>
+      In this testing plan are employed <tt>parkingmanagerservice</tt> and <tt>client</tt>. In particular, to start system simulation <tt>client</tt> sends a request <tt>reqenter</tt> and the others messages necessary to continue properly the entire workflow. Test is performed observing some significant resouces updated by <tt>parkingmanagerservice</tt> so as to verify the correct functioning of the system.
+			<div class=remark2>
+			<h3>Parking phase</h3>
+				It's tested if the value of <em>SLOTNUM</em> provided by the 
+				<b>parkingmanagerservive</b> it's greater than 0 and if <em>TOKENID</em> provided to client it's greater than 0 and equals to 
+				<em>SLOTNUM</em> (this requirement is introduced by the assumptions made for sprint 1).
+			<h3>Picking phase</h3>
+				It's tested if the <em>TOKENID</em> provided by client is greater than 0.
+			
+		</div>
+		<li>Ensure that some components work properly individually. <k><b>(unit testing)</b></k> <br>
+     <br>
+      Here it's tested the correct behaviour of <tt>weightsensor</tt> and <tt>outsonar</tt>. During this kind of test, like in the <k>integration test</k>, the components updates some resouces whose values are observed and then checked.
+		<div class=remark2>
+		<h3>Testing the weightsensor</h3>
+			It's tested if the value provided by <b>weightsensor</b> when a car is in <em>INDOOR</em> it's greater than 0 
+			(indicating the actual presence of the car).
+		<h3>Testing the outsonar</h3>
+		It's tested if <b>outsonar</b> detects the presence of a car in <em>OUTDOOR</em>.
+			(indicating the actual presence of the car).
+		
+		</div>
+		</ul>
+	
 		</p>
 		<!--REVIEW direi nulla di che, semplicemente essendo tutto automatizzato, fare una prova integrale dell'aplicazione, salvarsi ogni indicazione dei suoi 
 			comportamenti durante l'esecuzione e vedere se rispetta le regole assegnate-->
@@ -763,7 +803,7 @@ Consequently, neither the thermometer or the fans are considered.
 	<div style="background-color:rgba(42, 7, 241, 1.0); width:100%;text-align:center;color:white">
 		<table style="width:100%" border="1">
 			<tr>
-				By Mantovani Leonardo and Pierdomenico d'Amicis
+				By Mantovani Leonardo and Pier Domenico d'Amicis
 
 			</tr>
 		</table>
