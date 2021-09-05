@@ -28,7 +28,7 @@ object virtualrobotSupport2021 {
 	private lateinit var hostName : String 	
 	private lateinit var support21 : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
 	private lateinit var support21ws : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
-    private val forwardlongtimeMsg  = "{\"robotmove\":\"moveForward\", \"time\": 350}"
+    private val forwardlongtimeMsg  = "{\"robotmove\":\"moveForward\", \"time\":  350}" //149
     private val backwardlongtimeMsg = "{\"robotmove\":\"moveBackward\", \"time\": 350}"
 
 	var traceOn = false
@@ -76,14 +76,17 @@ val doafterConn : (CoroutineScope, IssWsHttpKotlinSupport) -> Unit =
 		if( traceOn )  println("		--- virtualrobotSupport2021 trace | $msg")
 	}
 
-    fun move(cmd: String) {	//cmd is written in application-language
+    fun move(cmd: String) : Long{	//cmd is written in application-language
 		//println("		--- virtualrobotSupport2021 |  moveeeeeeeeeeeeeeeeeeeeee $cmd ")
 		val msg = translate( cmd )
 		trace("move  $msg")
 		if( cmd == "w" || cmd == "s"){  //doing aysnch
 			//println("		--- virtualrobotSupport2021 |  wwwwwwwwwwwwwwwwwwwwwwwwww $support21ws")
-			support21ws.sendWs(msg)	//aysnch => no immediate answer 
-			return
+			
+			support21ws.sendWs(msg)	//aysnch => no immediate answer
+			msg.subSequence(msg.length - 4 , msg.length - 1)
+			val stepTime = msg.subSequence(msg.length - 4 , msg.length - 1)
+			return stepTime.toString().toLong()
 		}
 		val answer = support21.sendHttp(msg,"$hostName:$port/api/move")
 		trace("		--- virtualrobotSupport2021 | answer=$answer")
@@ -96,13 +99,14 @@ val doafterConn : (CoroutineScope, IssWsHttpKotlinSupport) -> Unit =
 		}catch(e: Exception){
 			println("		--- virtualrobotSupport2021 |  move answer JSON ERROR $answer")
 		}
+		return 100 //100
     } 
     //translates application-language in cril
     fun translate(cmd: String) : String{ //cmd is written in application-language
 		var jsonMsg = MsgRobotUtil.haltMsg //"{ 'type': 'alarm', 'arg': -1 }"
 			when( cmd ){
 				"msg(w)", "w" -> jsonMsg = forwardlongtimeMsg  		
-				"msg(s)", "s" -> jsonMsg = backwardlongtimeMsg  
+				"msg(s)", "s" -> jsonMsg = backwardlongtimeMsg
 				"msg(a)", "a" -> jsonMsg = MsgRobotUtil.turnLeftMsg  
 				"msg(d)", "d" -> jsonMsg = MsgRobotUtil.turnRightMsg  
 				"msg(l)", "l" -> jsonMsg = MsgRobotUtil.turnLeftMsg  

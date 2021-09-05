@@ -18,6 +18,7 @@ package-lock.json
 
  # Ignore Gradle project-specific cache directory
 .gradle
+.gradle/buildOutputCleanup
 gradlew
 gradlew.bat
 

@@ -28,12 +28,17 @@ object ParkingSlotsKb {
 
 /*------------------------------------------------------------------------------*/
 		
+	
+	fun setArea(s1:Boolean,s2:Boolean,s3:Boolean,s4:Boolean,s5:Boolean,s6:Boolean){
+		slotsFree = booleanArrayOf(s1,s2,s3,s4,s5,s6)
+	}
+	
 /*
 *	Prende in ingresso il numero dello slot e il nuovo valore relativo al suo stato (true/false)
 *	e lo modifica all'interno dell'array
  */	
-	fun setSlot(slot : Int, v : Boolean) : Unit{  //[per ora] prende in ingresso il numero dello slot [1,6]
-		slotsFree.set(slot-1, v)  //in futuro questa elaborazione Token->slot sarà più complessa 
+	fun setSlot(slot : Int, v : Boolean) : Unit{
+		slotsFree.set(slot-1, v) 
 	}
 	
 	
@@ -86,7 +91,7 @@ object ParkingSlotsKb {
 *	Inoltre crea un nuovo file txt con tutti i Token tranne quello passato (se autentico)
 */
 	fun checkToken(token : String) : Int {
-		var slotnum = 0
+		var slotnum = -1
 		val fileName = "./tokens.txt"
 		var myfile = File(fileName)
 		var newFile: String = ""

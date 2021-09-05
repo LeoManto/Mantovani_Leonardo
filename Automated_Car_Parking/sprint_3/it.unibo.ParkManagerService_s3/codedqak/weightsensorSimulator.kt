@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
  
 class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 	
+	var w = 0
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,15 +24,26 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
   		if( msg.msgId() == "carindoorarrival" && msg.msgType() == "event") {
 			simulateWeight()
 		}
+  		else if( msg.msgId() == "finished" && msg.msgType() == "event" && msg.msgContent().toString() == "indoor"){
+			w = 0
+			`it.unibo`.utils.ParkingSlotsKb.indoorFree  = true
+			val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
+		    emit(m4)
+		}
  	}
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun simulateWeight(){
-		    val w = Random.nextInt(750, 3000)
+		    w = Random.nextInt(750, 3000)
+		    val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
+		    emit(m4)
 		    if(w>0)
 				`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false 
-		     val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
-		     emit(m4)
+		    
+		     
+					 
+					 
+
 	}
 } 

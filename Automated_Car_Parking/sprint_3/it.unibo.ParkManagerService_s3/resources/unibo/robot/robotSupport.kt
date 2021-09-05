@@ -90,21 +90,24 @@ object robotSupport{
 	 
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
-	fun move( cmd : String ){ //cmd = w | a | s | d | h
- 		//println("robotSupport move cmd=$cmd robotKind=$robotKind" ) 
+	fun move( cmd : String ) : Long{ //cmd = w | a | s | d | h
+ 		//println("robotSupport move cmd=$cmd robotKind=$robotKind" )
+	var StepTime = 0L
 		when( robotKind ){
 			//"mockrobot"  -> { robotMock.mockrobotSupport.move( cmd ) 					  }
-			"virtual"    -> { robotVirtual.virtualrobotSupport2021.move(  cmd ) 	  }
- 			"realnano"   -> { robotNano.nanoSupport.move( cmd)	}
+			"virtual"    -> { StepTime = robotVirtual.virtualrobotSupport2021.move(  cmd ) 	  }
+ 			//"realnano"   -> { robotNano.nanoSupport.move( cmd)	}
 			else         -> println( "		--- robotSupport | robot unknown")
-		}		
+		}
+		
+		return StepTime
 	}
 	
 	fun terminate(){
 		when( robotKind ){
-			"mockrobot"  -> {  					                  }
+			//"mockrobot"  -> {  					                  }
 			"virtual"    -> { robotVirtual.virtualrobotSupport2021.terminate(  ) 	  }
- 			"realnano"   -> { robotNano.nanoSupport.terminate( )	}
+ 			//"realnano"   -> { robotNano.nanoSupport.terminate( )	}
 			else         -> println( "		--- robotSupport | robot unknown")
 		}		
 		

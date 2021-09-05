@@ -2,7 +2,8 @@ System   parkingservice
   
 Request reqenter : reqenter(V)
 Reply slotsnum : slotsnum(SLOTNUM)
- 
+Reply waitIndoor : slotsnum(V)
+
 Request carenter : carenter(V)
 Reply receipt  : receipt(INDOORTOKEN)
 
@@ -123,7 +124,6 @@ QActor client context ctxParkingservice{
 		}
 	} Goto reqpickup  
 
-
 	State reqpickup{
 		println("client notify his interest in picking his car | CLIENT")
 		forward parkingmanagerservice -m pickup : pickup($TOKENID)
@@ -179,13 +179,13 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	
 	State check{
+		delay 5000
 	}
-	Goto okIndoor if [# `it.unibo`.utils.ParkingSlotsKb.indoorFree && 
-					 	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0 #] //TODO:	Trolley status check
+	Goto okReqenter if [#	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0 #] //TODO:	Trolley status check
 		else checkOutdoor
 		
-		
-	State okIndoor{
+
+	State okReqenter{
 	} Goto ready if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] //TODO:	Trolley status check
 				else readyOnlyIndoor
 				
@@ -197,46 +197,63 @@ QActor parkingmanagerservice context ctxParkingservice{
 								
 	State ready{
 		println("INDOOR and OUTDOOR Avaiable | SERVICE")
-		
 	}Transition t0 
+					whenTime 	5000	 -> moveToHome
 					whenRequest reqenter -> acceptin
 					whenMsg		pickup	 -> acceptout
+
 				
 				
 	State readyOnlyIndoor{
 		println("INDOOR Avaiable | SERVICE")
 	}Transition t0
-					whenTime 2000 -> check
+					whenTime 5000 		 -> moveToHome
 					whenRequest reqenter -> acceptin
 					
-				
-	
+
 	State readyOnlyOutdoor{
 		println("OUTDOOR Avaiable | SERVICE")
 	}Transition t0
-					whenTime 2000 -> check
+					whenTime 5000 		 -> moveToHome
 					whenMsg		pickup	 -> acceptout
+					
 					
 					
 	State notReady{
 	}Transition t0
-					whenTime 2000 -> check
+					whenTime 5000 -> moveToHome
 	
+	
+	State moveToHome{
+		println("Moving Trolley to HOME")
+		updateResource[# "toHome(V)" #]
+		//move to Home [TODO: invia comando a trolley]
+	} Goto check
+ 	
  	
 	State acceptin{
-			[# `it.unibo`.utils.ParkingSlotsKb.indoorFree  = false #]
+			
+			[#
+			SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot()
+			`it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false)
+			#]
+			
 			//================[ acceptIN ]=====================	
-			[# SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot() #]
-			[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
+			[# if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree){ #]
+				replyTo reqenter with waitIndoor : slotsnum ($SLOTNUM)
+				updateResource [# "wait(${SLOTNUM}) " #]
+			[# } #]
+			[# else {#]
 			updateResource [# "slotnum(${SLOTNUM}) " #]
 			//================[ informIN ]=====================
 			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
 			println("SLOTNUM = $SLOTNUM | SERVICE" )
 			//================[ moveToIn ]=====================
-			println("Trolley is moving to Indoor | SERVICE")		
+			println("Trolley is moving to Indoor | SERVICE")
+			[# } #]		
 	} Transition t0
 					whenRequest carenter -> carenter
-				
+					
 	
 	State carenter{
 		emit carindoorarrival : cia(car_arrived) //suppose that the car is actually in INDOOR-Area

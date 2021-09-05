@@ -28,6 +28,13 @@ First Meeting: 29/06/2021 h 15,00 (Sprint 1 review)
 ## Sprint 3
 ------------------------------
 16/07/2021 h 15.00 (Trolley and generic TestPlans)
-
+<br>
+22/07/2021 h 15.00
+<br>
+26/07/2021 h 15.00
+<br>
+29/07/2021 h 15.00
+<br>
+03/08/2021 h 11.30
 
 

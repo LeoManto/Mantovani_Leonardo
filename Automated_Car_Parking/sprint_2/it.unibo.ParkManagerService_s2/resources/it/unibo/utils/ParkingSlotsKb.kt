@@ -91,7 +91,7 @@ object ParkingSlotsKb {
 *	Inoltre crea un nuovo file txt con tutti i Token tranne quello passato (se autentico)
 */
 	fun checkToken(token : String) : Int {
-		var slotnum = 0
+		var slotnum = -1
 		val fileName = "./tokens.txt"
 		var myfile = File(fileName)
 		var newFile: String = ""

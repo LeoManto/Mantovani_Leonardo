@@ -9,7 +9,7 @@ import it.unibo.kactor.ActorBasic
 */ 
 class WsSupportObserver(name: String, scope:CoroutineScope, val owner:ActorBasic)
     : ActorBasicKotlin(name, scope) {
-
+	
     override protected suspend fun handleInput(msg : ApplMessage){
         var msgJsonStr = msg.msgContent
         val msgJson = JSONObject(msgJsonStr)
