@@ -1,0 +1,729 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <!--
+<link rel="stylesheet" type="text/css" href="../css/issStyle1.css">
+<script type="text/javascript" src="../css/issStyle.js"></script>
+-->
+<style type="text/css">
+body
+{
+    margin-left:  30px;
+    margin-right: 30px;
+};
+
+P
+{
+    font-family: Tahoma;
+    font-size: 10pt;
+};
+
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+	font-size: 93%;
+}
+
+a:hover {
+    background-color: #cccccc;
+}
+
+
+hr {
+    clear: both;
+    height: 1px;
+    color: #242424;
+    background-color: transparent;
+}
+
+h1, h2, h3 {
+    color: #242424;
+    clear: left;
+    font: 100% Tahoma, Helvetica, Arial, sans-serif;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+top {
+	width: 100%;
+}
+
+
+#i {
+    color: #ff1010;
+}
+tt{
+	font-family: "Arial";
+    font-size: 90%;
+	color: #006600;
+}
+em{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	border-style:solid;
+	border-color: #abe876;
+    color: #1632cc;
+}
+bc{
+	font-family: "Arial";
+	font-size: 90%;
+	font-weight: bold;
+    color: #990000;
+	background-color: #fcf8c7;
+}
+ks{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #0000CD	;
+	font-size: 90%;
+}
+kc{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #008000	;
+	font-size: 90%;
+}
+pre{
+	font-family: "Consolas";
+	font-size: 85%;
+	background-color: #f5f5f5;
+	border: 1.5px solid silver;
+	padding: 5px;
+}
+m{
+	font-family: "Helvetica";
+	line-height: 100%;
+ 	font-size: 75%;
+}
+div.body{
+	 
+    font-size: 18px;
+}
+k{
+    color: #990000;
+	font-weight: bold;
+	font-size: 90%;
+}
+h1 {
+    font-size: 130%;
+    background-color: #b2c0ff;
+	padding: 10px;
+}
+
+h2 {
+    background-color: #9ed8ff;
+    font-size: 130%;
+}
+
+h3 {
+	background-color: #e6ccff;
+    font-size: 100%;
+}
+h4 {
+    background-color: #ccffcc;
+    font-size: 100%;
+	width: 95%;
+	border-radius: 5px;
+	padding: 2px;
+}
+h5 {
+    background-color: #d5ffb0;
+    font-size: 100%;
+
+}
+div.req{
+	background-color: #d9ffb3;
+    font-size: 18px;
+	width: 700px;
+    border: 3px solid green;
+    padding: 15px;
+    margin: 10px;
+}
+div.remark{
+	background-color: #E3F2FD;
+    border: 1.5px solid #d5f2ed;
+    padding: 15px;
+    margin: 10px;
+	border-radius: 25px;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+ol, ul, li {
+  margin: 0;
+  margin-left: 10px;
+  padding: 0;
+  padding-bottom: 5px;
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+img {
+	border: 1.5px solid #d5f2ed
+
+}
+
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+}
+
+div.wrapdesc{
+	width: 90%;
+	margin: auto;
+}
+
+div.imagedesc{
+	width: 85%;
+	margin: auto;
+}
+</style>
+    
+<head>
+   
+<title>SonarresourceWebonSpring</title></head>
+    
+<body>
+<div id="top">
+<h1>LabIss  | A user-interface based on SpringBoot for sonar resource <font size="5"></font> </h1>
+</div>  
+
+<div class="body"> 
+
+<ol>
+<li><a href="#">Introduction</a></li>
+  
+ 
+</ol>
+ 
+
+<h2 id="intro">Introduction</h2>
+
+In this work, we will develop a Web-based application
+for the sonar resource introduced in  
+<a href="../../it.unibo.sonarAsResource/userDocs/LabSonarAsResource.html" target="web">LabIss | Sonar as resource</a>.
+with reference to the ideas promoted by the 
+<a href="../../it.unibo.sonarAsResource/userDocs/LabCleanArch.html" target="web">clean architecture</a>  
+<br/>
+ 
+<center><img src="./img/cleanArchCone.jpg" alt="cleanArchCone" width="50%" ></center>
+
+ 
+<h3>The application core</h3>
+Our application-core is represented by CoAP-observable resource, defined as a qak-model. <br/><br/>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%">
+<center><img src="./img/sonarresourceAlone.PNG" alt="sonarresourceAlone" width="90%" ></center>
+<div class="remark">
+<ol>
+<li>When the resource handles a new value, it changes its CoAP-observable state with the JSON string:
+<pre>{"sonarvalue":"DISTANCE"}</pre></li>
+<li>Sometimes, the resource can autonomously change its CoAP-observable state with the JSON string:
+<pre>{"info":"INFOCONTENT"}</pre></li>
+</ol>
+</div>
+</td>
+<td>
+See: <a href="../../it.unibo.sonarAsResource/userDocs/LabSonarAsResource.html" target="web">LabIss | Sonar as resource</a>
+
+<br/><br/>
+The resource is defined/described by the qak-model: <a href="../../it.unibo.sonarAsResource/src/sonarresource.qak" target="code">sonarresource.qak</a>.
+<br/>
+The (generated) description of this stand-alone system is in <a href="../../it.unibo.sonarAsResource/sonarresource.pl" target="code">sonarresource.pl</a>.
+<br/><br/>
+The resource manages (sonar-)data transmitted as a <ks>event</ks>, or as a <ks>dispatch</ks>:
+<pre>
+Event    sonarrobot : sonar( V )
+Dispatch sonarrobot : sonar( V )
+
+<kc>//Example:</kc><bc>msg(sonarrobot, dispatch, SENDER, sonarresource, sonar(20), 1)</bc>
+</pre>
+Sonar-data can be sent using one of the following protocols:
+<m>
+<ul>
+<li>TCP  (port number: <ks>8038</ks>)</li>
+<li>MQTT (topic name: <ks>sonar/data</ks>) </li>
+<li>CoAP (REST-path: <ks>ctxsonarresource/sonarresource</ks>)</li>
+</ul>
+</m>
+</td>
+</tr>
+</table>
+
+<h3>The use cases </h3>
+<div class="remark">
+Design and build a software systenn that allow an user to:
+<ol>
+<li><ks>LazyUpdate</ks>: when the resource receives a sonar value <tt>D</tt>, <k>modify</k> its CoAP-observable state 
+only when <pre>|PREVD - D| > DELTA</pre>
+where <tt>PREVD</tt> is the previous received sonar value and <tt>DELTA</tt> is a prefixed value.</li>
+<li><ks>LedChange</ks>: when the resource receives a sonar value <tt>D</tt>, <k>turn-ON</k> a led when <pre>(D &lt; DLIMIT)  && (TEMP > TEMPLIMIT)</pre> 
+where <tt>TEMP</tt> is the temperature  of Bologna and <tt>DLIMIT</tt>, <tt>TEMPLIMIT</tt>  are prefixed values;
+otherwise <k>turn-OFF</k> the led (if the led was ON).</li>
+ <li><ks>DataIn</ks>: send values (sonar-data) to the resource (for the sake of testing).</li>
+<li><ks>WorldObserve</ks>: observe the modification of the resource, the state of the led and the value of the alarm.</li>
+</ol>
+</div>
+
+After the analysis phase, we propose here following project:
+
+<h4>Requirements <ks>DataIn</ks> and <ks>WorldObserve</ks></h4>
+
+<ol>
+<li>Our software system will be a <k>Web-application</k>, in order to provide wide-usability. </li>
+<li>A proper <k>HTML page</k> will include an INPUT section (<i>requirement <ks>DataIn</ks></i>) and an
+OUTPUT section  (<i>requirement <ks>WorldObserve</ks></i>). </li>
+<li>Our reference-technology will be <k>SpringBoot</k>, in order to reduce development time. </li>
+<li>Our <k>SpringBoot core-component</k> will be a class annoted with <k>@Controller</k> 
+(<a href="../src/main/kotlin/it/unibo/sonarguigpring/HIController.kt" target="code">HIController.kt</a>) 
+</li>
+<li>Since the led-modification is also related to
+information coming from the external world, the (asynchronous) modification of the OUTPUT section of the HTML page requires the 
+<k>web-socket technology</k>, that  under SpringBoot does involve  
+<a href="https://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol" target="code"><k>STOMP</k> </a>.
+	</ul>
+</li>
+</ol>
+
+<div class="remark">
+About <a href="https://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol" target="web">
+<k>STOMP</k></a>( (<i>Simple (or Streaming) Text Orientated Messaging Protocol</i>) 
+read:<br/> <a href="https://spring.io/guides/gs/messaging-stomp-websocket/" target="code">Using WebSocket to build an interactive web application</a>
+<!--we read:<br/> 
+WebSocket is a thin, lightweight layer above TCP. This makes it suitable for using “subprotocols” to embed messages. <br/><br/>-->
+</div> 
+
+
+<h4>Requirements <ks>LazyUpdate</ks> and <ks>LedChange</ks></h4>
+
+These requirements can be formally expressed by a set of Prolog rules
+(wriiten in the file <a href="../../it.unibo.sonarAsResource/applRuleskb.pl" target="code">applRuleskb.pl</a>), that represent our knowledge
+about the changes of the resource and of the led: 
+ <pre>
+<bc>%%FACTS</bc>
+prevd( 0 ).
+delta( 3 ).         <kc>%% 10 is the prefixed value for <ks>LazyUpdate</ks></kc>
+templimit( 30 ).    <kc>%% 30 is the prefixed value for temperature</kc>
+dlimit( 20 ).       <kc>%% 20 is the prefixed distance value for <ks>LedChange</ks> </kc>
+led( off ).         <kc>%% initial state of the Led</kc>
+
+
+<bc>%%RULES</bc>
+modifyResource(D) :- delta( DELTA ), prevd( PD ), 
+                     <k>abs( PD,D ) > DELTA</k>, 	<kc>%%condition for <ks>LazyUpdate</ks></kc>
+                     assign( prevd(_), prevd(D) ).   <kc>%%assign is defined in sysRules.pl</kc>
+<bc>% modifyResource fails if the codition for <ks>LazyUpdate</ks> fails.</bc>
+
+modifyLed(D,T)    :- templimit(TL),  dlimit(DL),  
+                     <k>D &lt; DL, T > TL</k>,     <kc>%%condition for <ks>LedChange</ks></kc>             
+                     !, assign( led(_), led( on ) ).
+modifyLed(D,T)    :- led(on),
+                     assign( led(_), !, led( off ) ). 				 
+<bc>% modifyLed fails if the codition for <ks>LedChange</ks> fails and the led is on.</bc>
+</pre>
+ 
+ <h3>The architecture</h3>
+ <hr/>
+ <center><img src="./img/archfullgui.PNG" alt="archfullgui" width="70%" ></center>
+ <hr/>
+ <h3>The Application Logic</h3>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%">
+<div class="remark">
+The code that implements the use-cases is defined as a component
+that is activated by the <em>sonarresource</em> and tells to the resource how to change its CoAP-observable state
+after an application action.
+</div>
+ 
+The application actions are defined by the QActor <ks>appllogic</ks><br/>
+<m>in model <a href="../../it.unibo.sonarAsResource/src/sonarresource.qak" target="code">sonarresource.qak</a>
+of project <a href="../../it.unibo.sonarAsResource" target="code">it.unibo.sonarAsResource</a></m>
+ <center><img src="./img/applLogic.PNG" alt="applLogic" width="70%" ></center>
+
+<div class="remark">
+The <em>appllogic</em> actor exploits the Prolog theory <a href="../../it.unibo.sonarAsResource/applRuleskb.pl" target="code">applRuleskb.pl</a>, that represent our knowledge
+about the changes of the resource and of the led.
+</div>
+</td>
+<td>
+<ol>
+<li>When the <em>sonarresource</em> handles a <k>sonarobot</k> event, it emits the local event <k>local_appl:job(X)</k>
+in order to activate the application logic code.</li>
+<li>The <em>appllogic</em> actor handles the event <k>local_appl</k> and send the <bc>dispatch</bc> <k>applupdate</k> to the <em>sonarresource</em>
+in order to change its CoAP-observable state to keep track of the effects of the application action.
+<div class="remark"><m>
+Is the <em>appllogic</em> actor really necessary? Could we 'merge' its behavior in the <em>sonarresource</em>?<br/>
+<bc>PRO:</bc> ... <bc>CONS:</bc> ...</m></div>
+It also emits the event <k>ledchange</k> in order to allow a (remote) led to change its state without knowing a-priori any sender.
+<div class="remark"><m>
+The event <k>ledchange</k> could be emitted by a distanceFilter actor put at the end of the sonar-pipe.<br/>
+<bc>PRO:</bc> ... <bc>CONS:</bc> ...</m>
+</div>
+
+<div class="remark"><m>
+Instead as an event-perceiver, the led could be designed as another CoAP-observer of the resource.<br/>
+<bc>PRO:</bc> ... <bc>CONS:</bc> ...</m>
+</div>
+</li>
+<li>The <em>sonarresource</em> handles the dispatch <ks>applupdate</ks> by changing its CoAP-observable state.</li>
+<li>The state-change is observed by the <a href="../src/main/kotlin/it/unibo/sonarguigpring/WebPageCoapHandler.kt" target="code">WebPageCoapHandler.kt</a> component of the 
+Web-spring application that exploits the websocket to update the HTML pages.
+<center><img src="./img/websocket.PNG" alt="websocket" width="60%" ></center></li>
+<li>The updating information sent over the websocket is handled by an stomp subscriber activated during the <ks>connect()</ks> operation 
+defined in <a href="../src/main/resources/static/app.js" target="code">src/main/resources/static/app.js</a> (called when the HTML page is loaded).
+</li>
+</ol>
+
+
+
+</td>
+</tr>
+</table>
+
+
+<h3>The controller for the Human-Machine interface</h3>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%"><a href="../src/main/kotlin/it/unibo/sonarguigpring/HIController.kt" target="code">HIController.kt</a>
+<br/><br/>
+The controller returns a HTML page that:
+	<ul>
+	<li><bc>INPUT section</bc>: includes a <i>form with a POST action</i>, in order to implement the use-case <ks>DataIn</ks> </li>
+	<li><bc>OUTPUT section</bc>: includes a <i>thymeleaf field</i> (<kc>infodisplay</kc>), 
+	in order to implement the use-case <ks>WorldObserve</ks> 
+</li>
+</ul>
+
+</td>
+<td>
+
+<hr/>
+<ul>
+<li>
+When the content of the CoAP-observable state has the form: <pre><k>{"sonarvalue":"DISTANCE"}</k></pre>	
+The run-time behavior can be summarized as follows:
+<m><pre>Browser -> POST -> HIController -> CoAP put -> sonarresource
+updates its CoAP-observable state with <kc>{"sonarvalue":"DISTANCE"}</kc> -> 
+(observed by) WebPageCoapHandler -> <k>modifies the model</k> in the page returned to the Browser</m></pre>
+ <!--  <k>does nothing</k> <m>(since the HIController modifies the model within the page returned to the Browser)</m> -->
+
+
+</li>
+<li>When the content of the CoAP-observable state has the form: <pre><k>{"info":"INFOCONTENT"}</k></pre>
+The run-time behavior can be summarized as follows:
+<m><pre>sonarresource updates its CoAP-observable state with <kc>{"info":"INFOCONTENT"}</kc> -> 
+(observed by) WebPageCoapHandler ->  calls <k>simpMessagingTemplate.convertAndSend(...)</k>  -> 
+ HTMLPage in Browser updates the field (<kc>infodisplay</kc>)
+</pre></m>
+
+ 
+
+
+</li>
+</ul>
+
+</td>
+</tr>
+</table>
+
+<h3>The HTML Web-page</h3>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%"><a href="../src/main/resources/templates/sonarGui.html" target="code">resources/templates/sonarGui.html</a>
+</td>
+<td></td>
+</tr>
+</table>
+
+<h3>The web-socket</h3>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%"><a href="../src/main/resources/static/app.js" target="code">resources/static/app.js</a>
+</td>
+<td></td>
+</tr>
+</table>
+
+
+<h3>The external components</h3>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%"><h4>A resource observer</h4>
+</td><a href="../../it.unibo.sonarAsResource/javacode/coap/SonarresourceObserverRadar.java" target="code">SonarresourceObserverRadar.java</a></td>
+
+<td><h4>A sonar-data simulator</h4>
+<a href="../../it.unibo.sonarAsResource/javacode/coap/SimulateSonarData.java" target="code">SimulateSonarData.java</a>
+</tr>
+</table>
+
+
+ <h2 id="onpc">Workflow</h2>
+ 
+	<ol>
+	<li>Activate  the sonar resource described in 
+	<a href="../../it.unibo.sonarAsResource/userDocs/LabSonarAsResource.html" target="code">LabIss | Sonar as resource</a> 
+	 on a PC (address <m><ks>192.168.1.xxx</ks></m>).</li>
+		
+	<li>Working in this project (<m><a href="../" target="code"><k>sonarguispring</k></m></a>), activate the Spring application 
+	<a href="../src/main/kotlin/it/unibo/sonarguigpring/SonarguigpringApplication.kt" target="code">SonarguigpringApplication.kt</a> 
+	on the PC, open a browser on <m><ks>localhost:8083</ks></m> (or <m><ks>192.168.1.xxx:8083</ks></m>) 
+	and send some sonar value to the <em>sonarresource</em> using the browser.
+	<div class="remark">
+	Observe the output on the HTML page and explain it.<br/>
+	<i>Hint: the POST handling operation <ks>handleSonarValue</ks> must return a page ...</i>
+	</div>
+ 
+
+	<li>Send or some sonar value to the <em>sonarresource</em> using some other program (e.g. jupyter or 
+	<a href="../../it.unibo.sonarAsResource/javacode/coap/SimulateSonarData.java" target="code">SimulateSonarData.java</a>)  
+	and notice that the UPDATE AREA of the Web Page shows the value of the sonar and of the led state.
+	</li>
+	
+	<li>Activate the <a href="../../it.unibo.sonarAsResource/javacode/coap/SonarresourceObserverRadar.java" target="code">SonarresourceObserverRadar.java</a>
+	and look also at the proper updating of the radarGUI.</li>
+	
+	<li>	<div class="remark">
+		TODO (for people working with the Raspberry):
+		<ul>
+		<li><ks>realLed</ks>: Turn ON/OFF a real led connected to a RaspberryPi.</li>
+		<li><ks>betterDeploy</ks>: Propose the 'better' deployment configuration.</li>
+		</ul>
+		<br/> 
+		TODO (for people working in virtual-mode only). <ul>
+		<li><ks>allowedSource</ks>: force the <em>sonarresource</em> to elaborate <k>sonarrobot</k> events emitted by <bc>some particular source</bc> only.</li>
+		<li><ks>encryptedEvents</ks>: force <em>sonarresource</em> to elaborate <bc>encrypted</bc> <k>sonarrobot</k> events .</li>
+		<li><ks>allowedUsers</ks>: allow an user to work via GUI only if she/he owns <bc>proper permissions</bc>.</li>
+		</ul>
+		<br/>
+ 
+	</div>
+	</li>
+ 	</ol>
+	 
+ 
+
+<!--
+<li><h3 id="onrasp">Run the basicrobot on the RaspberryPi</h3></li>
+
+
+	<ol>
+	<li><a href="../../it.unibo.qak20.basicrobot/userDocs/Qak20Basicrobot.html#deploy" target="lab">  
+	Deploy</a> the distribution file for the  <a href="../../it.unibo.qak20.basicrobot/userDocs/Qak20Basicrobot.html" target="code">basicrobot</a>
+	on a RaspberryPi (address <m><ks>192.168.1.rasp</ks></m>).</li>
+	<li>Set the proper values in the 
+	<a href="../../it.unibo.qak20.basicrobot/basicrobotConfig.json" target="code">basicrobotConfig.json</a>:
+	<pre>{<ks>"type":"virtual"</ks>, "port":"8999", <ks>"ip":"192.168.1.pc"</ks>}	</pre>		
+	</li>
+	<li>Activate the basicrobot  (<m><ks>bash it.unibo.qak20.basicrobot</ks></m>)</li>
+	<li>In project <m><k>robotWeb2020</k></m>, change the configuration values in the  file
+	<a href="../src/main/resources/connQak/configurator.kt" target="code">configurator.kt</a>
+<pre>
+public static final String hostAddr   	    = <ks>"192.168.1.rasp"</ks>;   	
+public static final String port    			= "8020";
+public static final String qakdestination	= "basicrobot";
+public static final String ctxqadest 		= "ctxbasicrobot";
+</pre>		
+	
+	</li>
+	<li>Move the robot by using the Web-interface</li>
+	</ol>
+
+ 
+<li><h3 id="realrobot">Use a real robot</h3></li>
+
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%"><br/><center><img src="./img/mbot.png" alt="mbot" width="60%" ></center><br/> 
+</td>
+<td><br/><center><img src="./img/basicrobotproject.png" alt="basicrobotproject" width="60%" ></center><br/> </td>
+</tr>
+</table>
+
+ 
+ 
+ 
+ 
+	<ol>
+	<li>On the RaspberryPi, change the configuration values in the  file 
+	<a href="../../it.unibo.qak20.basicrobot/basicrobotConfig.json" target="code">basicrobotConfig.json</a>:
+	<pre>{"type":"realmbot", "port":"/dev/ttyUSB0", "ip":"dontcare"}	</pre>		
+	</li>
+	<li>Activate the basicrobot as before (<m><ks>bash it.unibo.qak20.basicrobot</ks></m>)</li>
+	<li>Move the robot by using the Web-interface configured as before</li>
+	</ol>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:40%">
+</td>
+<td></td>
+</tr>
+
+-->
+</table>
+	      	
+<br/><br/> 	
+</div>  
+
+<div style="background-color:rgba(86, 56, 253, 0.9); width:100%;text-align:center;font-size:small;color:white">
+By AN Unibo-DISI    
+</div> 
+</body>
+</html>
+
+<!--
+
+HUE
+https://developers.meethue.com/develop/get-started-2/  BEN FATTO
+
+
+{"devicetype":"my_hue_app#nat"}  POST
+
+[
+	{
+		"success": {
+			"username": "gxlwZsEJvsEEzcqzuqFEbZRyUddjh06Ml8uDHX6R"
+		}
+	}
+]
+
+ 
+
+/api/gxlwZsEJvsEEzcqzuqFEbZRyUddjh06Ml8uDHX6R/lights
+
+{
+	"1": {
+		"state": {
+			"on": false,
+			"bri": 1,
+			"alert": "select",
+			"mode": "homeautomation",
+			"reachable": true
+		},
+		"swupdate": {
+			"state": "readytoinstall",
+			"lastinstall": "2018-03-23T16:50:33"
+		},
+		"type": "Dimmable light",
+		"name": "Hue white lamp 1",
+		"modelid": "LWB010",
+		"manufacturername": "Signify Netherlands B.V.",
+		"productname": "Hue white lamp",
+		"capabilities": {
+			"certified": true,
+			"control": {
+				"mindimlevel": 5000,
+				"maxlumen": 806
+			},
+			"streaming": {
+				"renderer": false,
+				"proxy": false
+			}
+		},
+		"config": {
+			"archetype": "classicbulb",
+			"function": "functional",
+			"direction": "omnidirectional"
+		},
+		"uniqueid": "00:17:88:01:02:a3:32:03-0b",
+		"swversion": "1.29.0_r21169",
+		"swconfigid": "FF6681C4",
+		"productid": "Philips-LWB010-1-A19DLv4"
+	},
+	"2": {
+		"state": {
+			"on": false,
+			"bri": 77,
+			"alert": "select",
+			"mode": "homeautomation",
+			"reachable": false
+		},
+		"swupdate": {
+			"state": "readytoinstall",
+			"lastinstall": "2018-03-22T21:03:40"
+		},
+		"type": "Dimmable light",
+		"name": "Hue white lamp 2",
+		"modelid": "LWB010",
+		"manufacturername": "Signify Netherlands B.V.",
+		"productname": "Hue white lamp",
+		"capabilities": {
+			"certified": true,
+			"control": {
+				"mindimlevel": 5000,
+				"maxlumen": 806
+			},
+			"streaming": {
+				"renderer": false,
+				"proxy": false
+			}
+		},
+		"config": {
+			"archetype": "classicbulb",
+			"function": "functional",
+			"direction": "omnidirectional"
+		},
+		"uniqueid": "00:17:88:01:02:c4:9a:8a-0b",
+		"swversion": "1.29.0_r21169",
+		"swconfigid": "FF6681C4",
+		"productid": "Philips-LWB010-1-A19DLv4"
+	},
+	"3": {
+		"state": {
+			"on": true,
+			"bri": 0,
+			"alert": "select",
+			"mode": "homeautomation",
+			"reachable": false
+		},
+		"swupdate": {
+			"state": "transferring",
+			"lastinstall": "2018-03-23T15:58:39"
+		},
+		"type": "Dimmable light",
+		"name": "Hue white lamp 3",
+		"modelid": "LWB010",
+		"manufacturername": "Signify Netherlands B.V.",
+		"productname": "Hue white lamp",
+		"capabilities": {
+			"certified": true,
+			"control": {
+				"mindimlevel": 5000,
+				"maxlumen": 806
+			},
+			"streaming": {
+				"renderer": false,
+				"proxy": false
+			}
+		},
+		"config": {
+			"archetype": "classicbulb",
+			"function": "functional",
+			"direction": "omnidirectional"
+		},
+		"uniqueid": "00:17:88:01:02:c6:4f:e8-0b",
+		"swversion": "1.29.0_r21169",
+		"swconfigid": "FF6681C4",
+		"productid": "Philips-LWB010-1-A19DLv4"
+	}
+}
+
+/api/gxlwZsEJvsEEzcqzuqFEbZRyUddjh06Ml8uDHX6R/lights/1
+...
+/api/gxlwZsEJvsEEzcqzuqFEbZRyUddjh06Ml8uDHX6R/lights/1/state
+{"on":false}  PUT
+{"on":true, "sat":254, "bri":254,"hue":10000}
+
+https://developers.meethue.com/develop/get-started-2/core-concepts/
+
+-->
+

@@ -21,6 +21,7 @@ import it.unibo.kactor.ApplMessage
 import org.junit.After
 import kotlinx.coroutines.Job
 import itunibo.planner.plannerUtil
+import unibo.robot.robotSupport
 
 
 //ORDINARE I TEST, COME???
@@ -122,7 +123,6 @@ class TestPlan {
 			
 			clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
 			
-			
 			delay(2000)
 		
 			//--------------------------------------------------------------------------------
@@ -186,45 +186,28 @@ class TestPlan {
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun singleMove(){
 		
- 		
-	
 		runBlocking{
-			val channelForObserver = Channel<String>()
-			trolleyObserver!!.addObserver(channelForObserver, "stepdone")
+			val channelTmp = Channel<String>()
  
-			clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
+			val move = "w"
 			
-			println("+++++++++ testreqenter ")	
+			delay(3000)
 			
-			var result = channelForObserver.receive()
-			println("+++++++++ testreqenter RESULT=$result +++++++++")
+			delay(robotSupport.move(move))
+			robotSupport.move("h")
 			
+			delay(1000)
 			
-			delay(2000)
+			plannerUtil.updateMap(  "$move" )
 			
-			//--------------------------------------------------------------------------------
+			println("+++++++++ testSingleMove ")	
 			
-			testingObserver!!.addObserver(channelForObserver, "receipt")
+			var curPos = plannerUtil.get_curPos().toString()
 			
-			clientactor!!.request("carenter","carenter(ok)","parkingmanagerservice")
+			testingObserver!!.addObserver(channelTmp,"null")
+			trolleyObserver!!.addObserver(channelTmp,"null")
 			
-			println("+++++++++ testcarenter")	
-			result = channelForObserver.receive()
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			testingObserver!!.addObserver(channelForObserver!!, "pickup")
-
-			println("+++++++++ testpickup")
-			result = channelForObserver.receive()
-			println("+++++++++ testpickup RESULT=$result +++++++++")
-			assertTrue(result.substringAfter("(",result).substringBefore(")",result).toInt() > 0)
-			
-			//-----------------------------------------------------------------------------------
- 			
-			
-			
+			assertEquals(curPos,"(0, 1)")			
 	  	}
  	}
 	
@@ -233,7 +216,7 @@ class TestPlan {
  -  TRAVEL TO ONE DESTINATION
 ===========================*/
 	
-	@Test
+	//@Test
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun travelToDestination(){
 
@@ -245,7 +228,6 @@ class TestPlan {
 			delay(3000)
 			
 			myactor!!.forward("move","move(p5)","trolley")
-			testingObserver!!.addObserver(channelTmp,"null")
 			trolleyObserver!!.addObserver(channelForObserver, "path")
 			trolleyObserver!!.addObserver(channelForObserver2, "stepdone")
 			
@@ -267,14 +249,15 @@ class TestPlan {
 			}
 			
 			println("REAL__PATHHHHHHHH: $realpath")
+ 			testingObserver!!.addObserver(channelTmp,"null")
 			assertEquals(expectedpath, realpath)
- 			
+			
 	  	}
  	}
 	
 /*========================
  -	Type: Unit Test
- -  DIRECTION TEST (LEO)
+ -  DIRECTION TEST
 ===========================*/
 	
 	//@Test
@@ -336,7 +319,6 @@ class TestPlan {
 			
 			myactor!!.forward("move","move(p2)","trolley")
 			
-			
 			result = channelForObserver.receive()
 			direction = plannerUtil.getDirection()
 			println("+++++++++ trolleyInP2 RESULT=$result - DIRECTION=$direction+++++++++")
@@ -344,12 +326,10 @@ class TestPlan {
 			assertEquals("p2", position)
 			assertEquals("rightDir", plannerUtil.getDirection())
 			
-			
 			delay(4000)
 			//----------------------------------------------------------------------------------
 			
 			myactor!!.forward("move","move(home)","trolley")
-			
 			
 			result = channelForObserver.receive()
 			direction = plannerUtil.getDirection()
@@ -362,15 +342,13 @@ class TestPlan {
 	
 /*========================
  -	Type: Unit Test
- -  STATUS CHECK (LEO)
+ -  STATUS CHECK
 ===========================*/
 
-	//@Test
+	@Test
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun statusCheck(){
 		
- 		
-	
 		runBlocking{
 			
 			val channelForObserver = Channel<String>()

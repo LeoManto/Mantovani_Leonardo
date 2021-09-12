@@ -737,7 +737,7 @@
 									to notify his interest in
 									in picking his car from parking-area.
 								<li>When the car is in <em>OUTDOOR-area</em>, the <b>client</b> takes his car away, then
-									emit an event <tt>carwithdrawn</tt>.
+									emits an event <tt>carwithdrawn</tt>.
 							</ul>
 						</td>
 					</tr>
@@ -762,7 +762,7 @@
 					</tr>
 				</table>
 				<br>
-    In this SPRINT we have added to the system an Actor <k>Trolley</k> with relative features. So now the movements into the enviroment are not simulated with some delays, but they are actually
+    In this SPRINT we have added to the system a component <k>Trolley</k> with relative features. So now the movements into the enviroment are not simulated with some delays, but they are actually
     performed by a virtual robot. It's also intruduced a software component to handling and representing the virtual enviroment, in which the robot moves.
     <br>
     Subsequent to the changes made to the system, we proceed to analyze the problems encountered in this SPRINT, always considering valid the observations and analyses of the previous SPRINT about
@@ -774,6 +774,7 @@
       (<a href="https://htmlpreview.github.io/?https://github.com/anatali/issLab2021/blob/main/it.unibo.planner20/userDocs/LabPlanner.html">LabPlanner.html</a>). <br>
       The client also provides us a library (<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/unibolibs/IssActorKotlinRobotSupport-2.0.jar"><ks>IssActorKotlinRobotSupport-2.0.jar</ks></a>)
       that contains a set of tools that permits to interact and work with the system map.
+      <center><img src="./img/plant.png"  width="425" height="300"></center>
     </p>
     <p>Map is necessary as a support for the planner (that is managed by some tools in the library) to calculate the fastest and safe path to a destination and to keep track of trolley moves.
       When trolley do a movement the cell of the map on which trolley is located, is updated.</p>
@@ -787,10 +788,21 @@
       In this version will be added the <k>Trolley</k>. It's a software component that simulates the behavior of a real robot. This component was provided to us by the customer within the project 
       <ks><a href="https://github.com/anatali/issLab2021/tree/main/it.unibo.qak21.basicrobot">it.unibo.qak21.basicrobot</a></ks>.<br>
     How <k>trolley</k> works is specified within the specific documentation released together with the software component <a href="https://htmlpreview.github.io/?https://github.com/anatali/issLab2021/blob/main/it.unibo.qak21.basicrobot/userDocs/basicrobot2021.html">basicrobot2021</a>.<br>
-  To the functionalities already implemented by the Trolley it is necessary to add some others.<br>
+  To the functionalities already implemented by the Trolley it is necessary to add some others.<br><br>
   	<ul>
-      <li><em>Trolley status</em>: it is necessary to consider the state of the Trolley. Possible states are <k>idle</k>, <k>working</k> and <k>stopped</k>. The initial Trolley state is <k>idle</k>, 				it switch to <k>working</k> while making movements and his state became <k>stopped</k> only through the direct intervention of the <b>parking-manager</b> (which is not considered in this 					   SPRINT).
+		<table style="border: solid 0px">
+			<tr>
+			<td style="border: solid 0px ; margin-right:150px">
+				<li><em>Trolley status</em>: it is necessary to consider the state of the Trolley. Possible states are <k>idle</k>, <k>working</k> and <k>stopped</k>. The initial Trolley state is <k>idle</k>, it switch to <k>working</k> while making movements and his state became <k>stopped</k> only through the direct intervention of the <b>parking-manager</b> (which is not considered in this SPRINT).
+			</td>
+			<td style="border: solid 0px ; padding-right:100px">
+				<center><img src="./img/status.png" width="230" height="400" ></center>
+			</td>
+		</tr>
+		</table>
+		<br>
       <li><em>Direction handling</em>: every time the <k>Trolley</k> completes a transport it is necessary to turn the <i>"head of the robot"</i> in the appropriate direction for loading and 					  	  unloading cars. It is possible to obtain this checking the direction in which the trolley is facing and make it turn on itself until obtaining the correct direction according to its position 				 into the map.
+		<center><img src="./img/plantDir.png" width="425" height="300" ></center>
         <li id="obstacle"><em>Obstacle handling</em>: In rare and special cases there may be unexpected events that add obstacles in the environment.<br>
           In these cases, if the Trolley encounters obstacles on its path that were not already present on the map, it should stop its movement, the obstacle should be added on the map, and the 			  		  Trolley should recalculate a new path to reach its goal.
     </ul>
@@ -1068,40 +1080,64 @@
 				<br>
         In this SPRINT we have added only the <k>Trolley</k> compared to the previous SPRINT, so for the correct functioning of the <b>parkingmanagerservice</b> the tests done in the
         previous sprint are sufficient.
-        In this phase, the tests will be limited to verify the correct functioning of the <k>Trolley</k> in different situations. 
+        In this phase, the tests will be limited to verify the correct functioning of the <k>Trolley</k> in different situations. <br>
+        In order to observe trolley movements, we will use the virtual enviroment provided by costumer. To start this eviroments, it's necessary launch a <i>.yaml</i> file with <b>Docker</b>,
+        in particular running: <pre> docker-compose -f basicrobotVirtual.yaml up </pre>
 			</p>
 			<kc>TestPlans goals:</kc>
 			<ul>
 				<li>Ensure that the workflow of the system meets a set of requirements <k><b>(integration testing)</b></k>. <br> <br>
 					
-          <div class=remark2>
+         <div class=remark2>
             <h3>Workflow</h3>
-          </div>
-
+           During this test, it's verified the correct behaviour of the system. This kind of test was performed in the previous SPRINT, but in this case, the aim test is to check if <k>Trolley</k>
+           movements are correct. Only the movements of the <k>trolley</k> are verified because the correct functioning of the rest of the system has already been checked previously.
+         </div>
 				<li>Ensure that some components work properly individually. <k><b>(unit testing)</b></k> <br>
-					<br>
-					Here it's tested the correct behaviour of <tt>trolley</tt>. During this kind of test, like in the <k>integration test</k>, the components updates some resouces whose values
-					are observed and then checked.
-					<div class=remark2>
-						
-						<h3>Simple moves test</h3>
+				<br>
+          </ul>
+				Here it's tested the correct behaviour of <tt>trolley</tt>. During this kind of test, like in the <k>integration test</k>, the components updates some resouces whose values
+				are observed and then checked.
+
+		<div class=remark2>
+			<h3>Simple moves test</h3>
+      This is a preliminary test to check if the libraries used for the <k>trolley</k> movements and for the map updating, work correctly. In this way we can use the map to conduct future tests.
+		</div>
+		<div class=remark2>
             <h3>Path test</h3>
-            <h3>Direction test</h3>
+				The aim of this test is to verify if the <k>Trolley</k>, after having received the command to go to a certain position into the parking, 
+				obtains and executes the right path to reach it. After the movements, it is checked that the calculated path is the one actually executed by the <k>Trolley</k>.
+        </div>
+          <div class=remark2>
+          	<h3>Direction test</h3>
+            This test has the goal of verifying that at the end of current travel, the <k>trolley</k> assumes the correct direction. 
+            Depending on the position in which the robot is located at the end of the travel, the final direction will be different.
+            For example if the destination of the travel is "indoor" that is located in the upper-right corner of the map, 
+            final position of the trolley will be <tt>downDir</tt>. For park slot "p1" will be instead <tt>leftDir</tt>, so it will be for all parking slots on the left.
+            For the parking slot on the right the final direction will be <tt>rightDir</tt>.
+          </div>
+          <div class=remark2>
             <h3>Trolley status behaviour test</h3>
+            The goal of this test is to verify that in different situation the <k>trolley</k> change his status. In this version trolley status can be "IDLE" and "WORKING".
+            <ul>
+            <li>Trolley assumes <ks>IDLE</ks> status when it is waiting for a request of work or, after the end of a work,
+              it doesn't have nothing to do and no job request is sent.
+            <li>Trolley must assume <ks>WORKING</ks> state when it is actually doing a job. Returning to "home" position is not considered as a "WORKING" state.
+            </ul>
+          </div>
+            
 
-					</div>
 			</ul>
-
 		</p>
-
+		
 		<h2>Project</h2>
 
 		<h2>Deployment</h2>
-		The deployment of SPRINT 1 consists in a release on a <a
-			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_1">Github repository</a>.
+		The deployment of SPRINT 3 consists in a release on a <a
+			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3">Github repository</a>.
 
 		<h2>Maintenance</h2>
-		This is the first Sprint, more features will be released in the next (Second) Sprint.
+		This is the third SPRINT, it is expected that the next one will be the final SPRINT, because to get the complete application is missing only the implementation of GUIs.
 		<br /><br />
 	</div>
 

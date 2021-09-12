@@ -57,7 +57,7 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 				state("work") { //this:State
 					action { //it:State
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE  
-						STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() 
+						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						updateResourceRep( "status($STATUS)"  
 						)
 						println("basicrobot waiting ... | TROLLEY")

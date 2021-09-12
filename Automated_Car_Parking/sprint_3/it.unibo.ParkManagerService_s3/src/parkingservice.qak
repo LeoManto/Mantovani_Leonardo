@@ -447,7 +447,7 @@ QActor trolley context ctxParkingservice{
 	
 	State work{ 
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE #]
-		[#STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()#]
+		[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
 		updateResource [# "status($STATUS)" #]
 		println("basicrobot waiting ... | TROLLEY")  
 	}Transition t0
@@ -455,7 +455,6 @@ QActor trolley context ctxParkingservice{
 	
 	
 	State path{
-		
 		onMsg(move : move(GOAL)){
 			[# GOAL = payloadArg(0) #]
 			println("GOAL = $GOAL | TROLLEY")
