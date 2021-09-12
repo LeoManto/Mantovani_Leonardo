@@ -1,0 +1,68 @@
+/*
+ * ----------------------------------------------------------------------
+ * RUNS ON Raspberry
+ *
+ * - loads the sonar2021ConfigKb.pl and reads the sonar-data source (real or simulated).
+ *   	If real, activates the CodedQActor sonardatasource of class sonarHCSR04Support2021
+ *   	If simulated, activates the CodedQActor sonarsimulator of class sonarsimulator
+ * - setup the sonar-data pipe that emits-on-stream the event sonar:distance( V )
+ * - handles the event sonar and emits the event sonarrobot:sonar( D )
+ * 
+ * TO INTERACT from Rasp to PC without MQTT => 
+ *            remove Windows firewall or allow port 8028
+ * ----------------------------------------------------------------------
+ */
+
+ 	//"tcp://mqtt.eclipse.org:1883"
+	//mqtt.eclipse.org
+	//tcp://test.mosquitto.org
+	//mqtt.fluux.io
+	//"tcp://broker.hivemq.com" 
+
+System -msglog  sonarnaive   
+mqttBroker "192.168.1.45" :  1883 eventTopic "sonar/data"  //broker.hivemq.com
+
+Dispatch sonarstart      : sonarstart(V)  
+Dispatch simulatorstart  : simulator(V)  
+Event    sonar           : distance( V )   //emitted by rx.sonarSimulator or sensors.sonarHCSR04SupportActor	
+Event    sonarrobot      : sonar( V )      //for the application level
+ 
+Context ctxsonarnaive    ip [host="localhost"     port=8068   ] 	 	
+   
+//DATA SOURCES
+CodedQActor sonarsimulator  context ctxsonarnaive className "sonarSimulator"  
+CodedQActor sonardatasource context ctxsonarnaive className "sonarHCSR04Support2021"
+  
+QActor sonarnaive context ctxsonarnaive {     
+[# var simulate = true #]
+ 	State s0 initial {  		 
+ 		println("sonar START")
+ 		discardMsg On		 		 
+ 		/*
+ 		 * CONFIGURATION
+ 		 */
+ 		solve( consult("sonar2021ConfigKb.pl")	 )
+ 		solve( simulate(X) )
+		println( currentSolution )	//yes X / on oppure X / off
+		[# val x = getCurSol("X").toString() 
+		   simulate = ( x == "on")	
+		   println( "simulate=$simulate" )
+		#] 		
+   		//ACTIVATE THE DATA SOURCE (REAL or SIMULATED)
+		if [# simulate #]{forward sonarsimulator -m simulatorstart : simulatorstart(ok) }
+ 		else{ forward sonardatasource -m sonarstart : sonarstart(ok) }  //payload don't care
+
+  	}  
+  	Transition t0  whenEvent sonar -> handleSonarData  
+			 		  
+ 	
+  	State handleSonarData{
+  		printCurrentMessage
+  		 onMsg( sonar : distance(D) ){
+  		 	[# val D = payloadArg(0) #]  
+  		 	emit sonarrobot : sonar($D)
+  		 }
+  	}
+   	Transition t0 whenEvent sonar -> handleSonarData
+ }
+
