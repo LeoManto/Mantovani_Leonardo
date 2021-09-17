@@ -32,8 +32,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 		  var CurPath	= ""
 		  var CurSlot   = ""
 		  val planner = `it.unibo`.utils.TrolleySupport
-		
-		
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State

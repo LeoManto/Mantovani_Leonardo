@@ -13,9 +13,9 @@ import java.util.ArrayList
 
 object AClientApacheHttp {
 
-    fun doSimplePost(){
+    fun doSimplePost(uri:String){
         try {
-            val strUrl = "http://localhost:808/moverest"
+            val strUrl = uri
             val client: HttpClient = HttpClientBuilder.create().build()
             val request = HttpPost(strUrl)
             val response: HttpResponse = client.execute(request)
@@ -28,20 +28,20 @@ object AClientApacheHttp {
         }
     }
 
-    fun doPostWithParams(){
+    fun doPostWithParams(uri:String,name:String,value:String){
         try {
-            val strUrl = "http://localhost:8081/moverest"
+            val strUrl = uri
             val client: HttpClient = HttpClientBuilder.create().build()
             val request = HttpPost(strUrl)
 
             val params: MutableList<NameValuePair> = ArrayList()
-            params.add(BasicNameValuePair("move", "l"))
+            params.add(BasicNameValuePair(name, value))
             request.setEntity(UrlEncodedFormEntity(params))
 
             val response: HttpResponse = client.execute(request)
             //            System.out.println( "RESPONSE=" + response.getEntity().getContent());
             val answer: String = IOUtils.toString(response.getEntity().getContent(), "UTf-8")
-            println("RESPONSE=$answer")
+            //println("RESPONSE=$answer")
             //val obj =  JSONObject(json);
 //            println(obj.get("url"));
         } catch (ex: Exception) {
@@ -49,9 +49,37 @@ object AClientApacheHttp {
         }
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        //doSimplePost()
-        doPostWithParams()
+
+    fun doPostReqEnter() {
+        try {
+            val strUrl = "http://localhost:5683"
+            val client: HttpClient = HttpClientBuilder.create().build()
+            val request = HttpPost(strUrl)
+            val params: MutableList<NameValuePair> = ArrayList()
+            params.add(BasicNameValuePair("msgId", "reqenter"))
+            params.add(BasicNameValuePair("msgType", "request"))
+            params.add(BasicNameValuePair("msgSender", "client"))
+            params.add(BasicNameValuePair("msgReceiver", "parkingmanagerservice"))
+            params.add(BasicNameValuePair("msgContent", "reqenter(client)"))
+            params.add(BasicNameValuePair("msgNum", "1"))
+            request.setEntity(UrlEncodedFormEntity(params))
+
+            val response: HttpResponse = client.execute(request)
+            //            System.out.println( "RESPONSE=" + response.getEntity().getContent());
+            val answer: String = IOUtils.toString(response.getEntity().getContent(), "UTf-8")
+            //println("RESPONSE=$answer")
+            //val obj =  JSONObject(json);
+//            println(obj.get("url"));
+        } catch (ex: Exception) {
+            println(ex.message)
+        }
     }
+
+/*
+@JvmStatic
+fun main(args: Array<String>) {
+    //doSimplePost()
+    doPostWithParams()
+}
+ */
 }

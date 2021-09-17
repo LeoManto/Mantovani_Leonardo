@@ -22,9 +22,9 @@ import it.unibo.interaction.MsgRobotUtil
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 object virtualrobotSupport2021 {
-	private var port     = 0
+	private var port     = 5683
 	lateinit var owner      : ActorBasic
-	lateinit var robotsonar	: ActorBasic
+	lateinit var robotActor	: ActorBasic
 	private lateinit var hostName : String 	
 	private lateinit var support21 : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
 	private lateinit var support21ws : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
@@ -64,13 +64,14 @@ val doafterConn : (CoroutineScope, IssWsHttpKotlinSupport) -> Unit =
 				//support21ws.sendWs(MsgRobotUtil.turnLeftMsg)				  
 				//support21ws.forward(MsgRobotUtil.turnRightMsg)
 				//ACTIVATE the robotsonar as the beginning of a pipe
-				robotsonar = virtualrobotSonarSupportActor("robotsonar", null)
-				owner.context!!.addInternalActor(robotsonar)  
+				robotActor = virtualrobotSupportActor("robotsonar", null)
+				owner.context!!.addInternalActor(robotActor)  
 			  	println("		--- virtualrobotSupport | has created the robotsonar")	
 			 }catch( e:Exception ){
                  println("		--- virtualrobotSupport2021 | ERROR $e")
              }	
 	}
+	
 	
 	fun trace( msg: String ){
 		if( traceOn )  println("		--- virtualrobotSupport2021 trace | $msg")
@@ -119,7 +120,7 @@ val doafterConn : (CoroutineScope, IssWsHttpKotlinSupport) -> Unit =
  			return jsonMsg
 		}
 	fun terminate(){
-		robotsonar.terminate()
+		robotActor.terminate()
 	}	
 	
 }//virtualrobotSupport2021

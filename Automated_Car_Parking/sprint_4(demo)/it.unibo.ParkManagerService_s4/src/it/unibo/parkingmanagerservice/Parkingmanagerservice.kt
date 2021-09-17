@@ -135,6 +135,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						 SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot()  
 						 `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false)  
+						 println(`it.unibo`.utils.ParkingSlotsKb.indoorFree )  
+						 println(unibo.robot.TrolleyKb.trolleyStatus)  
 						 if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree || 
 											unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.STOPPED
 									){  

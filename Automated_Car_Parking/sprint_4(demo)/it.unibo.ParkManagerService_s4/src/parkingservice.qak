@@ -1,5 +1,7 @@
 System parkingservice  
-   
+    
+mqttBroker "broker.hivemq.com" : 1883 eventTopic "parkingArea/feedback"    
+    
 Request reqenter : reqenter(V)
 Reply slotsnum : slotsnum(SLOTNUM)
 Reply waitIndoor : slotsnum(V)
@@ -31,7 +33,7 @@ Event finished 			: finished(V)
 Event obstacle : obstacle( T )
 //------------------------------------------------------------------------------------------------
 
-//mqttBroker "broker.hivemq.com" :  1883 eventTopic "sonar/data"
+
 Context ctxParkingservice  ip [host="localhost" port=5683]
       
 Context ctxTrolley ip [host="127.0.0.1" port=5685]
@@ -152,7 +154,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 	var simulatedsonar = false
 	
 	#]
-	
+	 
 	State s0 initial{
 		[#
 		if(simulatedsonar){
@@ -232,7 +234,8 @@ QActor parkingmanagerservice context ctxParkingservice{
 			//================[ acceptIN ]=====================	
 			[# SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot() #]
 			[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
-
+			[# println(`it.unibo`.utils.ParkingSlotsKb.indoorFree ) #]
+			[# println(unibo.robot.TrolleyKb.trolleyStatus) #]
 			[# if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree || 
 					unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.STOPPED
 			){ #]
@@ -423,15 +426,15 @@ QActor sonarhandler context ctxParkingservice{
 		onMsg(sonaroutdoor : distance(W)){
 			[# distance = payloadArg(0).toInt() #]
 			}
-		[# if(distance < 30) {
+		[# if(distance < 30 && `it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
 				#]
 				forward outdoortimer -m starttimer : timer(on) 
 				println("Car in OUTDOOR | SONAR")
 			[# }
-			else {
+			else if(distance >= 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true #]
 				forward outdoortimer -m stoptimer : timer(off) 
-				[# } #] 
+				[# } #]
 	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
 }

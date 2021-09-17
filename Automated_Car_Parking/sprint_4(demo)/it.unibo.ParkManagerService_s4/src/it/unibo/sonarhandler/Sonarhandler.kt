@@ -37,12 +37,12 @@ class Sonarhandler ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 distance = payloadArg(0).toInt()  
 						}
-						 if(distance < 30) {
+						 if(distance < 30 && `it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 										`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
 						forward("starttimer", "timer(on)" ,"outdoortimer" ) 
 						println("Car in OUTDOOR | SONAR")
 						 }
-									else {
+									else if(distance >= 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 										`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true  
 						forward("stoptimer", "timer(off)" ,"outdoortimer" ) 
 						 }  

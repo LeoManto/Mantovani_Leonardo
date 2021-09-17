@@ -13,7 +13,8 @@ val LimitHigh = 100
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
     override suspend fun actorBody(msg: ApplMessage) {
-  		elabData( msg )
+		if( msg.msgId() == "sonar")
+	  		elabData( msg )
  	}
 
  	

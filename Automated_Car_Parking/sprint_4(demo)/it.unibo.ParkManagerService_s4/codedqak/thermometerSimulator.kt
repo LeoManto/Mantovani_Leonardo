@@ -39,18 +39,18 @@ class thermometerSimulator (name : String ) : ActorBasic( name ) {
 			startIncrement()
 			showTemp()
 		}else if(msg.msgId() == "stopinc" &&  msg.msgType() == "dispatch"){
-			println("High temperature, stop inc process | THERMOMETER")
+			//println("High temperature, stop inc process | THERMOMETER")
 			increment	= false
 			stopTherm()
 		}else if(msg.msgId() == "normtemp" &&  msg.msgType() == "event"){
-			println("Temperature is now ok, restart inc process | THERMOMETER")
+			//println("Temperature is now ok, restart inc process | THERMOMETER")
 			increment	= true
 			startIncrement()
 		}
  	}
 	
 	fun startIncrement(){
-		println("Increment TEMP START | THERMOMETER")
+		//println("Increment TEMP START | THERMOMETER")
 		job = mainScope.launch{
 			while(increment){
 				delay(1000)

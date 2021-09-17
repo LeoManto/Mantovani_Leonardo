@@ -1,5 +1,5 @@
-//package rx
- 
+
+// NOT USED BECAUSE, MAX_DISTANCE IS FIXED BY PARKING SERVICE. THE GOAL OF SONAR IS ONLY PROVIDING VALUES.
 import it.unibo.kactor.MsgUtil
 import kotlinx.coroutines.delay
 import it.unibo.kactor.ActorBasic

@@ -1,6 +1,5 @@
 package clients
 
-
 import com.andreapivetta.kolor.Color
 import it.unibo.actor0.sysUtil
 import kotlinx.coroutines.delay
@@ -36,10 +35,10 @@ object ClientWithWebClient {
         )
     }
 
-    suspend fun doPost() {
+    suspend fun doPost(uri:String) {
         var resJson = ""
         val result = webClient.post()
-            .uri("http://localhost:8081/moverest?move=l")
+            .uri(uri)
             //.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .body<String, Mono<String>>(Mono.just<String>(resJson), String::class.java) //Since we send a string
             //.bodyToMono(String::class.java)
@@ -56,10 +55,11 @@ object ClientWithWebClient {
         sysUtil.colorPrint("result response=  $response", Color.GREEN)
     }
 }
-
+/*
 fun main( ) = runBlocking {
     //ClientWithWebClient.doGet()
     ClientWithWebClient.doPost()
     //delay(1000)
     sysUtil.colorPrint("BYE", Color.GREEN)
 }
+ */

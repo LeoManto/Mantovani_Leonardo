@@ -24,11 +24,12 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
   		if( msg.msgId() == "carindoorarrival" && msg.msgType() == "event") {
 			simulateWeight()
 		}
-  		else if( msg.msgId() == "finished" && msg.msgType() == "event" && msg.msgContent().toString() == "indoor"){
+  		else if( msg.msgId() == "finished" && msg.msgType() == "event" && msg.msgContent() == "finished(indoor)"){
 			w = 0
+			println("trolley in INDOOR | WEIGHT")
 			`it.unibo`.utils.ParkingSlotsKb.indoorFree  = true
-			val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
-		    emit(m4)
+			//val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
+		   //emit(m4)
 		}
  	}
 	
