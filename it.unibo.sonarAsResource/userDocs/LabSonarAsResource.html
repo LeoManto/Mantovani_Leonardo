@@ -1,0 +1,1019 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <!--
+<link rel="stylesheet" type="text/css" href="../css/issStyle1.css">
+<script type="text/javascript" src="../css/issStyle.js"></script>
+-->
+<style type="text/css">
+body
+{
+    margin-left:  30px;
+    margin-right: 30px;
+};
+
+P
+{
+    font-family: Tahoma;
+    font-size: 10pt;
+};
+
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+	font-size: 93%;
+}
+
+a:hover {
+    background-color: #cccccc;
+}
+
+
+hr {
+    clear: both;
+    height: 1px;
+    color: #242424;
+    background-color: transparent;
+}
+
+h1, h2, h3 {
+    color: #242424;
+    clear: left;
+    font: 100% Tahoma, Helvetica, Arial, sans-serif;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+top {
+	width: 100%;
+}
+
+
+#i {
+    color: #ff1010;
+}
+tt{
+	font-family: "Arial";
+    font-size: 90%;
+	color: #006600;
+}
+em{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	border-style:solid;
+	border-color: #abe876;
+    color: #1632cc;
+}
+bc{
+	font-family: "Arial";
+	font-size: 90%;
+	font-weight: bold;
+    color: #990000;
+	background-color: #fcf8c7;
+}
+ks{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #0000CD	;
+	font-size: 90%;
+}
+kc{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #008000	;
+	font-size: 90%;
+}
+pre{
+	font-family: "Consolas";
+	font-size: 85%;
+	background-color: #f5f5f5;
+	border: 1.5px solid silver;
+	padding: 5px;
+}
+m{
+	font-family: "Helvetica";
+	line-height: 100%;
+ 	font-size: 75%;
+}
+div.body{
+	 
+    font-size: 18px;
+}
+k{
+    color: #990000;
+	font-weight: bold;
+	font-size: 90%;
+}
+h1 {
+    font-size: 150%;
+    background-color: #b2c0ff;
+	padding: 10px;
+}
+
+h2 {
+    background-color: #9ed8ff;
+    font-size: 130%;
+}
+
+h3 {
+	background-color: #e6ccff;
+    font-size: 100%;
+}
+h4 {
+    background-color: #ccffcc;
+    font-size: 100%;
+	width: 95%;
+	border-radius: 5px;
+	padding: 2px;
+}
+h5 {
+    background-color: #d5ffb0;
+    font-size: 100%;
+
+}
+div.req{
+	background-color: #d9ffb3;
+    font-size: 18px;
+	width: 700px;
+    border: 3px solid green;
+    padding: 15px;
+    margin: 10px;
+}
+div.remark{
+	background-color: #E3F2FD;
+    border: 1.5px solid #d5f2ed;
+    padding: 15px;
+    margin: 10px;
+	border-radius: 25px;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+ol, ul, li {
+  margin: 0;
+  margin-left: 10px;
+  padding: 0;
+  padding-bottom: 5px;
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+img {
+	border: 1.5px solid #d5f2ed
+
+}
+
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+}
+
+div.wrapdesc{
+	width: 90%;
+	margin: auto;
+}
+
+div.imagedesc{
+	width: 85%;
+	margin: auto;
+}
+</style>
+    
+<head>
+   
+<title>SonarAsResource</title></head>
+
+
+	     
+    
+<body>
+<div id="body">
+<h1>LabIss | Sonar as resource<font size="5"></font> </h1>
+
+<h2>Introduction</h2>
+This case-study intends to experiment with the concept of 
+<a href="LabCleanArch.html#cleanarch" target="web">Clean Architecture​</a>, as forerunner of the 
+<a href="https://en.wikipedia.org/wiki/Microservices" target="web">microservices architecture</a>.
+<br/><br/>
+The main 
+<a href="https://clevercoder.net/2018/09/08/clean-architecture-summary-review/" target="web">principles of the Clean Architecture</a>
+will guide the definition of a logic architecture described by a qak-model.
+ 
+<h2>Requirements</h2>
+<div class="remark">
+<ks>radarGui</ks>: Design, build and deploy a distributed software system able to show sonar data on 
+a GUI that looks like the screen of a radar.<br/>
+The sonar data can be produced by a <ks>real device</ks> (e.g. a 
+<a href="https://www.acmesystems.it/HC-SR04" target="web">HC-SR04 ultrasonic sensor</a> device mounted on a RaspberryPi 
+(on the front of a ddr robot) or by a <ks>simulator</ks>. <br/>
+The user must be allowed to choose a proper sonar data-source before launching the system, by means of a configuration file.
+<br/><br/>
+<ks>ledAsAlarm</ks>: Extend the previous system, by introducing a component that <i>turns on</i> a led (mounted on a RaspberryPi) when
+the sonar detects a distance  <ks>d&lt;=V</ks> with <ks>V</ks> prefixed value (<ks>5&lt;V&lt;= 80</ks>)
+and <i>turns off</i> the led when <ks>d>=V</ks>.
+</div>
+ 
+ 
+
+ 
+
+<h2>Requirement analysis</h2>
+ 
+ <h3>Use-case <ks>radarGui</ks></h3>
+The use-case <ks>radarGui</ks> is similar to the case-study reported in
+<a href="../../it.unibo.raspIntro2020/userDocs/LabRobotRadar_2020.html" target="web">LabRobotRadar_2020 | A robot-radar system​</a>.
+<h4>The sonar</h4>
+The <a href="https://www.acmesystems.it/HC-SR04" target="web">HC-SR04 ultrasonic sensor</a> could be activated 'on demand'
+or could be embedded in a component that provides a <k>'hot-source' of data</k>, i.e. an active component that emits information
+in a continuous way.
+<br/>
+A component of this type is given by the program 
+<a href="../../it.unibo.rasp2021/resources/rasp/sonar/SonarAlone.c" target="code">SonarAlone.c</a> 
+(project <a href="../../it.unibo.rasp2021" target="lab">it.unibo.rasp2021</a>) that writes sonar data on the standard output file.
+<br/>
+After a meeting with the customer, the proper high-level model for the sonar is a component that emit events:
+<pre>
+Event <ks>sonarrobot : sonar( D )</ks>      <kc>//for the application level</kc>
+QActor sonar context ctxsonar { 
+    ...
+    <k>emit</k> <ks>sonarrobot : sonar($DISTANCE)</ks>	
+}
+</pre>
+
+
+<h4>The GUI radar-like</h4>
+The library <k>radarPojo.jar</k> (from an old project <i>it.unibo.java.radar</i>) provides an object-utility
+(<a href="radarSupport.java" target="code">radarSupport.java</a>) to create and update a radar-like-GUI.  
+<br/>
+This POJO should be embedded in some othe component, able to interact with the rest of the system
+
+
+
+ <h3>Use-case <ks>ledAlarm</ks></h3>
+The led is a pyhsical device that can be turned on/off by using some low-level code; for example:
+<a href="../../it.unibo.rasp2021/resources/Raspberry/bls/led25GpioTurnOn.sh" target="code">led25GpioTurnOn.sh</a> and
+<a href="../../it.unibo.rasp2021/resources/Raspberry/bls/led25GpioTurnOff.sh" target="code">led25GpioTurnOff.sh</a>.
+
+
+<h2>Problem analysis</h2>
+<h3>Use-case <ks>radarGui</ks></h3>
+Let us recall the analysis we made in <a href="../../it.unibo.qakradar21/userDocs/LabRadarGui.html" target="lab">
+LaLabRadarGui | Radar GUI as a service (from BottomUp to TopDown)</a>:<br/><br/>
+
+<ol>
+<li>In section <a href="../../it.unibo.qakradar21/userDocs/LabRadarGui.html#bottomup" target="lab">
+<ks>A bottom-up approach</ks></a>: we discussed the problem of making the radar-GUI able to receive the sonar-data.
+The proposal was to attempt a direct interaction using TCP.<br/><br/>
+</li>
+<li>In section  <a href="../../it.unibo.qakradar21/userDocs/LabRadarGui.html#bottomCoap" target="lab">
+<ks>Interaction based on a CoAP-Resource</ks></a>: we discussed the opportunity of introducing a CoAP resource, to
+be updated in RESTful way 
+(see also <a href="../../webspring.demo/userDocs/RobotAPI2021.html"><em>Lab ISS | RobotAPI2021</em></a>)
+with sonar-data and observed by some other component, included the radar-GUI.	 </li> 
+<!-- <li><a href="../../it.unibo.qakradar21/userDocs/LabRadarGui.html#realdata" target="lab">
+Using real sonar-data from the HC-SR04HC-SR04 device</a></li> -->
+ </ol>
+
+A prototype was built in Java using the library 
+<a href="https://www.eclipse.org/californium/" target="web">org.eclipse.californium CoAP</a>:			
+
+<br/><br/>
+<!-- summarises the main contents of the course 
+<a href="https://www.unibo.it/en/teaching/course-unit-catalogue/course-unit/2020/385373" target="web">72939 - Software Systems Engineering M</a>
+-->
+
+
+<table style="width:98%">
+	<tbody>	
+	<tr>
+	<td style="width:40%" ><img src="./img/raspSonarCoap.png" alt="raspSonarCoap.png" width="100%"  /></td>
+	<td> 
+<ul>
+	<li><a href="../javacode/resourceCoap/Resource.java" target="code">Resource.java</a> is the CoAP Resource. 
+	<br/><br/></li>
+	<!--
+	<li>
+	<a href="../resources/sensors/SonarAlone.c" target="code">SonarAlone.c</a> writes <tt>HC-SR04</tt> data on the standard output.
+	<br/><br/></li>
+-->
+<li><a href="../javacode/resourceCoap/CoapSupport.java" target="code">CoapSupport.java</a> is the Utility to access the CoAP Resource
+<br/><br/></li>
+	<li><a href="../javacode/resourceCoap/SonarOnRaspCoap.java" target="code">SonarOnRaspCoap.java</a> runs on the  
+	RaspberryPi. It reads sonar-data and updates the  CoAP Resource with 'messages'  of form :
+
+<pre>
+<ks>msg(sonar,event,robot,none,sonar(V),N)</ks>
+</pre>
+</li>
+
+<li>
+<a href="../javacode/resourceCoap/ResourceObserverRadar.java" target="code">ResourceObserverRadar.java</a> is the <em>radarGuiservice</em>
+that reads 'messages' from the  CoAP Resource and updates the GUI using the  POJO
+<a href="radarSupport.java" target="code">radarSupport.java</a>.
+<br/><br/></li>
+</ul>
+ 
+
+<m>To run:
+<ol>
+<li>Activate the CoAP-observable resource <a href="../javacode/resourceCoap/Resource.java" target="code">Resource.java</a></li>
+<!--
+<li>Look at the initial content of the resource by running <a href="../src/it/unibo/coapintro/ResourceObserver.java" target="code">
+ResourceObserver.java</a></li>
+-->
+<li>Activate a radar <a href="../javacode/resourceCoap/ResourceObserverRadar.java" target="code">ResourceObserverRadar.java</a></li>
+<li>Activate  a producer of sonar data 
+(e.g. <a href="../javacode/coap/SimulateSonarData.java" target="code">SimulateSonarData.java</a>)
+</li>
+</ol></m>
+</td>
+</tr>
+</tbody>
+</table> 
+ <br/><br/>
+ 
+<!-- <h3>A qak model</h3> -->
+In the section <a href="../../it.unibo.qakradar21/userDocs/LabRadarGui.html#topdown" target="lab">
+LabRadarGui | Radar GUI as a service (from BottomUp to TopDown) : <ks>A top-down approach</ks></a>
+we  introduced the opportunity/need to define high-level interaction concepts, 
+in order to focus our attention on the business components and on the (logic) architecture.
+<div class="remark">
+Let us continue here along this direction, with the goal of discussing/defining a logical architecture of the system
+by  using the qak language/metamodel.
+</div>
+
+ <h4>The resource</h4>
+ <center><table style="width:95%">
+<tbody>	
+<tr>
+<td style="width:50%" >
+<h3>The resource</h3>
+Our domain can be reduced here to the idea of a resource that changes its state when a new sonar value is generated. 
+<br/><br/>
+<center><img src="./img/sonarresourceAlone.PNG" alt="sonarresourceAlone" width="60%" ></center>
+<pre>
+Event    sonarrobot : sonar( V )
+Dispatch sonarrobot : sonar( V )
+//Request  sonarrobot : sonar( V )		<kc>//not implemented</kc>
+//Reply    replysonar : updated(V)		<kc>//not implemented</kc>
+</pre>
+
+</td>
+<td>
+Our basic domain-resource as a qak actor can be defined as reported in:
+<a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> 
+<br/>
+In this way, the resource is CoAP-observale and CoAP-modifiable.
+<br/><br/> 
+Sonar-data can be sent (as a <ks>event</ks>, or as a <ks>dispatch</ks> or as a <ks>request</ks>) to our resource model via 
+<m>
+<ul>
+<li>TCP  (port number: <ks>8038</ks>)</li>
+<li>MQTT (topic name: <ks>sonar/data</ks>) </li>
+<li>CoAP (REST-path: <ks>ctxsonarresource/sonarresource</ks>)</li>
+</ul>
+</m>
+The (generated) description of this stand-alone respource is in <a href="../sonarresource.pl" target="code">sonarresource.pl</a>.
+<br/>
+
+The resource could be deployed as a stand-alone component on a PC or on a RaspberryPi
+
+<h4>Testing using sonar-data simulators</h4>
+<ul>
+<li>A TCP-based sonar-data simulator is defined in 
+<a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerTCP.ipynb" target="code">sonarResourceCallerTCP.ipynb</a>.
+</li>
+<li>A MQTT-based sonar-data simulator is defined in 
+<a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerMQTT.ipynb" target="code">sonarResourceCallerMQTT.ipynb</a>.
+</li>
+<li>A CoAP-based sonar-data simulator is defined in 
+<a href="../javacode/coap/SimulateSonarData.java" target="code">SimulateSonarData.java</a><br/>
+<m>(to define another jupyter file we should find a proper coap library for Python3)</m>.
+</li>
+</ul>
+ 
+
+ 
+ 
+</td>
+</tr>
+  </tbody>
+</table></center>
+
+<h4>The Sonar</h4>
+ <center><table style="width:95%">
+<tbody>	
+<tr>
+<td style="width:50%" ><h3>Sonar as event emitter</h3>
+Let us name <ks>sonar</ks> the component chosen by the user  to generates sonar-data.
+<br/> <br/> 
+In our analysis, the <ks>sonar</ks> is an autonmous active component that does not 'known' any other component.
+Thus, it is actually modelled as an emitter of events
+<pre>
+<k>Event</k> sonar : distance(D)
+</pre>
+ <div class="remark">
+ But which is the better protocol to interact with <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a>?
+ <ul>
+<li><ks>TCP</ks>  (port <tt>8038</tt>): &nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;<bc>PRO:</bc> ... <bc>CONS:</bc> ... </li>
+<li><ks>MQTT</ks> (topic <tt>sonar/data</tt>): <bc>PRO:</bc> ... <bc>CONS:</bc> ...  </li>
+<li><ks>CoAP</ks> (path <tt>ctxsonarresource/sonarresource</tt>): <bc>PRO:</bc> ... <bc>CONS:</bc> ... </li>
+</ul>
+</div>
+<!-- Note that, in order to use TCP, the <ks>sonar</ks> -->
+ </td>
+<td>
+
+For the real world, the  model of the <ks>sonar</ks> could be defined as a qak
+<a href="../../it.unibo.rasp2021/codedqak/sonarHCSR04Support2021.kt" target="code">sonarHCSR04Support2021.kt</a>
+that embeds <a href="../../it.unibo.rasp2021/resources/rasp/sonar/SonarAlone.c" target="code">SonarAlone.c</a> ,
+<br/> <br/> 
+<center><img src="./img/sonarSupport2021.PNG" alt="sonarSupport2021" width="50%" ></center>
+<br/> 
+This component is written in Kotlin and emits events. <br/><br/>
+As an extensionons of the qak basic class
+<a href="../../it.unibo.qakactor/src/main/kotlin/ActorBasic.kt" target="code">ActorBasic.kt</a>, 
+it is an example of a <a href="../../it.unibo.qakactor/userDocs/LabQakIntro2021.html#codedqa" target="code">CodedQactor</a>,
+that does not yet partecipate to any system.<br/>
+Therefore, to be used, this component must be included in a system model, written in the qak-language, as done
+in <a href="../../it.unibo.rasp2021/src/sonarnaive.qak" target="code">sonarnaive.qak</a> 
+discussed in the <a href="#project">Project section</a>.
+
+<div class="remark">
+When using a real sonar, several 'bad' things can happen, including the possibility to generate spurios values.
+</div>
+<!-- 
+A simulator that emits the <ks>sonar:distance(D)</ks> event is defined in
+<a href="../../it.unibo.rasp2021/codedqak/sonarsimulator.kt" target="code">sonarsimulator.kt</a>.
+-->
+ </td>
+</tr>
+  </tbody>
+</table></center>
+
+<h4>The radar-Gui</h4>
+
+ <center><table style="width:95%">
+<tbody>	
+<tr>
+<td style="width:40%" ><h3>The radar-Gui</h3>
+The radar-gui component should exploit the POJO-utility <a href="radarSupport.java" target="code">radarSupport.java</a>
+provided by the library <tt>radarPojo.jar</tt>.
+  <br/><br/>
+<center><img src="./img/radarGui.PNG" alt="radarGui" width="50%" ></center> 
+<br/><br/>
+The class <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code">SonarresourceObserverRadar.java</a> 
+provides conventional Java program that works as a CoAP-observer of the resource
+<a href="../src/sonarresource.qak" target="code">sonarresource.qak</a>.
+ </td>
+<td><h3>The radar-Gui (as qak resource observer)</h3>
+<!--
+<center><img src="./img/radarGuiAsObserver.PNG" alt="radarGuiAsObserver" width="50%" ></center>
+-->
+<div class="remark">
+Is it opportune/convenient to introduce a model written in qak?
+</div>
+ </td>
+</tr>
+  </tbody>
+</table></center>
+
+<h2>Test plans</h2> 
+ <h3>Use-case <ks>radarGui</ks></h3>
+ Generate a sonar value <ks>d</ks> and check that the gui properly receives the pair <ks>(d,a)</ks> with <ks>0&lt;=a&lt;=180</ks>.
+ 
+ 
+ <h3>Use-case <ks>ledAlarm</ks></h3>
+Generate a sonar value  <ks>d, d&lt;=V</ks> and check that the led turns on.<br/>
+Generate a sonar value  <ks>d, d>V</ks> and check that the led turns off.<br/>
+
+
+
+<h2 id="project">Project</h2> 
+
+ <center><table style="width:95%">
+<tbody>	
+<tr>
+<td style="width:50%" >
+<h3>The resource</h3>
+The model introduced in the analysis phase can be adopted also as our domain-core in the project phase.
+<center><img src="./img/sonarresourceAlone.PNG" alt="sonarresourceAlone" width="60%" ></center>
+<pre>
+Event    sonarrobot : sonar( V )
+Dispatch sonarrobot : sonar( V )
+</pre>
+ 
+</td>
+<td>
+<h3>Deployment</h3>
+The resource
+<a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> 
+could be deployed as a stand-alone component on a PC or on a RaspberryPi
+
+</td>
+</tr>
+
+<tr>
+<td ><h3>Sonar as resource updater</h3>
+In our project, we exploit the possibility of using a qak-actor as the component of a pipe,
+(see <a href="../../it.unibo.qakactor/userDocs/LabQakIntro2021.html#actorasstream" target="code">
+LabIss2021 | Introduction to QAkactors: Actors as streams</a>)
+in order to filter spurios data.
+
+
+<br/><br/>
+<center><img src="./img/sonarpipe.png" alt="sonarpipe" width="90%" ></center>
+
+
+In project  <a href="../../it.unibo.rasp2021" target="code"><bc>it.unibo.rasp2021</bc></a>:
+<br/><br/> 
+ 
+ 
+
+<ul>
+<li><ks>sonar</ks> represents the source of sonar-data chosen by the user 
+(either <a href="../../it.unibo.rasp2021/codedqak/sonarHCSR04Support2021.kt" target="code">sonarHCSR04Support2021.kt</a>
+or <a href="../../it.unibo.rasp2021/codedqak/sonarsimulator.kt" target="code">sonarsimulator.kt</a>)
+ <br/> 
+ </li>
+<li><a href="../../it.unibo.rasp2021/codedqak/dataCleaner.kt" target="code">dataCleaner.kt</a>:
+a <tt>CodedQActor</tt> that elimnates spurious sonar-data <br/ 
+ </li>
+<li><a href="../../it.unibo.rasp2021/codedqak/dataLogger.kt" target="code">dataLogger.kt</a> 
+a <tt>CodedQActor</tt> that writes the data emitted by the sonar on the file <tt>datalogger.txt</tt> <br/> 
+</li>
+</ul>
+
+<h3>Actors used as objects</h3>
+In the qak model <a href="../../it.unibo.rasp2021/src/sonaronrasp.qak" target="code">sonaronrasp.qak</a> 
+discussed on the right part of this row, the pipe above is built by the following Kotlin code:
+<pre>
+<m>CodedQActor <ks>sonardatasource</ks> context ctxsonaronrasp className "sonarHCSR04Support2021"</m>
+...
+firstActorInPipe = <k>sysUtil.getActor</k>("<ks>sonardatasource</ks>")!!
+
+firstActorInPipe.
+  <k>subscribeLocalActor</k>("datacleaner").
+  <k>subscribeLocalActor</k>("sonar") 
+</pre>
+<m>
+Note that:
+<ul>
+<li>the operation <k>sysUtil.getActor</k> 
+of <a href="../../it.unibo.qakactor/src/main/kotlin/sysUtil.kt" target="code">sysUtil.kt</a>
+returns a reference to the actor named <ks>sonardatasource</ks>;</li>
+<li>the operation <k>subscribeLocalActor</k> (defined in 
+<a href="../../it.unibo.qakactor/src/main/kotlin/ActorBasic.kt" target="code">ActorBasic.kt</a>)
+that works on a actor <ks>A</ks>, inserts a reference to the actor of the given name into the list of 'stream observers' of the
+<ks>A</ks> and returns <ks>A</ks>.
+</li>
+</ul>
+</m>
+Thus, in this code, we use actors as conventional objects (a further reason to call them <i>'quasi-actors'</i>).
+
+</td>
+<td><h3>The system <a href="../../it.unibo.rasp2021/src/sonaronrasp.qak" target="code">sonaronrasp</a></h3>
+In project  <a href="../../it.unibo.rasp2021" target="code"><bc>it.unibo.rasp2021</bc></a> 
+the qak model <a href="../../it.unibo.rasp2021/src/sonaronrasp.qak" target="code">sonaronrasp.qak</a> 
+improves the initial model
+ <a href="../../it.unibo.rasp2021/src/sonarnaive.qak" target="code">sonarnaive.qak</a> 
+as follows:<br/><br/>
+<ul> 
+<li>Allow us to experiment with different system configurations:
+<ol>
+<li><em>ResourceAware</em>: Define a system that is aware of the resource <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a>
+<pre>
+Context ctxsonaronrasp   ip [host="localhost"       port=8068]
+Context <k>ctxsonarresource</k> ip [host= "<ks>192.1.68.1.x</ks>" port=8028]
+ExternalQActor sonarresource context ctxsonarresource
+</pre>
+Note that <ks>host=127.0.0.1</ks> for <k>ctxsonarresource</k>,
+ means that we intend to deploy the resourcse on the Raspberry.
+</li>
+<li><em>UseMQTT</em>:  Define a component that emits filtered sonar-data using MQTT
+<pre>
+<k>mqttBroker</k> "broker.hivemq.com" : 1883 <ks>eventTopic "sonar/data"</ks>
+
+Context ctxsonaronrasp   ip [host="localhost" port=8068  }
+</pre>
+</li>
+</ol>
+
+</li> 
+<li>loads the (generated) Prolog-KB about the system (<a href="../../it.unibo.rasp2021/sonaronrasp.pl" target="code">sonaronrasp.pl </a>) 
+and calls (<ks>solve</ks>) the rule <tt>showSystemConfiguration</tt>
+defined in <a href="../../it.unibo.rasp2021/sysRules.pl" target="code">sysRules.pl </a>
+<br/><br/></li> 
+
+<li>
+builds the pipe shown in the figure on the left
+<br/><br/></li> 
+
+<li>loads the <a href="../../it.unibo.rasp2021/sonar2021ConfigKb.pl" target="code">sonar2021ConfigKb.pl </a> 
+and reads the sonar-data source (real or simulated).<br/>
+- If real, activates the CodedQActor 
+<a href="../../it.unibo.rasp2021/codedqak/sonarHCSR04Support2021.kt" target="code">sonarHCSR04Support2021.kt</a><br/>
+- If simulated, activates the CodedQActor 
+<a href="../../it.unibo.rasp2021/codedqak/sonarsimulator.kt" target="code">sonarsimulator.kt</a>
+<br/><br/>
+ </li>
+<li>handles the event <ks>sonar:distance(D)</ks> and emits the event <ks>sonarrobot:sonar(D)</ks>
+<br/><br/></li> 
+</ul>
+
+</td>
+</tr>
+
+
+
+<tr>
+<td> 
+ 
+</td>
+<td>
+
+
+</td>
+</tr>
+ </tbody>
+</table></center>
+
+<h2>Testing</h2> 
+ 
+
+<h2>Deployment</h2> 
+
+<div class="remark">
+Remember to copy under the directory <k>bin</k> the proper (configuration) files required by the models, such as:
+<pre>
+sysRules.pl, 
+sonarresource.pl,  sonaronrasp.pl, sonar2021Config.pl, 
+Sonar.c (and compile it with <tt>g++  SonarAlone.c -l wiringPi -o  SonarAlone</tt>) 
+etc.</pre>
+</div>
+
+<h3 id="Deployment-1a">Deployment-1a: the resource on a PC | Configuration <em>UseMQTT</em>
+<m>(project  <a href="../../it.unibo.rasp2021" target="code"><bc>it.unibo.rasp2021</bc></a>)</m></h3>
+
+<table style="width:100%" border="1">
+
+<tr>
+<td style="width:50%">
+<center><img src="./img/sonarpipeDistrib.png" alt="sonarpipeDistrib" width="90%" ></center>
+<ol>
+<li>Launch <ks>sonarresource</ks> on PC</li>
+<li>Test with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerMQTT.ipynb" target="code">sonarResourceCallerMQTT.ipynb</a>
+<m>(but works also with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerTCP.ipynb" target="code">sonarResourceCallerTCP.ipynb</a>)</m></li>
+<li>Launch <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code"><ks>SonarresourceObserverRadar.java</ks></a> on PC</li>
+<li>Launch <ks>sonaronrasp</ks> on RaspberryPi</li>
+</ol>
+</ul>
+</td>
+<td>Events are emitted and received via MQTT.
+ <pre>nat/<ks>qaksonarResourceOnrasp</ks>/it.unibo.rasp2021-1.0/bin
+<m>%====================================================================================
+% sonarresource description    (file <ks>sonarresource.pl</ks> )
+%====================================================================================
+<k>mqttBroker("broker.hivemq.com", "1883", "sonar/data").</k>
+context(ctxsonarresource, "localhost",  "TCP", "8028").
+ qactor( sonarresource, ctxsonarresource, "it.unibo.sonarresource.Sonarresource").
+tracing.
+
+%====================================================================================
+% sonaronrasp description   (file <ks>sonaronrasp.pl</ks> )
+%====================================================================================
+<k>mqttBroker("broker.hivemq.com", "1883", "sonar/data").</k>
+mqttBroker("broker.hivemq.com", "1883", "sonar/data").
+context(ctxsonaronrasp, "localhost",  "TCP", "8068").
+  qactor( sonarsimulator, ctxsonaronrasp, "sonarSimulator").
+  qactor( sonardatasource, ctxsonaronrasp, "sonarHCSR04Support2021").
+  qactor( datacleaner, ctxsonaronrasp, "dataCleaner").
+  qactor( sonar, ctxsonaronrasp, "it.unibo.sonar.Sonar").
+msglogging.</m></pre>
+</td>
+</tr>
+ </tbody>
+</table>
+
+<h3 id="Deployment-1b">Deployment-1b: the resource on a PC | Configuration <em>ResourceAware</em> <m>(project  <a href="../../it.unibo.rasp2021" target="code"><bc>it.unibo.rasp2021</bc></a>)</m></h3>
+
+<table style="width:100%" border="1">
+
+<tr>
+<td style="width:50%">
+<center><img src="./img/sonarpipeDistrib.png" alt="sonarpipeDistrib" width="90%" ></center>
+<ol>
+<li>Launch <ks>sonarresource</ks> on PC</li>
+<li>Test with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerMQTT.ipynb" target="code">sonarResourceCallerMQTT.ipynb</a>
+<m>(but works also with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerTCP.ipynb" target="code">sonarResourceCallerTCP.ipynb</a>)</m></li>
+<li>Launch <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code"><ks>SonarresourceObserverRadar.java</ks></a> on PC</li>
+<li>Launch <ks>sonaronrasp</ks> on RaspberryPi</li>
+</ol>
+
+</td>
+<td>
+<pre>nat/<ks>qaksonarResourceRemote</ks>/it.unibo.rasp2021-1.0/bin
+<m>%====================================================================================
+% sonarresource description   (file <ks>sonarresource.pl</ks> )
+%====================================================================================
+<kc>%% mqttBroker("broker.hivemq.com", "1883", "sonar/data").</kc>	<k>//NO RELOAD required: simple editing</k>
+context(ctxsonarresource, "localhost",  "TCP", "8028").
+ qactor( sonarresource, ctxsonarresource, "it.unibo.sonarresource.Sonarresource").
+tracing.
+
+%====================================================================================
+% sonaronrasp description   (file <ks>sonaronrasp.pl</ks> )
+%====================================================================================
+<kc>%% mqttBroker("broker.hivemq.com", "1883", "sonar/data").</kc>  <kc>//NO RELOAD required: simple editing</kc>
+context(ctxsonaronrasp, "localhost",  "TCP", "8068").
+<k>context(ctxsonarresource, "192.168.1.43",  "TCP", "8028").
+  qactor( sonarresource, ctxsonarresource, "external").</k>
+  qactor( sonarsimulator, ctxsonaronrasp, "sonarSimulator").
+  qactor( sonardatasource, ctxsonaronrasp, "sonarHCSR04Support2021").
+  qactor( datacleaner, ctxsonaronrasp, "dataCleaner").
+  qactor( sonar, ctxsonaronrasp, "it.unibo.sonar.Sonar").
+%%tracing. <kc>//NO RELOAD required: simple editing</kc>
+msglogging. </m></pre>
+</td>
+</tr>
+ </tbody>
+</table>
+
+<h3>Sonar and resource models both on RaspberryPi</h3>
+<div class="remark">
+If we decide to deploy the code of
+<a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> on the same RaspberryPi used for 
+the code of <a href="../../it.unibo.rasp2021/src/sonaronrasp.qak" target="code">sonaronrasp.qak</a> , there is the possibility to
+compact the specification of the system into a single context. The reader should discuss the <bc>PRO/CONS</bc>
+of a decision of this kind.<br/>
+Il the rest of this work, we will keep the contexts separate.
+</div>
+
+<h3 id="Deployment-2a">Deployment-2a: the resource on the RaspberryPi | Configuration <em>UseMQTT</em> <m>(project  <a href="../../it.unibo.rasp2021" target="code"><bc>it.unibo.rasp2021</bc></a>)</m></h3>
+<table style="width:100%" border="1">
+
+<tr>
+<td style="width:50%">
+<center><img src="./img/sonarpipeDistribonRasp.png" alt="sonarpipeDistribonRasp" width="90%" ></center>
+ 
+
+
+<ol>
+<li>Launch <ks>sonarresource</ks> on RaspberryPi</li>
+<li>Test with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerMQTT.ipynb" target="code">sonarResourceCallerMQTT.ipynb</a>
+<m>(but works also with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerTCP.ipynb" target="code">sonarResourceCallerTCP.ipynb</a>)</m></li>
+<li>Launch <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code"><ks>SonarresourceObserverRadar.java</ks></a> on PC</li>
+<li>Launch <ks>sonaronrasp</ks> on RaspberryPi</li>
+</ol>
+ 
+</td>
+<td>Events are emitted and received using MQTT.
+<pre>nat/<ks>qaksonarResourceOnrasp</ks>/it.unibo.rasp2021-1.0/bin
+<m>%====================================================================================
+% sonarresource description    (file <ks>sonarresource.pl</ks> )
+%====================================================================================
+<k>mqttBroker("broker.hivemq.com", "1883", "sonar/data").</k>
+context(ctxsonarresource, "localhost",  "TCP", "8028").
+ qactor( sonarresource, ctxsonarresource, "it.unibo.sonarresource.Sonarresource").
+tracing.
+
+%====================================================================================
+% sonaronrasp description   (file <ks>sonaronrasp.pl</ks> )
+%====================================================================================
+<k>mqttBroker("broker.hivemq.com", "1883", "sonar/data").</k>
+context(ctxsonaronrasp, "localhost",  "TCP", "8068").
+  qactor( sonarsimulator, ctxsonaronrasp, "sonarSimulator").
+  qactor( sonardatasource, ctxsonaronrasp, "sonarHCSR04Support2021").
+  qactor( datacleaner, ctxsonaronrasp, "dataCleaner").
+  qactor( sonar, ctxsonaronrasp, "it.unibo.sonar.Sonar").
+msglogging.</m></pre>
+</td>
+</tr>
+
+
+<tr>
+<td> 
+ 
+</td>
+<td>
+
+
+</td>
+</tr>
+ </tbody>
+</table>
+
+
+
+<h3 id="Deployment-2b">Deployment-2b: the resource on the RaspberryPi | Configuration <em>ResourceAware</em> <m>(project  <a href="../../it.unibo.rasp2021" target="code"><bc>it.unibo.rasp2021</bc></a>)</m></h3>
+<table style="width:100%" border="1">
+
+<tr>
+<td style="width:50%">
+<center><img src="./img/sonarpipeDistribonRasp.png" alt="sonarpipeDistribonRasp" width="90%" ></center>
+ 
+<ol>
+<li>Launch <ks>sonarresource</ks> on RaspberryPi</li>
+<li>Test with <a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerTCP.ipynb" target="code">sonarResourceCallerTCP.ipynb</a></li>
+<li>Launch <ks>sonaronrasp</ks> on RaspberryPi</li>
+<li>Launch <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code"><ks>SonarresourceObserverRadar.java</ks></a> on PC</li>
+</ol> 
+</td>
+ 
+<td> 
+Events are emitted using CoAP.
+<pre>nat/<ks>qaksonarResourceOnrasp</ks>/it.unibo.rasp2021-1.0/bin
+<m>%====================================================================================
+% sonarresource description   (file <ks>sonarresource.pl</ks> )
+%====================================================================================
+<kc>%% mqttBroker("broker.hivemq.com", "1883", "sonar/data").</kc>	<k>//NO RELOAD required: simple editing</k>
+context(ctxsonarresource, "localhost",  "TCP", "8028").
+ qactor( sonarresource, ctxsonarresource, "it.unibo.sonarresource.Sonarresource").
+tracing.
+
+%====================================================================================
+% sonaronrasp description   (file <ks>sonaronrasp.pl</ks> )
+%====================================================================================
+<kc>%% mqttBroker("broker.hivemq.com", "1883", "sonar/data").</kc>  <kc>//NO RELOAD required: simple editing</kc>
+context(ctxsonaronrasp, "localhost",  "TCP", "8068").
+<k>context(ctxsonarresource, "127.0.0.1",  "TCP", "8028").
+  qactor( sonarresource, ctxsonarresource, "external").</k>
+  qactor( sonarsimulator, ctxsonaronrasp, "sonarSimulator").
+  qactor( sonardatasource, ctxsonaronrasp, "sonarHCSR04Support2021").
+  qactor( datacleaner, ctxsonaronrasp, "dataCleaner").
+  qactor( sonar, ctxsonaronrasp, "it.unibo.sonar.Sonar").
+%%tracing. <kc>//NO RELOAD required: simple editing</kc>
+msglogging. </m></pre>
+</td>
+ 
+</tr>
+ </tbody>
+</table>
+
+ 
+<h2>Usage and Maintenance</h2> 
+
+<ol>
+<li><h3>Logic only - PC but no RaspberryPi </h3>
+Launch on PC the code of <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> with or without MQTT <k>Using a local MQTT broker (moquitto)</k>
+<br/>
+(Optional) Launch <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code"><ks>SonarresourceObserverRadar.java</ks></a>
+<br/>
+<k>Launch a sonar-data simulator on PC</k>:<m>
+<ul>
+<li>A TCP-based sonar-data simulator is defined in 
+<a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerTCP.ipynb" target="code">sonarResourceCallerTCP.ipynb</a>.
+</li>
+<li>A MQTT-based sonar-data simulator is defined in 
+<a href="../../it.unibo.issLabStart/resources/jupyter/sonarResourceCallerMQTT.ipynb" target="code">sonarResourceCallerMQTT.ipynb</a>.
+</li>
+<li>A CoAP-based sonar-data simulator is defined in 
+<a href="../javacode/coap/SimulateSonarData.java" target="code">SimulateSonarData.java</a><br/>
+</li>
+</ul></m>
+</li>
+<li><h3>RaspberryPi - no sonar </h3>
+Load (and launch) on Rasp the code of <a href="../../it.unibo.rasp2021/src/sonaronrasp.qak" target="code">sonaronrasp.qak</a> 
+with the following content of <a href="../../it.unibo.rasp2021/sonar2021ConfigKb.pl" target="code">sonar2021ConfigKb.pl</a>:
+<pre>
+simulate(<k>on</k>).
+</pre>
+
+<h4>Configurations no Resource on Rasp: <a href="#Deployment-1a">Deployment-1a</a>, <a href="#Deployment-1b">Deployment-1b</a>
+(<bc>nat/<ks>qaksonarResourceRemote</ks>/it.unibo.rasp2021-1.0/bin</bc>)</h4>
+Launch on PC the code of <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> 
+<pre>
+%====================================================================================
+% sonaronrasp description
+%====================================================================================
+mqttBroker("192.168.1.43", "1883", "sonar/data").	<kc>//Using a local MQTT broker (moquitto)</kc>
+context(ctxsonaronrasp, "localhost",  "TCP", "8068").
+ qactor( sonarsimulator, ctxsonaronrasp, "sonarSimulator").
+  qactor( sonardatasource, ctxsonaronrasp, "sonarHCSR04Support2021").
+  qactor( datacleaner, ctxsonaronrasp, "dataCleaner").
+  qactor( sonar, ctxsonaronrasp, "it.unibo.sonar.Sonar").
+msglogging.
+</pre>
+
+
+<h4>Configurations  Resource on Rasp: <a href="#Deployment-2a">Deployment-2ab</a>, <a href="#Deployment-2b">Deployment-2b</a>
+(<bc>nat/<ks>qaksonarResourceOnrasp</ks>/it.unibo.rasp2021-1.0/bin</bc>)</h4>
+Load and launch on Rasp the code of <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> 
+(<bc>nat/<ks>sonarResource</ks>/it.unibo.sonarAsResource-1.0/bin</bc>)
+<br/><br/>
+(Optional) Launch <a href="../javacode/coap/SonarresourceObserverRadar.java" target="code"><ks>SonarresourceObserverRadar.java</ks></a> on PC
+</li>
+
+
+<li><h3>RaspberryPi - with sonar no led </h3>
+ As the previous case, 
+ with the following content of <a href="../../it.unibo.rasp2021/sonar2021ConfigKb.pl" target="code">sonar2021ConfigKb.pl </a>:
+<pre>
+simulate(<k>off</k>).
+</pre>
+</li>
+<li><h3>RaspberryPi - with sonar and led </h3>
+TODO <br/><br/>
+</li>
+</ol>
+ 
+
+<h2 id="reqguispring">New requirements</h2> 
+
+<h3 id="sonarGuiNode">Premise: the application <ks>sonarGuiNode</ks> </h3>
+The folder <a href="../html" target="code"><ks>it.unibo.sonarAsResource/html</ks></a>  includes the Node code
+for a simple Web-console that allow an user to send sonar-data to the <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a>.
+The  Node modules required for this application are defined in 
+<a href="../html/package.json" target="code">package.json</a>. 
+<br/>
+In order to set-up and run this application, we must:<br/><br/>
+<ol>
+<li>set the ip of our computer (or <tt>localhost</tt>, for the moment):<br/>
+- in the variable <ks>coapAddr</ks> of 
+<a href="../html/uniboSupports/coapClientToResourceModel.js" target="code">coapClientToResourceModel.js</a>
+<br/>
+- in the variable <ks>coapSupport</ks> of 
+<a href="../src/javacode/coap/SonarresourceObserverRadar.jav" target="code">javacode/coap/SonarresourceObserverRadar.java</a>
+</li>
+<li>look at the files <a href="../html/sonar.js" target="code">sonar.js</a>
+(that defines a node-express application using <i>socket.io</i> and <i>coap</i>)
+and <a href="../html/sonarGui.html" target="code">sonarGui.html</a>
+(that defines a HTML page working a user-interface  )
+</li>
+<li>execute:
+<pre>
+npm install
+node sonar
+----------------------------------------------------------------------------
+launch <a href="../src/it.unibo.ctxsonarresource/MainCtxsonarresource.kt" target="code">it.unibo.ctxsonarresource/MainCtxsonarresource.kt</a>
+----------------------------------------------------------------------------
+Open <tt>http://localhost:3000</tt> and send sonar-data (between 0 and 90)
+----------------------------------------------------------------------------
+(optionally) activate the radar-gui CoAP observer application (<k>on another PC</k>: perhaps overcoming the (Windows) firewall ...) 
+----------------------------------------------------------------------------
+
+<a href="../src/javacode/coap/SonarresourceObserverRadar.java" target="code">javacode/coap/SonarresourceObserverRadar.java</a>
+
+</pre></li>
+ 
+</ol>
+
+<h3>Work to do</h3>
+ 
+<div class="remark">
+<ks>SonarGUISpring</ks> : Design and build an application that reproduces the behaviour of the application 
+<a href="#sonarGuiNode"><ks>sonarGuiNode</ks></a> using SpringBoot 
+(see <a href="../../webspring.demo/userDocs/RobotAPI2021.html" target="lab">webspring.demo/userDocs/RobotAPI2021.html</a>
+and <a href="../../webspring.intro/userDocs/LabSpringUsageIntro2021.html" target="lab">webspring.intro/userDocs/LabSpringUsageIntro2021.html</a>)
+<br/><br/>
+<ks>SonarGUIWithWsSocket</ks> : Extend the <ks>SonarGUISpring</ks> application to provide automatic updating of the user web-page
+when the <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a> is updated.<br/>
+For this part consult: 
+<a href="https://spring.io/guides/gs/messaging-stomp-websocket/" target="web">Using WebSocket to build an interactive web application</a>
+which is based on the
+<a href="https://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol" target="web">
+Simple (or Streaming) Text Oriented Message Protocol (STOMP)</a> message service.
+<!--
+<ks>SonarGUIDeploy</ks> : build a docker image for a system that includes <ks>SonarGUISpring</ks> together with the 
+code for <a href="../src/sonarresource.qak" target="code">sonarresource.qak</a>.
+-->
+</div>
+
+
+<!-- USEFUL
+See it.unibo.supports/userDocs/wssupportAsActorJava.html
+
+Simple (or Streaming) Text Oriented Message Protocol (STOMP)
+https://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol
+
+
+<table style="width:100%" border="1">
+<tr>
+<td style="width:50%">
+</td>
+<td></td>
+</tr>
+</table>
+-->
+
+
+ 
+<br/><br/>
+</div>  
+
+ 
+
+<div style="background-color:rgba(86, 56, 253, 0.9); width:100%;text-align:center;font-size:small;color:white">
+By AN Unibo-DISI  
+</div> 
+
+</body>
+</html>

@@ -1,0 +1,187 @@
+/*
+ * sonarResource.qak
+ * A CoAP-observable component
+ * 1) launch sonarresource
+ * 2) launch SonarresourceObserver or SonarresourceObserverRadar
+ * 3a) launch SimulateSonarData that reads  data from the user console and emits the event 
+ *             msg(sonarrobot,event,support,none,sonar(data),1)
+ * 3b) launch on Raspberry an emitter of sonarRobot event e.g. sonar in sonarnaive.qak
+ *    that launches a CodedQactor that reads data from SonarAlone and emits the event
+ * 	            msg(sonarrobot,event,sonarHCSR04Support,none,sonar(data),1)
+ */ 
+   
+System /* -trace */ sonarresource  
+mqttBroker "localhost" : 1883  eventTopic "sonar/data"		//broker.hivemq.com
+   
+Event    local_appl   : job(X)
+Dispatch applupdate   : applupdate(X)	//sent by Appl to do a change
+
+Event    sonarrobot : sonar( V )        //emitted by a sonar (real/simulated, local/remote)
+//Dispatch sonarrobot : sonar( V )		//removed, since an external entity can use applupdate
+//Request  sonarrobot : sonar( V )
+//Reply    replysonar : updated(V)
+
+Event    ledchange : ledchange( V )        //emitted by appllogic
+
+Context ctxsonarresource ip [ host= "localhost"   port= 8028 ]
+
+QActor sonarresource context ctxsonarresource{ 
+	State s0 initial{  
+		//println("onarresource | start") 
+	}
+	Goto work
+	 
+	State work{
+		println("sonarresource | waits ... ") 
+	}
+	Transition t0 whenMsg   applupdate   -> doUpdate
+	              whenEvent sonarrobot   -> handleSonarData
+	                
+	              
+	State handleSonarData{ 
+		//printCurrentMessage
+		onMsg( sonarrobot : sonar(V) ){
+			[# val Distance = payloadArg(0) #]
+			println("handleSonarData emit:$Distance") 
+			emit local_appl : job(sonarrobot($Distance))  //to run the business logic
+			/* 
+			updateResource [# "{\"sonarvalue\":\"$Distance\"}" #]  	//JSON rep for resource
+			//updateResource [# "{\"sonarvalue\":\"$Distance\", \"info\":\"$Distance\"}" #]  	 
+ 			println("onarresource | distance=$Distance")
+ 			delay 1000 
+ 			//The resource changes its representation in autonomous way ...
+ 			updateResource [# "{\"info\":\"$Distance\"}" #]  
+ 			* 
+ 			*/
+		}	 	
+	} 
+	Goto work
+	
+	State doUpdate{
+		printCurrentMessage
+
+		onMsg( applupdate : applupdate( sonarrobot(D) ) ){	//CoAP observer is RadarGui ...
+			[#  val D  = applsupport.getSonarDistance( payloadArg(0)  ) #]
+			println(" --- doUpdate sonarrobot D=$D") 
+			updateResource [# "{\"sonarvalue\":\"$D\"}" #]  	//for the radarGUI ...	
+		}
+ 		
+		onMsg( applupdate : applupdate( led(V) ) ){
+			[#  val V  = applsupport.getLedValue( payloadArg(0)  ) #]
+			println(" --- doUpdate led V=$V") 
+			updateResource [# "{\"info\":\"led($V)\"}" #] 		//for the WebGUI ...	
+		}
+	}
+	Goto work
+}
+
+/*
+ * The application logic 
+
+*/
+
+QActor appllogic context ctxsonarresource{ 
+	State s0 initial{  
+		//discardMsg On		//avoid to store msgs sent via MQTT
+		println("		appllogic | start") 
+   		/*
+ 		 * LOAD APPLICATION RULES
+ 		*/ 
+		solve( consult("sysRules.pl")	 )
+ 		solve( consult("applRulesKb.pl") )
+ 		solve( led(X) )
+		//println( currentSolution )	//yes X/on oppure X/off
+		[# val LedVal = getCurSol("X").toString() #] 		
+		println( "		appllogic | initial led value=$LedVal" )
+	}
+	Goto waitwork
+	
+	State waitwork{
+		
+	}
+	Transition t0 whenEvent local_appl -> work
+	
+	State work{
+		printCurrentMessage
+		onMsg( local_appl : job( X ) ){
+			[#  val D  = applsupport.getSonarDistance( payloadArg(0) )
+				solve( "modifyResource($D,R)" )
+				//println( currentSolution )
+				val DoResource = getCurSol("R").toString()
+				
+				val SimulatedTemperature = 35		//see usecase LedChange
+				solve( "modifyLed($D,$SimulatedTemperature,RT)" )
+				val DoLed  = getCurSol("RT").toString()
+			#]  
+			println( "		appllogic | DoResource=$DoResource" )
+			println( "		appllogic | DoLed     =$DoLed" )
+			if[# DoResource =="ok" #] { //see usecase LazyUpdate
+ 			
+				forward sonarresource -m applupdate : applupdate( sonarrobot($D) )  //see state doUpdate in sonarresource
+				if[# DoLed =="ok" #] { 
+					forward sonarresource -m applupdate : applupdate( led(on) )
+					emit ledchange : ledchange(on)
+				}
+				else { 
+					forward sonarresource -m applupdate : applupdate( led(off) )
+					emit ledchange : ledchange(off)
+				}
+			}
+		}
+	}
+	Goto waitwork
+}
+	 
+/*
+ * Simulates the sonar (on Raspberry) 
+*/ 
+ 
+QActor sonarmock context ctxsonarresource{
+[# val input   = java.util.Scanner(System.`in`) #]
+	State s0 initial{  
+		//discardMsg On		//avoid to store msgs sent via MQTT
+		println("sonarmock start") 
+		emit sonarrobot : sonar(50)								//DLIMIT is 20 => led off
+		//forward sonarresource -m sonarrobot : sonar(10)		//old ...
+		forward sonarresource -m applupdate : applupdate(sonarrobot(10))    //DLIMIT is 20 => led on
+	}
+	//Goto work		//Exclude when using the Sonar console (SpringBoot)
+	 
+	State work{
+		delay 500     //release the resource
+		[# print("VALUE>"); var Data = input.nextLine() #] 
+		emit sonarrobot : sonar($Data)
+	}
+	Goto work
+	
+} 
+/*
+ * Simulates the led (on Raspberry) */
+QActor ledmock context ctxsonarresource{ 
+	[# var Ledvalue = "off" #]
+	State s0 initial{ 
+		//discardMsg On		//avoid to store msgs sent via MQTT
+		println("ledmock start") 
+	}
+	Goto work
+	
+	State work{ 
+		
+	}
+	Transition t0 whenEvent ledchange -> ledupdate
+	
+	State ledupdate{
+		printCurrentMessage
+		onMsg( ledchange : ledchange(V) ){
+			[# Ledvalue = payloadArg(0) #]
+		}
+		if[# Ledvalue =="on" #] {
+			println("%%%%% LED ON")		
+		}else{
+			println("%%%%% LED OFF")	
+		}
+	}
+	Goto work
+}
+
+ 
