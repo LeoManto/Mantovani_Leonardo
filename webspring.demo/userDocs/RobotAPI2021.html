@@ -1,0 +1,513 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ 
+<style type="text/css">
+body
+{
+    margin-left:  30px;
+    margin-right: 30px;
+};
+
+P
+{
+    font-family: Tahoma;
+    font-size: 10pt;
+};
+
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+	font-size: 93%;
+}
+
+a:hover {
+    background-color: #cccccc;
+}
+
+
+hr {
+    clear: both;
+    height: 1px;
+    color: #242424;
+    background-color: transparent;
+}
+
+h1, h2, h3 {
+    color: #242424;
+    clear: left;
+    font: 100% Tahoma, Helvetica, Arial, sans-serif;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+top {
+	width: 100%;
+}
+
+
+#i {
+    color: #ff1010;
+}
+tt{
+	font-family: "Arial";
+    font-size: 90%;
+	color: #006600;
+}
+em{
+	font-family: "Arial";
+    font-size: 80%;
+	font-weight: bold;
+	border-style:solid;
+	border-color: #abe876;
+    color: #1632cc;
+}
+bc{
+	font-family: "Arial";
+	font-size: 90%;
+	font-weight: bold;
+    color: #990000;
+	background-color: #fcf8c7;
+}
+ks{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #0000CD	;
+	font-size: 90%;
+}
+kc{
+	font-family: "Arial";
+	font-weight: bold;
+    color: #008000	;
+	font-size: 90%;
+}
+pre{
+	font-family: "Consolas";
+	font-size: 85%;
+	background-color: #f5f5f5;
+	border: 1.5px solid silver;
+	padding: 5px;
+}
+m{
+	font-family: "Helvetica";
+	line-height: 100%;
+ 	font-size: 75%;
+}
+div.body{
+	 
+    font-size: 18px;
+}
+k{
+    color: #990000;
+	font-weight: bold;
+	font-size: 90%;
+}
+h1 {
+    font-size: 150%;
+    background-color: #b2c0ff;
+	padding: 10px;
+}
+
+h2 {
+    background-color: #9ed8ff;
+    font-size: 130%;
+}
+
+h3 {
+	background-color: #e6ccff;
+    font-size: 100%;
+}
+h4 {
+    background-color: #ccffcc;
+    font-size: 100%;
+	width: 95%;
+	border-radius: 5px;
+	padding: 2px;
+}
+h5 {
+    background-color: #d5ffb0;
+    font-size: 100%;
+
+}
+div.req{
+	background-color: #d9ffb3;
+    font-size: 18px;
+	width: 700px;
+    border: 3px solid green;
+    padding: 15px;
+    margin: 10px;
+}
+div.remark{
+	background-color: #E3F2FD;
+    border: 1.5px solid #d5f2ed;
+    padding: 15px;
+    margin: 10px;
+	border-radius: 25px;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+ol, ul, li {
+  margin: 0;
+  margin-left: 10px;
+  padding: 0;
+  padding-bottom: 5px;
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+img {
+	border: 1.5px solid #d5f2ed
+
+}
+
+a, a:visited, a:active, a:link, a:hover {
+    text-decoration: underline;
+    color: #545454;
+    background-color: transparent;
+}
+
+div.wrapdesc{
+	width: 90%;
+	margin: auto;
+}
+
+div.imagedesc{
+	width: 85%;
+	margin: auto;
+}
+</style>
+    
+<head>
+   
+<title>RobotAPI2021</title></head>
+<body>
+<div class="body"> 
+ 
+<h1>Lab ISS | RobotAPI2021</h1>
+
+In <a href="../../it.unibo.cautiousExplorer/userDocs/BasicStepRobotActorUsage.html#UseSpringBoot" target="web">
+Lab ISS | Usage of the component BasicStepRobotActor</a> we introduced the idea of embedding a and other
+components 
+within a Web application based on SpringBoot in order to provide a RESTful API.
+ 
+<h2>REST: <a href="https://en.wikipedia.org/wiki/Representational_state_transfer" target="web">Representational State Transfer</a></h2>
+
+REST is a 
+<a href="https://en.wikipedia.org/wiki/Resource-oriented_architecture" target="web">resource-oriented architecture (<k>ROA</k>)</a>, 
+where every component of a system or an
+application is called a <em>resource</em>. A resource is explicitly identified and can be individually addressed.  
+<br/><br/>
+Using the exact same standard naming scheme as all other web resources
+allows you to seamlessly integrate Things and their properties into the web because
+their functions, data, or sensors can be linked to, shared, bookmarked, and used just
+like anything else on the web.
+<br/><br/>
+Let us recall the basic concepts:
+
+
+<ol>
+<li>Interactions between components are based on the 
+<a href="https://en.wikipedia.org/wiki/Request%E2%80%93response" target="web"><em>request-response pattern</em></a>, where a client
+sends a request to a server and gets back a response</li>
+<li>Loose coupling between components can be achieved using a <em>uniform interface</em> that all components in the system respect.<br/>
+Uniform interfaces make it easy to design a <em>layered system</em>, which means that several
+intermediate components can hide what’s behind them.</li>
+<li><em>Caching</em> is a key element in the performance.</li>
+<li>A <em>resource</em> is any concept or piece of data in an application
+that needs to be referenced or used. Every resource must have a <em>unique identifier</em>
+and should be addressable using a <em>unique referencing mechanism</em>. On the
+web, this is done by assigning every resource a unique <k>URL</k> .</li>
+<li>A 
+<a href="https://en.wikipedia.org/wiki/URL" target="web">Uniform Resource Locator (<k>URL</k>)</a>
+is a type  of 
+<a href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier" target="web">Uniform Resource Identifier (<k>URI</k>)</a>
+that identifies a resource via a representation of its primary
+access mechanism. On the web, a <tt>URL</tt> is a <tt>URI</tt> beginning with the <tt>http:// scheme</tt>
+<br/>
+<table style="width:100%" border="1">
+<tr>
+<td style="width:50%">
+<img src="./img/thingURL.png" alt="thingURL" width="90%"  /><br/>
+<m>
+A <a href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier" target="web">URI</a> (standard scheme defined in <tt>RFC 3986.4</tt>) 
+is a sequence of characters that unambiguously identifies an abstract or physical
+resource.</m>
+
+<pre>
+&lt;scheme> ":" <authority><path> [ "?" query ] [ "#" fragment ]
+</pre>
+</td>
+<td><h3>A Thing URL</h3>
+<m>
+the protocol is <tt>HTTP+TLS/SSL</tt> (<k>HTTPS</k>); <br/>
+the domain is resolved by <tt>DNS</tt> to an <tt>IP</tt> address; <br/>
+the port is used by <tt>TCP</tt> to know what process to redirect to;<br/>
+finally the <tt>REST</tt> resource is specified.
+</m>
+</td>
+</tr>
+</table>
+
+<br/> 
+
+</li>
+ 
+
+<li><h3><a href="https://en.wikipedia.org/wiki/HATEOAS" target="web">Hypermedia as the engine of the application state - <k>HATEOAS</k></a></h3>
+<div class="remark">
+Servers shouldn’t keep track of each client’s state because stateless applications are easier to scale.
+</div>
+Instead, application state should be addressable via its own URL, and each
+resource should contain links and information about what operations are possible
+in each state and how to navigate across states.</li>
+</ol>
+
+
+<h2>Interaction with humans and with machines</h2>
+
+Starting from 
+<a href="../../webspring.intro/userDocs/LabSpringUsageIntro2021.html">Lab ISS | Introduction to the usage of Spring Boot</a> 
+(in project <bc>webspring.intro</bc>), let us define an example of a possibile support for the interaction with a (virtual) robot.
+<br/><br/>
+
+<table style="width:98%">
+<tbody>	
+<tr>
+<td style="width:50%" >
+<h3>Human-to-machine</h3>
+<pre>
+<bc>@Controller</bc> 
+public class HumanInterfaceController {
+<bc> @Value</bc> ("\${human.logo}")	<kc>//see <a href="../src/main/resources/application.properties" target="code"><ks>application.properties</ks></a></kc></kc>
+var appName: String?    = null
+
+  <bc>@GetMapping("/")</bc> 		 
+  public String entry(Model model) {
+	<bc>model</bc>.addAttribute("arg", appName);
+	return "naiveRobotGui";	<kc>//see <a href="../src/main/resources/templates/naiveRobotGui.html" target="code"><ks>naiveRobotGui.html</ks></a></kc>
+  } 
+  
+  <bc>@PostMapping( "/move" ) </bc> 
+  public String doMove( Model viewmodel,
+	<bc>@RequestParam</bc> (name="movetodo", 
+			required=false, defaultValue="h") String moveName,
+	) {
+        RobotResource.execMove(move)
+        return  "naiveRobotGui"	 <kc>//see <a href="../src/main/resources/templates/naiveRobotGui.html" target="code"><ks>naiveRobotGui.html</ks></a></kc>
+	
+	
+  }	
+}
+</pre> 
+</td>
+<td>
+The full code is in <a href="../src/main/kotlin/it/unibo/webspring/demo/HumanInterfaceController.kt" target="code">
+HumanInterfaceController.kt</a>
+<h3>Usage</h3>
+Open a browser and input
+<pre>
+http://localhost:8080
+http://localhost:8080/model
+</pre>
+<div class="remark">
+<center>
+What is the <bc>model</bc>? <br/>
+See <a href="../../webspring.intro/userDocs/LabArchitectures.html" target="lab">LabArchitectures | From MVC to Hexagonal architectures</a>
+</center>
+</div> 
+</td>
+</tr>
+ </tbody>
+</table>
+ <br/><br/>
+ 
+<table style="width:98%">
+<tbody>	
+
+<tr>
+<td style="width:50%" >
+<h3>Machine-to-machine</h3>
+<pre>
+<bc>@RestController</bc>  
+public class M2MRestController { 
+    init{
+        RobotResource.initRobotResource()
+    }
+ 
+  <bc>@PostMapping( "/moverest" )</bc> 
+    fun doMove(  <k>@RequestParam</k>(
+	    name="move", required=false, defaultValue="h") moveName:String)
+		:String {
+        RobotResource.execMove(moveName)
+        <kc>//TODO: handle the answer to the move execution</kc>
+        return "done $moveName"
+    }
+}
+</pre>
+</td>
+<td>
+The full code is in 
+<a href="../src/main/kotlin/it/unibo/webspring/demo/M2MRestController.kt" target="code">M2MRestController.kt</a>
+
+<h3>Usage</h3>
+<pre>
+curl localhost:8081
+curl -d move=w localhost:8081/moverest
+</pre>
+
+See <a href="https://curl.haxx.se/docs/manual.html" target="web">curl tutorial </a>
+
+<br/><br/>
+Usually we will define our own code, for example a HTTP client written in Java 
+(<a href="../src/main/kotlin/it/unibo/webspring/demo/AClientApacheHttp.kt" target="code">AClientApacheHttp.kt</a>)
+or in some other language.
+
+
+</td>
+</tr>
+
+ </tbody>
+</table>
+
+<h2>Deployment</h2>
+In project <a href="../../webspring.demo">webspring.demo</a> do:
+<pre>
+gradlew build	<kc>//look at the generated distribution</kc>
+
+docker build -t webspringrobot:1.0.1 .  <kc>//look at <a href="../Dockerfile">Dockerfile</a></kc>
+
+docker run -p 8081:8081 -ti --rm webspringrobot:1.0.1  <kc>//check if the image runs</kc>
+---------------------------------------------------------------------------------------------------------
+type docker_password.txt | docker login --username natbodocker --password-stdin <kc>//Login in DockerHub</kc>
+
+docker tag webspringrobot:1.0.1 natbodocker/webspringrobot:1.0.1	<kc>//Tag the image</kc>
+
+docker push natbodocker/webspringrobot:1.0.1 	<kc>//Register the image</kc>
+---------------------------------------------------------------------------------------------------------
+
+<k>WARNING:Check that no other BasicStepRobot is running</k>
+docker-compose -f <a href="../virtualrobotguistepper.yaml">virtualrobotguistepper.yaml</a> up
+</pre>
+
+<h2>API (code in <a href="../../webspring.demo">webspring.demo</a>)</h2>
+
+<center>
+<table style="width:98%">
+<tbody>	
+<tr>
+<td style="width:50%" >
+In 
+<a href="../src/main/kotlin/it/unibo/webspring/demo/M2MRestController.kt" target="code">M2MRestController.kt</a>
+we define the following set of Representational State Transfer API:
+
+<ul>
+<li> 
+<pre>
+POST <k>/moverest</k>  
+INPUT: 	String representing a move (l|r|w|s|h|p)
+OUTPUT: JSON object representing the result of the move
+</pre>
+</li>
+<li><pre>
+POST <k>/dopath</k>    
+INPUT: 	String representing a path (sequence of moves l|r|w|s|h|p )
+OUTPUT: JSON object representing the result of the journey
+</pre>
+</li>
+</ul>
+</td>
+<td>
+<h3>Examples</h3>
+<pre>
+<ks>curl -d <k>move=r</k> localhost:8081/moverest</ks>  
+<kc>{"endmove":"true","move":"turnLeft"}</kc>
+---------------------------------------------------------------------------
+<ks>curl -d <k>path=rl</k> localhost:8081/dopath</ks>  
+<kc>{"executorDone":"rl" }</kc>
+---------------------------------------------------------------------------
+<ks>curl -d <k>path=rlw</k> localhost:8081/dopath</ks>   <kc>//Near an obstacle</kc>
+<kc>{"executorFail":"rl" }</kc>
+---------------------------------------------------------------------------
+See also <a href="../src/main/kotlin/it/unibo/webspring/demo/DemoCallPathRest.kt" target="code">DemoCallPathRest.kt</a>
+</pre>
+<h3>Applications (in project <a href="../../it.unibo.cautiousExplorer" target="web">it.unibo.cautiousExplorer</a>)</h3>
+<a href="../../it.unibo.cautiousExplorer/app/src/main/kotlin/demoRobotWithPlanner/ExplorerWithPlannerM2m.kt" target="code">
+ExplorerWithPlannerM2m.kt</a> that uses the utility 
+<a href="../../it.unibo.cautiousExplorer/app/src/main/kotlin/demoWithRobot/CallRestWithApacheHTTP.kt" target="code">
+CallRestWithApacheHTTP.kt</a>.
+</td>
+</tr>
+ </tbody>
+</table>
+</center>
+
+ <br/><br/>
+ 
+<!-- 
+<h2><a href="https://docs.spring.io/spring-framework/docs/5.0.0.BUILD-SNAPSHOT/spring-framework-reference/html/web-reactive.html" 
+target="web">Spring WebFlux</a> (TODO)</h2>
+<ol>
+<li>Connect to <a href="https://start.spring.io/">https://start.spring.io/</a> </li>
+<li>Select <tt>Gradle Project, Java</tt>, <tt><ks>Group=</ks>it.unibo</tt>, <tt><ks>Artifact=</ks>webspringflux.intro</tt>
+(<tt><ks>Options</ks>:Packaging=Jar, Java=8</tt>), <ks>Dependencies</ks>:
+<ul>
+<li><bc>Spring Reactive Web </bc>: Build reactive web applications with Spring WebFlux and Netty.. </li>
+<li><bc>Thymeleaf</bc>: a modern server-side Java template engine for both web and standalone environments. 
+Allows HTML to be correctly displayed in browsers and as static prototypes. </li>
+<li><bc>Spring Boot DevTools</bc>: Provides fast application restarts, LiveReload, and configurations for enhanced development experience.
+Speeds up this refresh cycle (coding a change, restarting application, and refreshing the browser to view the change).</li>
+</ul>
+ 
+ 
+ </li>
+<li>Click on <k>Generate</k></li>
+
+
+See:<br/>
+<a href="https://docs.spring.io/spring-framework/docs/5.0.0.BUILD-SNAPSHOT/spring-framework-reference/html/web-reactive.html"
+ target="web">Spring WebFlux framework</a><br/>
+<a href="https://howtodoinjava.com/spring-webflux/spring-webflux-tutorial/" target="web">Spring WebFlux Tutorial</a>
+<br/>
+<a href="https://dzone.com/articles/build-reactive-rest-apis-with-spring-webflux"  target="web">
+Build Reactive REST APIs With Spring WebFlux </a>
+
+ <br/><br/>
+ 
+ In Spring WebFlux, we call reactive APIs/functions that return monos and fluxes and your controllers will return monos and fluxes.<br/>
+ When you invoke an API that returns a mono or a flux, it will return immediately.<br/>
+ The results of the function call will be delivered to you through the mono or flux when they become available.
+
+ <br/><br/>
+
+<table style="width:98%">
+<tbody>	
+<tr>
+<td style="width:50%" >
+</td>
+<td>
+</td>
+</tr>
+ </tbody>
+</table>
+ <br/><br/>
+ -->
+ 
+</div>
+ 
+
+<div style="background-color:rgba(86, 56, 253, 0.9); width:100%;text-align:center;font-size:small;color:white">
+By AN Unibo-DISI  
+</div> 
+
+</body>
+</html>
+
+
+ 
