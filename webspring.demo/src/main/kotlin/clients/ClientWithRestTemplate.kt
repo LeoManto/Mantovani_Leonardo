@@ -41,13 +41,13 @@ object ClientWithRestTemplate {
 }
 
 fun main() {
-    //ClientWithRestTemplate.doGet()
+    ClientWithRestTemplate.doGet()
 
     //ClientWithRestTemplate.doPostBasicmove("l")
     //ClientWithRestTemplate.doPostBasicmove("r")
     /*  ClientWithRestTemplate.doPostBasicmove("w")
   ClientWithRestTemplate.doPostBasicmove("p")
 */
-    ClientWithRestTemplate.doPostPath("lr")
+    //ClientWithRestTemplate.doPostPath("lr")
     //ClientWithRestTemplate.doPostWithParams()
 }

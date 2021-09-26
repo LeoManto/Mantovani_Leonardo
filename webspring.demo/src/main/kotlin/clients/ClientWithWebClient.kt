@@ -23,7 +23,7 @@ object ClientWithWebClient {
     fun doGet() {
         //val webClient = WebClient.builder().build()
         val result = webClient.get()
-            .uri("localhost:8081")
+            .uri("http://localhost:8081")
             .retrieve()
             .bodyToFlux<String>(String::class.java) //Since we receive a string
         sysUtil.colorPrint("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
@@ -58,7 +58,7 @@ object ClientWithWebClient {
 }
 
 fun main( ) = runBlocking {
-    //ClientWithWebClient.doGet()
+    ClientWithWebClient.doGet()
     ClientWithWebClient.doPost()
     //delay(1000)
     sysUtil.colorPrint("BYE", Color.GREEN)
