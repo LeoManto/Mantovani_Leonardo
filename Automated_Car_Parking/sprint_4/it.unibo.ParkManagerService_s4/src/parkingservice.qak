@@ -1,0 +1,453 @@
+System parkingservice  
+    
+mqttBroker "broker.hivemq.com" : 1883 eventTopic "parkingArea/feedback"    
+    
+Request reqenter 		: reqenter(V)
+Reply slotsnum 			: slotsnum(SLOTNUM)
+Reply waitIndoor 		: slotsnum(V)
+Reply reqenterTimeout 	: slotsnum ($SLOTNUM) 
+ 
+Request carenter : carenter(V)
+Reply receipt  : receipt(INDOORTOKEN)
+
+Dispatch pickup : pickup(OUTDOORTOKEN)
+
+//------------------------------------------------------------------------------------------------
+Dispatch startthermometer : thermometer(V)
+Dispatch startsonar : sonar(V)
+Dispatch starttimer : timer(V) 
+Dispatch stoptimer : timer(V) 
+
+Dispatch move : move(GOAL)
+//------------------------------------------------------------------------------------------------
+
+Event timeout 			: timeout(V)
+Event carindoorarrival  : cia(V)
+Event caroutdoorarrival : coa(V)
+Event carwithdrawn		: cw(V)
+Event weightsensor		: weight(W)
+Event sonaroutdoor    : distance( V )
+Event alarm 			: timeout(alarm)
+   
+//------------------------------------------------------------------------------------------------
+Event finished 			: finished(V) 
+Event obstacle : obstacle( T )
+//------------------------------------------------------------------------------------------------
+
+
+Context ctxParkingservice  ip [host="localhost" port=5683]
+      
+Context ctxTrolley ip [host="127.0.0.1" port=5685]
+ExternalQActor trolley context ctxTrolley
+
+CodedQActor outsonar context ctxParkingservice className "sonarSimulator"
+CodedQActor outdoortimer context ctxParkingservice className "outdoorTimer"
+CodedQActor weightsensor context ctxParkingservice className "weightsensorSimulator"
+
+//------------------------------------------------------------------------------------------------
+CodedQActor thermometer context ctxParkingservice className "thermometerSimulator"
+CodedQActor fan context ctxParkingservice className "fanSimulator"
+//------------------------------------------------------------------------------------------------
+
+/* 
+ * ------------------------------------------------------------------
+ * Assumptions :
+ * • Final SPRINT
+ * ------------------------------------------------------------------
+*/  
+
+// Decommentare se NON si usa Jupyter Notebook
+
+
+/*
+ QActor client context ctxParkingservice{
+	[# 
+		var CLIENTDONE  = 0
+		var SLOTNUM 	= 0 //slot assegnato
+		var TOKENID 	= "0"
+	#]
+	State s0 initial{
+		println("Client mock simulation START | CLIENT")
+	} //Goto requestToEnter	 
+	 
+	State requestToEnter{
+		[# var t = kotlin.random.Random.nextLong(2000,4000) #]
+		[# delay(t) #]
+		println("client notify his interest in entering | CLIENT")
+		request parkingmanagerservice -m reqenter : reqenter(client)
+	} Transition t0 
+					//whenTime 2000 -> noentry //se non si gestisce entro 2 sec, il cliente non entra
+					whenReply slotsnum -> cartoindoor
+	
+	
+	State noentry{
+		// non entra
+	}
+	
+	State cartoindoor{
+		
+		onMsg(slotsnum : slotsnum (SLOTNUM)){
+			[# SLOTNUM = payloadArg(0).toInt() #]	
+			if [# SLOTNUM > 0 #]{
+				println("SLOTNUM = $SLOTNUM . Moving car to Indoor | CLIENT") 
+				request parkingmanagerservice -m carenter : carenter(V)
+			}
+		}	
+	}
+	Transition t0 
+					whenReply receipt -> afterreceipt
+
+
+	State afterreceipt{
+		onMsg(receipt : receipt (TOKENID)){
+			[# TOKENID = payloadArg(0) #]
+			updateResource [# "TOKENID" #]
+			println("client's TOKENID is $TOKENID | CLIENT")
+			[# var t1 = kotlin.random.Random.nextLong(3000, 6000)
+			 delay(11300) #]
+		}
+	} Goto reqpickup  
+
+
+	State reqpickup{
+		println("client notify his interest in picking his car | CLIENT")
+		forward parkingmanagerservice -m pickup : pickup($TOKENID)
+	} Transition t0 
+					whenEvent caroutdoorarrival -> pickupcar
+	
+	
+	State pickupcar{
+		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
+		emit carwithdrawn : cw(bye)
+		[# CLIENTDONE = CLIENTDONE + 1 #]
+	}Goto stop if [# CLIENTDONE == 1 #] else requestToEnter 
+	
+	
+	State stop{
+		println("No more clients") 
+	}
+
+}
+*/
+
+
+
+//---------------------------------------------------------------------------------------//
+
+QActor parkingmanagerservice context ctxParkingservice{
+	[#
+	lateinit var weightSensorActor 	: ActorBasic
+	lateinit var outSonarActor 		: ActorBasic
+	lateinit var outdoortimerActor 	: ActorBasic
+	lateinit var thermometerActor 	: ActorBasic
+ 	lateinit var fanActor 			: ActorBasic
+	
+	var SLOTNUM = 1
+	
+	var INDOORTOKEN  = "1" //tokenid dato al client
+	var WEIGHT 		  = 0
+	
+	var OUTDOORTOKEN = "1" //tokenid ricevuto dal client
+	var CARSLOTNUM =  0
+	
+	var GOAL 	   = ""
+	var trolleyPos = ""
+	
+	var simulatedsonar = false
+	
+	#]
+	 
+	State s0 initial{
+		[#
+		if(simulatedsonar){
+			outSonarActor   = sysUtil.getActor("outsonar")!!
+		} else 
+			outdoortimerActor 	= sysUtil.getActor("outdoortimer")!!
+		weightSensorActor 		= sysUtil.getActor("weightsensor")!!
+		thermometerActor 		= sysUtil.getActor("thermometer")!!
+		fanActor				= sysUtil.getActor("fan")!!
+		#]	
+		updateResource [# "{\"welcome\":\"Benvenuti\"}" #] 
+		forward thermometer -m startthermometer : thermometer(on)
+		forward sonarhandler		-m startsonar : sonar(on)
+		println("Park System START | SERVICE")
+	}Transition t0 
+			whenTime 1000 -> check 
+	
+	
+	State check{
+		delay 2000
+	}																		//Se non c'è posto non deve essere cliccabile la req enter
+	Goto acceptReqEnter if [# `it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0 #] // eliminare il controllo e rispondere con slotnum(0) ???
+		else checkOutdoor
+		
+		
+	State acceptReqEnter{
+	} Goto ready if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree &&
+						unibo.robot.TrolleyKb.trolleyStatus != `it.unibo`.utils.TrolleyStatus.STOPPED
+					#]
+	 	else readyOnlyReqEnter
+				
+	
+	State checkOutdoor{ //IL tasto della pikcup deve sempre essere cliccabile
+	}Goto readyOnlyOutdoor if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree &&
+								unibo.robot.TrolleyKb.trolleyStatus != `it.unibo`.utils.TrolleyStatus.STOPPED #]
+		else notReady
+						
+								
+	State ready{
+		println("INDOOR and OUTDOOR Avaiable | SERVICE")
+	}Transition t0 
+					whenTime 	5000     -> moveToHome
+					whenRequest reqenter -> acceptin
+					whenMsg		pickup	 -> acceptout
+				
+				
+	State readyOnlyReqEnter{
+		println("INDOOR Avaiable | SERVICE")
+	}Transition t0
+					whenTime 5000	     -> moveToHome
+					whenRequest reqenter -> acceptin
+				
+	
+	State readyOnlyOutdoor{
+		println("OUTDOOR Avaiable | SERVICE")
+	}Transition t0
+					whenTime 5000	     -> moveToHome
+					whenMsg		pickup	 -> acceptout
+					
+					
+	State notReady{
+	}Transition t0
+			whenTime 1000 -> check
+					
+					
+	State moveToHome{
+		[# if(unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.IDLE  && GOAL != "home") { #]
+			println("##### IN MOVE TO HOME ##########")
+		println("Moving Trolley to HOME")
+		//updateResource[# "toHome(V)" #]
+		[# GOAL = "home" #]
+		forward trolley -m move : move($GOAL) 
+		[# } #]
+	} Goto check				
+	
+ 	 
+	State acceptin{
+			//================[ acceptIN ]=====================	
+			[# SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot() #]
+			[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
+			[# println(`it.unibo`.utils.ParkingSlotsKb.indoorFree ) #]
+			[# println(unibo.robot.TrolleyKb.trolleyStatus) #]
+			[# if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree || 
+					unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.STOPPED
+			){ #]
+				replyTo reqenter with waitIndoor : slotsnum ($SLOTNUM)
+				updateResource [# "{\"slotnum\":\"$SLOTNUM\"}" #]
+			[# } #]
+			[# else {#]
+			//================[ informIN ]=====================
+			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
+			//updateResource [# "slotnum(${SLOTNUM}) " #]
+			updateResource [# "{\"slotnum\":\"$SLOTNUM\"}" #] 
+			println("SLOTNUM = $SLOTNUM | SERVICE" )
+			[# } #]	
+	} Transition t0
+		whenTime 20000 -> timeoutParking
+		whenRequest carenter -> carenter
+
+
+	State timeoutParking{
+		[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, true) #]
+		println("TIMEOUT ENTER REQUEST, RETRY LATER| SERVICE" )
+		replyTo reqenter with reqenterTimeout : slotsnum ($SLOTNUM)
+	} Goto check
+				
+					
+	State carenter{
+		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor
+		//================[ moveToIn ]=====================
+			[# GOAL = "indoor" #]
+			forward trolley -m move : move($GOAL) 
+			println("Trolley is moving to Indoor | SERVICE")
+		}Transition t0
+			whenEvent weightsensor -> weightcheck
+			
+			
+	State weightcheck{
+		onMsg(weightsensor : weight(W)){
+			[# 
+				WEIGHT = payloadArg(0).toInt()
+				println("Weight: " + WEIGHT)
+			#]
+			}
+	} Goto waitTrolleyIndoor if [# WEIGHT > 0 #] else weightError	//qui credo ci vada un when event finished(GOAL) e poi nello stato dopo un controllo sul weight		
+		
+		
+	State waitTrolleyIndoor{
+	} Transition t0
+			whenEvent finished -> receipt  //waits until Trolley is in INDOOR
+			
+							
+	State weightError{
+		println("Car not actual in INDOOR-AREA")
+		//MOVE TO HOME???
+	} Goto check
+				
+	
+	State receipt{ 
+		onMsg(finished : finished(GOAL)){
+				[# trolleyPos = payloadArg(0) #]
+			}
+			[# if(trolleyPos == "indoor") { #]
+				println("Trolley is in INDOOR| SERVICE")
+				[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
+				//==========[receipt]==========
+				replyTo carenter with receipt : receipt($INDOORTOKEN)
+				//updateResource [# "receipt($INDOORTOKEN)" #]
+				updateResource [# "{\"token\":\"$INDOORTOKEN\"}" #] 
+		[# } #]
+	} Goto moveToSlotIn if [# trolleyPos == "indoor"#]
+						else waitTrolleyIndoor
+			
+			
+	State moveToSlotIn{
+		//========================[ moveToSlotIN ]========================
+		[# 	GOAL = "p" + SLOTNUM.toString()	#] 
+		forward trolley -m move : move($GOAL)
+		println("Trolley moves from INDOOR to $SLOTNUM")
+	} Transition t0 
+			whenEvent finished -> checkPark
+	
+	
+	State checkPark{
+		onMsg(finished : finished(GOAL)){
+				[# trolleyPos = payloadArg(0) #]
+			}
+	} Goto parkedCar if [# trolleyPos == GOAL #]
+		else parkingError
+		
+		
+	State parkedCar{
+		println("Car is parked at p$SLOTNUM")
+	} Transition t0
+			whenTime 500 -> check
+	
+	
+	State parkingError{
+		println("Parking Error")
+	} Goto check
+	
+	
+	State acceptout{
+		//===========[ acceptOUT ]=====================
+		//===========[ findSlot ]=====================
+			onMsg (pickup : pickup(OUTDOORTOKEN)){
+				[#  OUTDOORTOKEN = payloadArg(0).toString() #]}
+			[# 	CARSLOTNUM = `it.unibo`.utils.ParkingSlotsKb.checkToken(OUTDOORTOKEN) #]
+	} Goto picking if [# CARSLOTNUM > 0 #] else tokenError
+	
+	
+	State picking{	 	
+		//====================[moveToSlotOut]========================
+		delay 1000
+		[# `it.unibo`.utils.ParkingSlotsKb.setSlot(CARSLOTNUM, true) 
+			GOAL = "p" + CARSLOTNUM.toString()
+		#]
+		forward trolley -m move : move($GOAL)
+		println("Trolley picking car from slot $CARSLOTNUM | SERVICE")
+	}
+	Transition t0
+				whenEvent finished -> checkCarPicked
+	
+	
+	State checkCarPicked{
+		onMsg(finished : finished(W)){
+			[# 
+				trolleyPos = payloadArg(0)
+			#]
+			}
+	} Goto moveToOut if[# trolleyPos == GOAL #]
+		else trolleyToPickingSlot
+		
+		
+	State trolleyToPickingSlot{
+		println("WAIT THAT TROLLEY ARRIVE AT PICKING SLOT | SERVICE")
+	}Transition t0
+			whenTime 5000 -> check
+			whenEvent finished -> checkCarPicked
+			
+			
+	State moveToOut{
+		//====================[moveToOut]========================
+		[# GOAL = "outdoor" #]
+		forward trolley -m move : move($GOAL)
+	}Transition t0 	
+				whenEvent  finished	-> carInOutdoor
+	
+	
+	State carInOutdoor{
+		onMsg(finished : finished(W)){
+			[# trolleyPos = payloadArg(0) #]
+			}
+		[# if(simulatedsonar){#]	
+			[# if (trolleyPos == "outdoor") {#]	
+			emit caroutdoorarrival : coa(car_arrived)  //questo lo deve catturare il outsonar
+			println("Car is in Outdoor area | SERVICE")
+			[# } 
+		} #]
+	} Goto check if [# trolleyPos == "outdoor" #]
+		else outdoorError
+	
+	
+	State outdoorError{
+		println("outdoor Error")
+		}Goto check
+	
+		
+	State tokenError{
+		println("Invalid insert Token!")
+	} Goto check
+	 			
+	 				
+	//Forse inutile
+	State timeout{
+		println("%%%% TIMEOUT %%%%" )
+		emit alarm : timeout(alarm)		
+	}
+}
+
+
+//---------------------------------------------------------------------------------------//
+
+QActor sonarhandler context ctxParkingservice{
+	[#
+		var distance	= 2000
+	#]
+	
+	State s0 initial {
+		println("OUTDOOR SONAR INIT | SONAR")
+	}Transition t0 whenMsg startsonar -> start
+	
+	
+	State start {
+		println("OUTDOOR SONAR START | SONAR")
+	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
+	
+	
+	State handleSonarData{
+		onMsg(sonaroutdoor : distance(W)){
+			[# distance = payloadArg(0).toInt() #]
+			}
+		[# if(distance < 30 && `it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
+				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
+				#]
+				forward outdoortimer -m starttimer : timer(on) 
+				println("Car in OUTDOOR | SONAR")
+			[# }
+			else if(distance >= 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
+				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true #]
+				forward outdoortimer -m stoptimer : timer(off) 
+				[# } #]
+	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
+}
