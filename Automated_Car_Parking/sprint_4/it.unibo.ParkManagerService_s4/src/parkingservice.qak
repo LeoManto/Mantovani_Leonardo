@@ -32,6 +32,9 @@ Event alarm 			: timeout(alarm)
 //------------------------------------------------------------------------------------------------
 Event finished 			: finished(V) 
 Event obstacle : obstacle( T )
+
+Dispatch stopTrolley : stop(V)
+Dispatch resumeTrolley : resume(V)
 //------------------------------------------------------------------------------------------------
 
 
@@ -153,7 +156,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 	var GOAL 	   = ""
 	var trolleyPos = ""
 	
-	var simulatedsonar = false
+	var simulatedsonar = true //false
 	
 	#]
 	 
@@ -167,9 +170,9 @@ QActor parkingmanagerservice context ctxParkingservice{
 		thermometerActor 		= sysUtil.getActor("thermometer")!!
 		fanActor				= sysUtil.getActor("fan")!!
 		#]	
-		updateResource [# "{\"welcome\":\"Benvenuti\"}" #] 
+		
 		forward thermometer -m startthermometer : thermometer(on)
-		forward sonarhandler		-m startsonar : sonar(on)
+		forward sonarhandler -m startsonar : sonar(on)
 		println("Park System START | SERVICE")
 	}Transition t0 
 			whenTime 1000 -> check 
@@ -249,7 +252,6 @@ QActor parkingmanagerservice context ctxParkingservice{
 			//================[ informIN ]=====================
 			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
 			//updateResource [# "slotnum(${SLOTNUM}) " #]
-			updateResource [# "{\"slotnum\":\"$SLOTNUM\"}" #] 
 			println("SLOTNUM = $SLOTNUM | SERVICE" )
 			[# } #]	
 	} Transition t0
@@ -305,7 +307,6 @@ QActor parkingmanagerservice context ctxParkingservice{
 				//==========[receipt]==========
 				replyTo carenter with receipt : receipt($INDOORTOKEN)
 				//updateResource [# "receipt($INDOORTOKEN)" #]
-				updateResource [# "{\"token\":\"$INDOORTOKEN\"}" #] 
 		[# } #]
 	} Goto moveToSlotIn if [# trolleyPos == "indoor"#]
 						else waitTrolleyIndoor
@@ -442,12 +443,34 @@ QActor sonarhandler context ctxParkingservice{
 		[# if(distance < 30 && `it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
 				#]
+				updateResource [# "{\"outdoorStatus\":\"BUSY\"}" #]
 				forward outdoortimer -m starttimer : timer(on) 
 				println("Car in OUTDOOR | SONAR")
 			[# }
 			else if(distance >= 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true #]
+				updateResource [# "{\"outdoorStatus\":\"FREE\"}" #]
 				forward outdoortimer -m stoptimer : timer(off) 
 				[# } #]
 	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
+}
+
+
+QActor trolleystopper context ctxParkingservice{
+	
+	State s0 initial {
+	}Goto work
+	
+	State work{
+	}Transition t0
+			whenMsg stopTrolley -> stopped
+			
+	State stopped{
+		forward trolley -m stopTrolley : stop(manager)
+	} Transition t0
+		whenMsg resumeTrolley -> resumed
+		
+    State resumed{
+    	forward trolley -m resumeTrolley : resume(manager)
+    }Goto work
 }

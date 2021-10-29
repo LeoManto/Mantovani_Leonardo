@@ -37,16 +37,14 @@ QActor client context ctxParkingservice{
 	State s0 initial{
 		println("Client mock simulation START | CLIENT")
 	} Transition t0
-					whenTime 4000 -> init
+					whenTime 4000 -> requestToEnter //init
 					
 					
 	State init{
-	}				
+	}			
 					
-/* 
 	State requestToEnter{
 		println("client notify his interest in entering | CLIENT")
-		[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.reqToEnter) #]
 		request parkingmanagerservice -m reqenter : reqenter(client)
 	} Transition t0 
 					whenTime 3000 -> noresponse  //se non si gestisce entro 3 sec, il cliente non entra
@@ -54,28 +52,16 @@ QActor client context ctxParkingservice{
 	
 	
 	State noresponse {
-		[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.noResponse) #]
 		println("No SLOTNUM received, System not correctly work")
 	}
 	
-	
-	State noentry{
-		[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.noEntry) #]
-		println("No Free Slot, I can't entry")
-	} 
-	
-	
 	State afterslotnum {
 		onMsg(slotsnum : slotsnum (SLOTNUM)){
-			[# SLOTNUM = payloadArg(0).toInt() #]	
-			[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.carToIndoor)
-			#]
+			[# SLOTNUM = payloadArg(0).toInt()	#]
 			println("SLOTNUM = $SLOTNUM | CLIENT" )
-			if [# SLOTNUM > 0 #]{		
-				request parkingmanagerservice -m carenter : carenter(V) 
-			}
+			request parkingmanagerservice -m carenter : carenter(V) 
 		} 
-	} Goto cartoindoor if[# SLOTNUM > 0 #] else noentry
+	} Goto cartoindoor
 	
 	
 	State cartoindoor{	
@@ -87,9 +73,6 @@ QActor client context ctxParkingservice{
 		onMsg(receipt : receipt (TOKENID)){
 			[# TOKENID = payloadArg(0).toInt() #]
 			println("client's TOKENID is $TOKENID | CLIENT")
-			[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.afterReceipt) 
-			   tester.setToken(TOKENID)
-			#]
 		}
 	} 
 	Transition t0
@@ -99,7 +82,6 @@ QActor client context ctxParkingservice{
 		// ==========[acceptOUT]==========
 		println("client notify his interest in picking his car | CLIENT")
 		forward parkingmanagerservice -m pickup : pickup($TOKENID)
-		[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.reqPickup) #]
 	} Transition t0 
 					whenEvent caroutdoorarrival -> pickupcar
 	
@@ -107,9 +89,7 @@ QActor client context ctxParkingservice{
 	State pickupcar{
 		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
 		emit carwithdrawn : cw(bye)
-		[# tester.setclientstate(`it.unibo`.parkingmanagerservice.test.utils.ClientState.pickupCar) #]
 	}
-*/	
 }
 
  
@@ -131,7 +111,6 @@ QActor parkingmanagerservice context ctxParkingservice{
 		weightSensorActor = sysUtil.getActor("weightsensor")!!
 		subscribeLocalActor("parkingmanagerservice")
 		#]   
-		//updateResource [# "systemReady(prova)" #]
 		discardMsg Off 
 	println("Park System START | SERVICE")
 	}
@@ -148,10 +127,9 @@ QActor parkingmanagerservice context ctxParkingservice{
 		printCurrentMessage
 		onMsg(reqenter : reqenter( V )){
 			[# var msg = payloadArg(0) #]
-			//updateResource [# "clientstate(${msg})" #]
 		}
 		/*==========[acceptIN]==========*/
-		[# SLOTNUM = 1 //`it.unibo`.parkingmanagerservice.test.utils.Tester.getSlot() #] //Per ora è settato manualmente in fase di test
+		[# SLOTNUM = 1 #] //Per ora è settato manualmente in fase di test
 		/*==========[informIN]==========*/
 		updateResource [# "slotnum(${SLOTNUM})" #]
 		replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
@@ -162,8 +140,8 @@ QActor parkingmanagerservice context ctxParkingservice{
 				
 					
 	State carenter{
-		[# indoorFree = false #]
-		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor		
+		emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensorù
+		[# indoorFree = false #]		
 	} Transition t0
 				whenEvent weightsensor -> weightcheck
 				
@@ -205,7 +183,6 @@ QActor parkingmanagerservice context ctxParkingservice{
 		onMsg (pickup : pickup(TOKENID)){
 			/*==========[findSlot]==========*/
 				[#  var TOKENIN = payloadArg(0) #] //tokenIN è il token fornito dal client
-				println("dggfgf")
 				updateResource [# "pickup(${TOKENIN})" #]
 		}
 		//elaborazioni sul tokenIN per ottenere lo slotnum corrispondente(non in questo modello)

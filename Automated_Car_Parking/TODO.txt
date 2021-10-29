@@ -1,0 +1,5 @@
+1) Fare macro architettura (Sprint 1)
+2) Mettere fase di progetto in ogni Sprint
+3) Dallo Sprint 2 non mettere sezione dei requisiti
+4) Provare a spiegare in maniera più puntuale le scelte nelle fasi di analisi del problema in tutti gli Sprint
+5) Fare Sprint 4

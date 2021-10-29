@@ -25,8 +25,6 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 	val mainScope = CoroutineScope(Dispatchers.Default)
 	
 //-------------------------------------------------------------------------------------
-	val termSimulator = thermometerSimulator("")
-//-------------------------------------------------------------------------------------
 
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi

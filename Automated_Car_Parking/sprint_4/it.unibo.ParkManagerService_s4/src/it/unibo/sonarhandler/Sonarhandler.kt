@@ -39,11 +39,15 @@ class Sonarhandler ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 						}
 						 if(distance < 30 && `it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 										`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
+						updateResourceRep( "{\"outdoorStatus\":\"BUSY\"}"  
+						)
 						forward("starttimer", "timer(on)" ,"outdoortimer" ) 
 						println("Car in OUTDOOR | SONAR")
 						 }
 									else if(distance >= 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 										`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true  
+						updateResourceRep( "{\"outdoorStatus\":\"FREE\"}"  
+						)
 						forward("stoptimer", "timer(off)" ,"outdoortimer" ) 
 						 }  
 					}

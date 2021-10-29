@@ -6,6 +6,10 @@ Dispatch move  : move(GOAL)
 Event finished : finished(V)
 Event obstacle : obstacle( T )
 
+
+Dispatch stopTrolley   : stop(V)
+Dispatch resumeTrolley : resume(V)
+
 Context ctxTrolley  ip [host="127.0.0.1" port=5685]
 
 QActor trolley context ctxTrolley{         
@@ -49,35 +53,48 @@ QActor trolley context ctxTrolley{
      	run itunibo.planner.plannerUtil.showCurrentRobotState()
      	
      	run pathexecutil.register( Myself ) 
- 		
+     	
+		[# val posX = itunibo.planner.plannerUtil.getPosX() #]
+		[# val posY = itunibo.planner.plannerUtil.getPosY() #]
+		[# val dir =  itunibo.planner.plannerUtil.getDirection() #]
+     	updateResource [# "{\"robotPos\":\"($posX, $posY)\"}" #]
+     	updateResource [# "{\"direction\":\"$dir\"}" #]
  	}
 	Goto work
 	
 	
-	State work{ 
+	State work{
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE #]
 		[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
 		//updateResource [# "status($STATUS)" #]
-		updateResource [# "{\"path\":\"$CurPath\"}" #]
+		updateResource [# "{\"status\":\"$STATUS\"}" #]
 		println("basicrobot waiting ... | TROLLEY")  
 	}Transition t0
-		whenMsg move -> path	  
+		whenMsg move -> path
+		whenMsg stopTrolley -> stopped	  
+		
+		
+	State stopped{
+		run unibo.robot.robotSupport.move( "h" )
+		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.STOPPED #]
+		[# val STATUS =  unibo.robot.TrolleyKb.trolleyStatus #]
+		updateResource [# "{\"status\":\"$STATUS\"}" #]
+	} Transition t0
+			whenMsg resumeTrolley -> resume
 	
 	
 	State path{
 		onMsg(move : move(GOAL)){
 			[# GOAL = payloadArg(0) #]
+			updateResource [# "{\"curDest\":\"$GOAL\"}" #]
 			println("GOAL = $GOAL | TROLLEY")
 			run planner.getPathPlan(GOAL)
 			[# CurPath = itunibo.planner.plannerUtil.getActions().toString() #]
-			//updateResource [# "path($CurPath)" #]
-			updateResource [# "{\"path\":\"$CurPath\"}" #]
 		}
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
-		[#STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()#]
+		[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
 		//updateResource [# "status($STATUS)" #]
 		updateResource [# "{\"status\":\"$STATUS\"}" #]
-		
 	} Goto execPlannedMoves if [# GOAL != "home" #]
 		else checkInterrupt
 		
@@ -86,6 +103,7 @@ QActor trolley context ctxTrolley{
  	}Transition t0 
  			whenTime 100   -> execPlannedMoves
  			whenMsg move   -> path
+ 			whenMsg stopTrolley   -> stopped
     
    
 	State execPlannedMoves{   
@@ -93,14 +111,14 @@ QActor trolley context ctxTrolley{
  		[#  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove() #]
  		println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove | TROLLEY")
  	}
- 	Goto doMove if [# CurrentPlannedMove.length>0 #] else halt //parkthecar
+ 	Goto doMove if [# CurrentPlannedMove.length>0 #] else endPath //parkthecar
  
  
  	State doMove{ 	
- 		[#StepTime = #] run unibo.robot.robotSupport.move( "$CurrentPlannedMove" ) 
+ 		[# StepTime = #] run unibo.robot.robotSupport.move( "$CurrentPlannedMove" )
  		//[# StepTime = StepTime+100 #]
  	}Transition t0 
- 			whenTimeVar StepTime   -> checkObstacle   
+ 			whenTimeVar StepTime   -> checkObstacle 
  	
  	
  	State checkObstacle{
@@ -109,24 +127,31 @@ QActor trolley context ctxTrolley{
  		whenEvent obstacle -> handleObstacle
  	
  	
- 	 State stepDone{  
+ 	 State stepDone{
  	 	printCurrentMessage
  	 	[#if (CurrentPlannedMove == "w" || CurrentPlannedMove == "s") {#]
  	 		run unibo.robot.robotSupport.move( "h" )
  	 	[#}#]
- 	 	
- 		//updateResource [# itunibo.planner.plannerUtil.getMap() #]
  		//updateResource [# "stepdone($CurrentPlannedMove)" #]
  		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
  		
- 		//run itunibo.planner.plannerUtil.showCurrentRobotState( )
+		[# val posX = itunibo.planner.plannerUtil.getPosX() #]
+		[# val posY = itunibo.planner.plannerUtil.getPosY() #]
+		[# val dir =  itunibo.planner.plannerUtil.getDirection() #]
+     	updateResource [# "{\"robotPos\":\"($posX, $posY)\"}" #]
+     	updateResource [# "{\"direction\":\"$dir\"}" #]
  		//updateResource [# "stepDone" # ]
-  	}  
- 	Goto execPlannedMoves if[# GOAL != "home" #]
+  	} Transition t0
+  				whenTime 100 -> checkHomeGoal 
+  				whenMsg stopTrolley -> stopped
+  				
+  	
+  	State checkHomeGoal{
+  	}Goto execPlannedMoves if[# GOAL != "home" #]
 		else checkInterrupt
  	
  	 
- 	State halt{
+ 	State endPath{
 		[# var timeDelay = #] run planner.exactDir(GOAL)
 		[# delay(timeDelay) #] 
  		println("path finished | TROLLEY")
@@ -135,6 +160,7 @@ QActor trolley context ctxTrolley{
  		//updateResource [# "{\"finished\":\"$GOAL\"}" #]
  		emit finished : finished($GOAL) 
  		println("finished($GOAL) | TROLLEY")
+ 		[# GOAL = "" #]
  	} Goto work
  	
  	
@@ -146,138 +172,19 @@ QActor trolley context ctxTrolley{
 		else restart
 
 
+	State resume{
+	}Goto restart if [# GOAL != "" #]
+		else work
+
+
 	State restart{
-		run planner.getPathPlan(GOAL)
-		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
-		[#STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()#]
-		//updateResource [# "status($STATUS)" #]
-		updateResource [# "{\"status\":\"$STATUS\"}" #]
+			run planner.getPathPlan(GOAL)
+			[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
+			[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
+			//updateResource [# "status($STATUS)" #]
+			updateResource [# "{\"status\":\"$STATUS\"}" #]
 	} Goto execPlannedMoves if [# GOAL != "home" #]
 		else checkInterrupt
 		
 		 
 }	
-
-
-/*State turnMove{
-  		if [# CurrentPlannedMove == "l" || CurrentPlannedMove == "r"  #]{
-  			run unibo.robot.robotSupport.move( "$CurrentPlannedMove" )
-  		} 
- 	}
-  	Transition t0  whenMsg moveok   -> rotationDone
-  				
-
-
- 	State rotationDone{
- 		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
-   		run itunibo.planner.plannerUtil.showCurrentRobotState( )
- 	} 
- 	 Transition t0 whenTime 300 -> execPlannedMoves */
-
-/* 
-	State execcmd{
-		printCurrentMessage
-		onMsg( cmd : cmd(MOVE) ){
-  			//activate the motors  
-			run unibo.robot.robotSupport.move( "${payloadArg(0)}" )
-			[# CurrentMove =  "${payloadArg(0)}" #] 
-			if [# CurrentMove != "h" #] { 
-				updateResource [# "moveactivated($CurrentMove)" #]
-			}
-		}
-	 }
-	 Goto work  
-	 
-	State handleObstacle{   
-	    run unibo.robot.robotSupport.move( "h" )
-		println("basicrobot | handleObstacleeeeeeeeeeeeeeeeeeee CurrentMove=$CurrentMove")	
-		printCurrentMessage
-			//msg(obstacle,dispatch,distancefilter,basicrobot,obstacle(5),18)
-		if[# CurrentMove == "w" #]{
-			  
- 			run unibo.robot.robotSupport.move( "s" ) 
-			delay 100 //loose the control ...
-			run unibo.robot.robotSupport.move( "h" ) 	 		    	
-			
-			 // collision Json      : emitted by the virtualrobot 
-			 // obstacle(virtual)   : emitted by the virtualrobotSupport2021 when endmove=false
-			 // obstacle(5)         : emitted by the distanceFilter
-			 // obstacle(w)         : emitted by the basicrobot
-			 
-			onMsg( obstacle : obstacle( T ) ){ 
-				[#	val TargetObs = payloadArg(0)  	#]
-				if[# TargetObs == "5" #]{
-					updateResource [# "obstacle(w)" #]
-				}
-			} 
-		}else{ //CurrentMove != "w"
-			updateResource [# "spurious" #]
-		}  		
-	}
-	Goto work 
- 
-    State backstep{
-		    delay 1500 //give time to the tester to manage the update
-		    println("basicrobot | bakkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")	
-			run unibo.robot.robotSupport.move( "s" ) 
-			delay 100 //loose the control ...
-			run unibo.robot.robotSupport.move( "h" ) 			    	
-    }
-    Goto work 
-    
-	State handleSonar{
-		printCurrentMessage
-	}
-	Goto work
-		
-   	State doStep{ 
- 		printCurrentMessage  
-		onMsg( step : step( T ) ){  
-			[#	StepTime = payloadArg(0).toLong() 	#]  
-			updateResource [# "step(${StepTime})" #]
-  		}  
-        memoCurrentTime StartTime  
-        println("basicrobot | doStep StepTime =$StepTime ")        
-        run unibo.robot.robotSupport.move( "w" )  //moves a real robot forever
-	}  
-	Transition t0 
-		whenTimeVar StepTime  -> stepDone //stepPerhapsDone	//caused by p
-		whenMsg  obstacle     -> stepFail		
-        //whenMsg     cmd       -> execcmd
-  	 
-	
-	State stepDone{   
- 		run unibo.robot.robotSupport.move( "h" )  //stop the real robot already done
-		println("basicrobot | stepDone")
-		updateResource [# "stepDone($StepTime)" #]
-   		//emit info : info( stepdone($StepTime) )
-   		replyTo step with stepdone : stepdone(ok)
-		//println("basicrobot | stepDone reply done")
-  	}
-	Goto work  
- 
-	State stepFail{  		
-		setDuration Duration from StartTime
-		run unibo.robot.robotSupport.move( "h" )  //stop the (real) robot
-		[# var TunedDuration = Duration;  
-			TunedDuration = Duration * 5 / 6
-		#]
-		println("basicrobot | stepFail duration=$Duration TunedDuration=$TunedDuration")
-			run unibo.robot.robotSupport.move( "s" )
-			delayVar TunedDuration 
-			run unibo.robot.robotSupport.move( "h" )  
- 		updateResource [# "stepFail($Duration)" #] 
- 		//emit info : info( stepFail($Duration) )
- 		replyTo step with stepfail : stepfail($Duration, obst)
-    }
-	Goto work
-	
-	State endwork{ 
-		onMsg( end : end( V ) ){ 
-			println("basicrobot | endwork")
-			updateResource [# "basicrobot(end)" #]	 		
-			//run utils.virtualRobotSupportQak.terminatevr( )
-		}
- 		emit endall : endall(normal) 
- 		terminate 1
-	}  */

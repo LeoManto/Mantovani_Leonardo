@@ -34,7 +34,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 			var GOAL 	   = ""
 			var trolleyPos = ""
 			
-			var simulatedsonar = false
+			var simulatedsonar = true //false
 			
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
@@ -47,8 +47,6 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 								weightSensorActor 		= sysUtil.getActor("weightsensor")!!
 								thermometerActor 		= sysUtil.getActor("thermometer")!!
 								fanActor				= sysUtil.getActor("fan")!!
-						updateResourceRep( "{\"welcome\":\"Benvenuti\"}"  
-						)
 						forward("startthermometer", "thermometer(on)" ,"thermometer" ) 
 						forward("startsonar", "sonar(on)" ,"sonarhandler" ) 
 						println("Park System START | SERVICE")
@@ -147,8 +145,6 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						 }  
 						 else { 
 						answer("reqenter", "slotsnum", "slotsnum($SLOTNUM)"   )  
-						updateResourceRep( "{\"slotnum\":\"$SLOTNUM\"}"  
-						)
 						println("SLOTNUM = $SLOTNUM | SERVICE")
 						 }  
 						stateTimer = TimerActor("timer_acceptin", 
@@ -209,8 +205,6 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						println("Trolley is in INDOOR| SERVICE")
 						 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM)  
 						answer("carenter", "receipt", "receipt($INDOORTOKEN)"   )  
-						updateResourceRep( "{\"token\":\"$INDOORTOKEN\"}"  
-						)
 						 }  
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitchGuarded({ trolleyPos == "indoor" 

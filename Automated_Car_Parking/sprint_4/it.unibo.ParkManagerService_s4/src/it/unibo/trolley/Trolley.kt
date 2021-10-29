@@ -49,6 +49,13 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						itunibo.planner.plannerUtil.showMap(  )
 						itunibo.planner.plannerUtil.showCurrentRobotState(  )
 						pathexecutil.register( Myself  )
+						 val posX = itunibo.planner.plannerUtil.getPosX()  
+						 val posY = itunibo.planner.plannerUtil.getPosY()  
+						 val dir =  itunibo.planner.plannerUtil.getDirection()  
+						updateResourceRep( "{\"robotPos\":\"($posX, $posY)\"}"  
+						)
+						updateResourceRep( "{\"direction\":\"$dir\"}"  
+						)
 					}
 					 transition( edgeName="goto",targetState="work", cond=doswitch() )
 				}	 
@@ -56,25 +63,36 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 					action { //it:State
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE  
 						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
-						updateResourceRep( "{\"path\":\"$CurPath\"}"  
+						updateResourceRep( "{\"status\":\"$STATUS\"}"  
 						)
 						println("basicrobot waiting ... | TROLLEY")
 					}
 					 transition(edgeName="t00",targetState="path",cond=whenDispatch("move"))
+					transition(edgeName="t01",targetState="stopped",cond=whenDispatch("stopTrolley"))
+				}	 
+				state("stopped") { //this:State
+					action { //it:State
+						unibo.robot.robotSupport.move( "h"  )
+						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.STOPPED  
+						 val STATUS =  unibo.robot.TrolleyKb.trolleyStatus  
+						updateResourceRep( "{\"status\":\"$STATUS\"}"  
+						)
+					}
+					 transition(edgeName="t02",targetState="resume",cond=whenDispatch("resumeTrolley"))
 				}	 
 				state("path") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("move(GOAL)"), Term.createTerm("move(GOAL)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 GOAL = payloadArg(0)  
+								updateResourceRep( "{\"curDest\":\"$GOAL\"}"  
+								)
 								println("GOAL = $GOAL | TROLLEY")
 								planner.getPathPlan( GOAL  )
 								 CurPath = itunibo.planner.plannerUtil.getActions().toString()  
-								updateResourceRep( "{\"path\":\"$CurPath\"}"  
-								)
 						}
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING  
-						STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() 
+						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						updateResourceRep( "{\"status\":\"$STATUS\"}"  
 						)
 					}
@@ -88,8 +106,9 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						stateTimer = TimerActor("timer_checkInterrupt", 
 							scope, context!!, "local_tout_trolley_checkInterrupt", 100.toLong() )
 					}
-					 transition(edgeName="t01",targetState="execPlannedMoves",cond=whenTimeout("local_tout_trolley_checkInterrupt"))   
-					transition(edgeName="t02",targetState="path",cond=whenDispatch("move"))
+					 transition(edgeName="t03",targetState="execPlannedMoves",cond=whenTimeout("local_tout_trolley_checkInterrupt"))   
+					transition(edgeName="t04",targetState="path",cond=whenDispatch("move"))
+					transition(edgeName="t05",targetState="stopped",cond=whenDispatch("stopTrolley"))
 				}	 
 				state("execPlannedMoves") { //this:State
 					action { //it:State
@@ -98,25 +117,25 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 					}
 					 transition( edgeName="goto",targetState="doMove", cond=doswitchGuarded({ CurrentPlannedMove.length>0  
 					}) )
-					transition( edgeName="goto",targetState="halt", cond=doswitchGuarded({! ( CurrentPlannedMove.length>0  
+					transition( edgeName="goto",targetState="endPath", cond=doswitchGuarded({! ( CurrentPlannedMove.length>0  
 					) }) )
 				}	 
 				state("doMove") { //this:State
 					action { //it:State
-						StepTime =  
+						 StepTime =  
 						unibo.robot.robotSupport.move( "$CurrentPlannedMove"  )
 						stateTimer = TimerActor("timer_doMove", 
 							scope, context!!, "local_tout_trolley_doMove", StepTime )
 					}
-					 transition(edgeName="t03",targetState="checkObstacle",cond=whenTimeout("local_tout_trolley_doMove"))   
+					 transition(edgeName="t06",targetState="checkObstacle",cond=whenTimeout("local_tout_trolley_doMove"))   
 				}	 
 				state("checkObstacle") { //this:State
 					action { //it:State
 						stateTimer = TimerActor("timer_checkObstacle", 
 							scope, context!!, "local_tout_trolley_checkObstacle", 100.toLong() )
 					}
-					 transition(edgeName="t04",targetState="stepDone",cond=whenTimeout("local_tout_trolley_checkObstacle"))   
-					transition(edgeName="t05",targetState="handleObstacle",cond=whenEvent("obstacle"))
+					 transition(edgeName="t07",targetState="stepDone",cond=whenTimeout("local_tout_trolley_checkObstacle"))   
+					transition(edgeName="t08",targetState="handleObstacle",cond=whenEvent("obstacle"))
 				}	 
 				state("stepDone") { //this:State
 					action { //it:State
@@ -125,13 +144,28 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						unibo.robot.robotSupport.move( "h"  )
 						} 
 						itunibo.planner.plannerUtil.updateMap( "$CurrentPlannedMove"  )
+						 val posX = itunibo.planner.plannerUtil.getPosX()  
+						 val posY = itunibo.planner.plannerUtil.getPosY()  
+						 val dir =  itunibo.planner.plannerUtil.getDirection()  
+						updateResourceRep( "{\"robotPos\":\"($posX, $posY)\"}"  
+						)
+						updateResourceRep( "{\"direction\":\"$dir\"}"  
+						)
+						stateTimer = TimerActor("timer_stepDone", 
+							scope, context!!, "local_tout_trolley_stepDone", 100.toLong() )
+					}
+					 transition(edgeName="t09",targetState="checkHomeGoal",cond=whenTimeout("local_tout_trolley_stepDone"))   
+					transition(edgeName="t010",targetState="stopped",cond=whenDispatch("stopTrolley"))
+				}	 
+				state("checkHomeGoal") { //this:State
+					action { //it:State
 					}
 					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitchGuarded({ GOAL != "home"  
 					}) )
 					transition( edgeName="goto",targetState="checkInterrupt", cond=doswitchGuarded({! ( GOAL != "home"  
 					) }) )
 				}	 
-				state("halt") { //this:State
+				state("endPath") { //this:State
 					action { //it:State
 						 var timeDelay =  
 						planner.exactDir( GOAL  )
@@ -140,6 +174,7 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						itunibo.planner.plannerUtil.showCurrentRobotState(  )
 						emit("finished", "finished($GOAL)" ) 
 						println("finished($GOAL) | TROLLEY")
+						 GOAL = ""  
 					}
 					 transition( edgeName="goto",targetState="work", cond=doswitch() )
 				}	 
@@ -154,11 +189,19 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 					transition( edgeName="goto",targetState="restart", cond=doswitchGuarded({! ( !planner.checkObstacle(itunibo.planner.plannerUtil.getPosX(), itunibo.planner.plannerUtil.getPosY())  
 					) }) )
 				}	 
+				state("resume") { //this:State
+					action { //it:State
+					}
+					 transition( edgeName="goto",targetState="restart", cond=doswitchGuarded({ GOAL != ""  
+					}) )
+					transition( edgeName="goto",targetState="work", cond=doswitchGuarded({! ( GOAL != ""  
+					) }) )
+				}	 
 				state("restart") { //this:State
 					action { //it:State
 						planner.getPathPlan( GOAL  )
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING  
-						STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() 
+						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						updateResourceRep( "{\"status\":\"$STATUS\"}"  
 						)
 					}

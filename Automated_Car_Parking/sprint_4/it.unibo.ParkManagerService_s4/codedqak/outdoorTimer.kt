@@ -21,7 +21,7 @@ class outdoorTimer (name : String ) : ActorBasic( name ) {
 
 val DTFREE  = 10 //seconds
 var tmp     = DTFREE
-var busy = false
+var busy 	= false
 	
 private var timerScope = CoroutineScope(Dispatchers.Default)
 
@@ -54,7 +54,6 @@ private var timerScope = CoroutineScope(Dispatchers.Default)
 			  	tmp = tmp - 1 
 			  	delay(1000)
 	  }
-
 	  val m1 = MsgUtil.buildEvent(name, "timeout", "timeout(alarm)")
 	  emit(m1)
 				}	

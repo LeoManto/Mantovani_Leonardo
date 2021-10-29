@@ -12,3 +12,4 @@ context(ctxtrolley, "127.0.0.1",  "TCP", "5685").
   qactor( fan, ctxparkingservice, "fanSimulator").
   qactor( parkingmanagerservice, ctxparkingservice, "it.unibo.parkingmanagerservice.Parkingmanagerservice").
   qactor( sonarhandler, ctxparkingservice, "it.unibo.sonarhandler.Sonarhandler").
+  qactor( trolleystopper, ctxparkingservice, "it.unibo.trolleystopper.Trolleystopper").

@@ -32,7 +32,8 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun startSonar(){
 		
-		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false 
+		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false
+		 	updateResourceRep( "{\"outdoorStatus\":\"BUSY\"}")
 		 	mainScope = CoroutineScope(Dispatchers.Default)
 		    startTimer()
 		}
@@ -41,7 +42,8 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 	  suspend fun stopSonar(){
 	
-		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true 
+		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true
+		 	updateResourceRep( "{\"outdoorStatus\":\"FREE\"}")
 		    mainScope.cancel()
 		    tmp = DTFREE
 		}

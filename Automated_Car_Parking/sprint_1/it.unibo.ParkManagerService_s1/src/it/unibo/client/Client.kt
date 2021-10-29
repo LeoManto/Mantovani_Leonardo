@@ -26,10 +26,66 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 						stateTimer = TimerActor("timer_s0", 
 							scope, context!!, "local_tout_client_s0", 4000.toLong() )
 					}
-					 transition(edgeName="t00",targetState="init",cond=whenTimeout("local_tout_client_s0"))   
+					 transition(edgeName="t00",targetState="requestToEnter",cond=whenTimeout("local_tout_client_s0"))   
 				}	 
 				state("init") { //this:State
 					action { //it:State
+					}
+				}	 
+				state("requestToEnter") { //this:State
+					action { //it:State
+						println("client notify his interest in entering | CLIENT")
+						request("reqenter", "reqenter(client)" ,"parkingmanagerservice" )  
+						stateTimer = TimerActor("timer_requestToEnter", 
+							scope, context!!, "local_tout_client_requestToEnter", 3000.toLong() )
+					}
+					 transition(edgeName="t01",targetState="noresponse",cond=whenTimeout("local_tout_client_requestToEnter"))   
+					transition(edgeName="t02",targetState="afterslotnum",cond=whenReply("slotsnum"))
+				}	 
+				state("noresponse") { //this:State
+					action { //it:State
+						println("No SLOTNUM received, System not correctly work")
+					}
+				}	 
+				state("afterslotnum") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("slotsnum(SLOTNUM)"), Term.createTerm("slotsnum(SLOTNUM)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 SLOTNUM = payloadArg(0).toInt()	 
+								println("SLOTNUM = $SLOTNUM | CLIENT")
+								request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
+						}
+					}
+					 transition( edgeName="goto",targetState="cartoindoor", cond=doswitch() )
+				}	 
+				state("cartoindoor") { //this:State
+					action { //it:State
+					}
+					 transition(edgeName="t03",targetState="afterreceipt",cond=whenReply("receipt"))
+				}	 
+				state("afterreceipt") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("receipt(TOKENID)"), Term.createTerm("receipt(TOKENID)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 TOKENID = payloadArg(0).toInt()  
+								println("client's TOKENID is $TOKENID | CLIENT")
+						}
+						stateTimer = TimerActor("timer_afterreceipt", 
+							scope, context!!, "local_tout_client_afterreceipt", 10000.toLong() )
+					}
+					 transition(edgeName="t04",targetState="reqpickup",cond=whenTimeout("local_tout_client_afterreceipt"))   
+				}	 
+				state("reqpickup") { //this:State
+					action { //it:State
+						println("client notify his interest in picking his car | CLIENT")
+						forward("pickup", "pickup($TOKENID)" ,"parkingmanagerservice" ) 
+					}
+					 transition(edgeName="t05",targetState="pickupcar",cond=whenEvent("caroutdoorarrival"))
+				}	 
+				state("pickupcar") { //this:State
+					action { //it:State
+						delay(2000) 
+						emit("carwithdrawn", "cw(bye)" ) 
 					}
 				}	 
 			}

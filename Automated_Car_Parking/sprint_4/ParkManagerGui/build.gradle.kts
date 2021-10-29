@@ -12,6 +12,7 @@ plugins {
 	distribution
 }
 
+
 group = "it.unibo"
 version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_11

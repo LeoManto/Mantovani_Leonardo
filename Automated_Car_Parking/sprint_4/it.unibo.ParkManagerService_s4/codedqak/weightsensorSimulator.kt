@@ -26,8 +26,10 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 		}
   		else if( msg.msgId() == "finished" && msg.msgType() == "event" && msg.msgContent() == "finished(indoor)"){
 			w = 0
+			updateResourceRep( "{\"weight\":\"$w KG\"}")
 			println("trolley in INDOOR | WEIGHT")
 			`it.unibo`.utils.ParkingSlotsKb.indoorFree  = true
+			updateResourceRep( "{\"indoorStatus\":\"FREE\"}")
 			//val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		   //emit(m4)
 		}
@@ -39,8 +41,10 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 		    w = Random.nextInt(750, 3000)
 		    val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		    emit(m4)
+		    updateResourceRep( "{\"weight\":\"$w KG\"}")
 		    if(w>0)
-				`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false 
+				`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false
+				updateResourceRep( "{\"indoorStatus\":\"BUSY\"}")
 		    
 		     
 					 
