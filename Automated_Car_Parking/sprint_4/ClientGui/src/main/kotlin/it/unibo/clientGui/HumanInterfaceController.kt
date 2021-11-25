@@ -16,7 +16,7 @@ import org.springframework.web.util.HtmlUtils
 @Controller
 class HumanInterfaceController {
 
-    @Value("\${human.logo}")
+    @Value("Gui for interaction")
     var appName: String?    = null
 
 
@@ -111,7 +111,7 @@ class HumanInterfaceController {
         sysUtil.colorPrint("HumanInterfaceController | requestType: pickup ", Color.GREEN)
         ClientResource.send("pickup", token)
         //ClientResource.changeAdvise("Token sended: $token")
-        var advise = "Token sended: $token. Check that it's correct!"
+        var advise = "Token sended: $token. Wait untill yout car is in OUTDOOR area.\nGoodbye"
         model.addAttribute("advise", advise)
         return  "clientRobotGui"
     }

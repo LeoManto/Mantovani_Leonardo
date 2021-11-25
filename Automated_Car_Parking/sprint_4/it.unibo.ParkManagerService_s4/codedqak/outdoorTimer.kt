@@ -54,9 +54,9 @@ private var timerScope = CoroutineScope(Dispatchers.Default)
 			  	tmp = tmp - 1 
 			  	delay(1000)
 	  }
-	  val m1 = MsgUtil.buildEvent(name, "timeout", "timeout(alarm)")
-	  emit(m1)
-				}	
+	  forward("updateGui", "alarm(TIMEOUT)" ,"guiupdater" )
+	  ////updateResourceRep( "{\"alarm\":\"TIMEOUT\"}")
+		}	
 }
 
 }

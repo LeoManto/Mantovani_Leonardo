@@ -63,9 +63,12 @@ function connect() {
                     showMsg( jsonMsg.replace("status", ""), "statusDisplay" )
                     curStatus = jsonMsg.replace("status", "")
                 }
+              else if(jsonMsg.includes("slotLiberi")) showMsg( jsonMsg.replace("slotLiberi", ""), "slotDisplay" );
              else if(jsonMsg.includes("curDest")) showMsg( jsonMsg.replace("curDest", ""), "destDisplay" );
              else if(jsonMsg.includes("robotPos")) showMsg( jsonMsg.replace("robotPos", ""), "posDisplay" );
              else if(jsonMsg.includes("direction")) showMsg( jsonMsg.replace("direction", ""), "dirDisplay" );
+             else if(jsonMsg.includes("alarm")) showMsg( jsonMsg.replace("alarm", ""), "alarmDisplay" );
+
              checkBtn()
         });
     });

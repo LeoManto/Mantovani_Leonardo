@@ -1,10 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.4.5"
+	id("org.springframework.boot") version "2.5.0"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	kotlin("jvm") version "1.4.32"
-	kotlin("plugin.spring") version "1.4.32"
+	kotlin("jvm") version "1.5.10"
+	kotlin("plugin.spring") version "1.5.10"
+
 	java
 	application
 	jacoco
@@ -27,29 +28,29 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-websocket")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.5.6")
+	implementation("org.springframework.boot:spring-boot-starter-web:2.5.6")
+	implementation("org.springframework.boot:spring-boot-starter-websocket:2.5.6")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	developmentOnly("org.springframework.boot:spring-boot-devtools:2.5.6")
+	implementation("org.springframework.boot:spring-boot-starter-webflux:2.5.6")
 	//See https://mkyong.com/spring-boot/intellij-idea-spring-boot-template-reload-is-not-working/
 	/* INTELLIJ
 	File –> Setting –> Build, Execution, Deployment –> Compiler –> check this Build project automatically
 	SHIFT+CTRL+A registry | compiler.automake.allow.when.app.running
 	If the static files are not reloaded, press CTRL+F9 to force a reload.
 	 */
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.6")
 
 	//Webjars See https://www.baeldung.com/maven-webjars
 //WebJars have nothing to do with Spring
-	implementation("org.webjars:webjars-locator-core")
-	implementation("org.webjars:sockjs-client:1.0.2")
-	implementation("org.webjars:stomp-websocket:2.3.3")
-	implementation("org.webjars:bootstrap:3.3.7")
-	implementation("org.webjars:jquery:3.1.1-1")
+	implementation("org.webjars:webjars-locator-core:0.48")
+	implementation("org.webjars:sockjs-client:1.5.1")
+	implementation("org.webjars:stomp-websocket:2.3.4")
+	implementation("org.webjars:bootstrap:5.1.1")
+	implementation("org.webjars:jquery:3.6.0")
 
 //KOTLIN
 
@@ -60,33 +61,33 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
 	// This dependency is used by the application.
-	implementation("com.google.guava:guava:29.0-jre")
+	implementation("com.google.guava:guava:31.0.1-jre")
 
 	//COROUTINE
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.1.0")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.8")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
 
 
 //JSON
 	// https://mvnrepository.com/artifact/org.json/json
-	implementation("org.json:json:20201115" )
+	implementation("org.json:json:20210307")
 
 	//OkHttp library for websockets with Kotlin
-	implementation("com.squareup.okhttp3:okhttp:4.9.0")
+	implementation("com.squareup.okhttp3:okhttp:4.9.2")
 
 //OkHttp library for websockets with Kotlin
-	implementation( "com.squareup.okhttp3:okhttp:4.9.0" )
+	implementation("com.squareup.okhttp3:okhttp:4.9.2")
 
 //ADDED FOR THE HTTP CLIENT
 	// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
-	implementation ("org.apache.httpcomponents:httpclient:4.5")
+	implementation ("org.apache.httpcomponents:httpclient:4.5.13")
 	// https://mvnrepository.com/artifact/commons-io/commons-io
 	implementation ("commons-io:commons-io:2.6")
 
 //COAP
 	// https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
 	//FOR A MORE RECENT VERSION, WE MUST INTRODUCE SOME Exception handling in the code
-	implementation("org.eclipse.californium:californium-core:2.0.0-M12")
+	implementation("org.eclipse.californium:californium-core:3.0.0")
 	// https://mvnrepository.com/artifact/org.eclipse.californium/californium-proxy
 	implementation("org.eclipse.californium:californium-proxy:2.0.0-M12")
 
@@ -122,14 +123,14 @@ tasks.withType<Test> {
 }
 application {
 	// Define the main class for the application.
-	mainClass.set("it.unibo.webspring.demo.ApplicationKt")
+	mainClass.set("it.unibo.clientGui.ApplicationKt")
 }
 
 version = "1.0.1"
 
 tasks.jar {
 	manifest {
-		attributes["Main-Class"] = "it.unibo.webspring.demo.ApplicationKt"
+		attributes["Main-Class"] = "it.unibo.clientGui.ApplicationKt"
 		attributes(mapOf("Implementation-Title" to project.name,
 			"Implementation-Version" to project.version))
 	}

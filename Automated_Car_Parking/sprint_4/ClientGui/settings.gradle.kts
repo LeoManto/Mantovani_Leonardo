@@ -1,1 +1,1 @@
-rootProject.name = "webspring.demo"
+rootProject.name = "ClientGui"

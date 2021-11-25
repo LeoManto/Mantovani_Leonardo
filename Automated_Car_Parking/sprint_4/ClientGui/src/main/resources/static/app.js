@@ -81,6 +81,7 @@ function connect() {
             //var mss = JSON.stringify(jsonMsg)
              if( jsonMsg.includes("s")) showMsg(  "SLOTNUM: "+jsonMsg.replace("s",""), "infoDisplay" );
              else if ( jsonMsg.includes("t")) showMsg( "TOKEN: "+jsonMsg.replace("t",""), "infoDisplay" );
+             else if ( jsonMsg.includes("w")) showMsg( "WAIT UNTIL INDOOR BE FREE!! SLOTNUM: "+jsonMsg.replace("w",""), "infoDisplay" );
         });
 
     });
@@ -88,7 +89,6 @@ function connect() {
 
 function disconnect() {
     if (stompClient !== null) {
-        stompClient.disconnect();
     }
     setConnected(false);
     console.log("Disconnected");

@@ -169,7 +169,7 @@ class TestPlan {
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun testWorkflow2(){
 		
- 		`it.unibo`.utils.ParkingSlotsKb.setArea(false,false,false,false,true,false)
+ 		`it.unibo`.utils.ParkingSlotsKb.setArea(false,false,false,true,true,false)
  		`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false
 		`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false
 	
@@ -186,6 +186,7 @@ class TestPlan {
 			slotnum = result.substringAfter("(",result).substringBefore(")",result).toInt()
 			assertTrue(slotnum > 0)
 			
+			`it.unibo`.utils.ParkingSlotsKb.setSlot(4, false)
 			`it.unibo`.utils.ParkingSlotsKb.indoorFree  = true
 			
 			delay(3000)
@@ -209,7 +210,7 @@ class TestPlan {
 
 			clientactor!!.forward("pickup","pickup($token)","parkingmanagerservice")
 			
-			delay(500)
+			delay(3000)
 			
 			`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true
 			
@@ -461,7 +462,7 @@ Simultaneous arrival of more clients
 			result = channelForObserver.receive()
 			var token2 = result.substringAfter("(",result).substringBefore(")",result).toInt()
 			println("+++++++++ testcarenter RESULT=$result +++++++++")
-			assertTrue(token2 > 0 && !token2.equals(token))
+			assertTrue(token2 > 10000 && !token2.equals(token))
 	  	}
  	}
 	

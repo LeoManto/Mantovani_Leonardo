@@ -22,9 +22,10 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 			lateinit var outdoortimerActor 	: ActorBasic
 			lateinit var thermometerActor 	: ActorBasic
 		 	lateinit var fanActor 			: ActorBasic
+		 	lateinit var guiUpdaterActor	: ActorBasic
 			
 			var SLOTNUM = 1
-			
+			var FREESLOTS = 6
 			var INDOORTOKEN  = "1" //tokenid dato al client
 			var WEIGHT 		  = 0
 			
@@ -47,13 +48,29 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 								weightSensorActor 		= sysUtil.getActor("weightsensor")!!
 								thermometerActor 		= sysUtil.getActor("thermometer")!!
 								fanActor				= sysUtil.getActor("fan")!!
+								guiUpdaterActor			= sysUtil.getActor("guiupdater")!!
+					}
+					 transition(edgeName="t00",targetState="setup",cond=whenDispatch("startManager"))
+				}	 
+				state("setup") { //this:State
+					action { //it:State
+						delay(2000) 
 						forward("startthermometer", "thermometer(on)" ,"thermometer" ) 
 						forward("startsonar", "sonar(on)" ,"sonarhandler" ) 
+						updateResourceRep( "systemready(start)"  
+						)
+						updateResourceRep( "freeslots(${FREESLOTS})"  
+						)
+						forward("updateGui", "indoorStatus(FREE)" ,"guiupdater" ) 
+						forward("updateGui", "outdoorStatus(FREE)" ,"guiupdater" ) 
+						forward("updateGui", "slotLiberi($FREESLOTS)" ,"guiupdater" ) 
+						forward("updateGui", "fan(OFF)" ,"guiupdater" ) 
+						 val W = "0 KG"  
+						forward("updateGui", "weight($W)" ,"guiupdater" ) 
+						forward("systemready", "ready(system)" ,"trolley" ) 
 						println("Park System START | SERVICE")
-						stateTimer = TimerActor("timer_s0", 
-							scope, context!!, "local_tout_parkingmanagerservice_s0", 1000.toLong() )
 					}
-					 transition(edgeName="t00",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_s0"))   
+					 transition( edgeName="goto",targetState="check", cond=doswitch() )
 				}	 
 				state("check") { //this:State
 					action { //it:State
@@ -98,7 +115,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("INDOOR Avaiable | SERVICE")
 						stateTimer = TimerActor("timer_readyOnlyReqEnter", 
-							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyReqEnter", 5000.toLong() )
+							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyReqEnter", 10000.toLong() )
 					}
 					 transition(edgeName="t04",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyReqEnter"))   
 					transition(edgeName="t05",targetState="acceptin",cond=whenRequest("reqenter"))
@@ -134,18 +151,18 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						 SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot()  
 						 `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false)  
-						 println(`it.unibo`.utils.ParkingSlotsKb.indoorFree )  
-						 println(unibo.robot.TrolleyKb.trolleyStatus)  
 						 if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree || 
 											unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.STOPPED
 									){  
 						answer("reqenter", "waitIndoor", "slotsnum($SLOTNUM)"   )  
-						updateResourceRep( "{\"slotnum\":\"$SLOTNUM\"}"  
+						updateResourceRep( "waitindoor(${SLOTNUM})"  
 						)
 						 }  
 						 else { 
 						answer("reqenter", "slotsnum", "slotsnum($SLOTNUM)"   )  
 						println("SLOTNUM = $SLOTNUM | SERVICE")
+						updateResourceRep( "slotnum(${SLOTNUM})"  
+						)
 						 }  
 						stateTimer = TimerActor("timer_acceptin", 
 							scope, context!!, "local_tout_parkingmanagerservice_acceptin", 20000.toLong() )
@@ -205,6 +222,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						println("Trolley is in INDOOR| SERVICE")
 						 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM)  
 						answer("carenter", "receipt", "receipt($INDOORTOKEN)"   )  
+						updateResourceRep( "receipt(${INDOORTOKEN})"  
+						)
 						 }  
 					}
 					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitchGuarded({ trolleyPos == "indoor" 
@@ -235,6 +254,10 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				state("parkedCar") { //this:State
 					action { //it:State
 						println("Car is parked at p$SLOTNUM")
+						 FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots()  
+						forward("updateGui", "slotLiberi($FREESLOTS)" ,"guiupdater" ) 
+						updateResourceRep( "freeslots(${FREESLOTS})"  
+						)
 						stateTimer = TimerActor("timer_parkedCar", 
 							scope, context!!, "local_tout_parkingmanagerservice_parkedCar", 500.toLong() )
 					}
@@ -284,7 +307,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("trolleyToPickingSlot") { //this:State
 					action { //it:State
-						println("WAIT THAT TROLLEY ARRIVE AT PICKING SLOT | SERVICE")
+						println("WAIT TROLLEY ARRIVE AT PICKING SLOT | SERVICE")
 						stateTimer = TimerActor("timer_trolleyToPickingSlot", 
 							scope, context!!, "local_tout_parkingmanagerservice_trolleyToPickingSlot", 5000.toLong() )
 					}
@@ -307,6 +330,10 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						 if(simulatedsonar){ 
 						 if (trolleyPos == "outdoor") { 
 						emit("caroutdoorarrival", "coa(car_arrived)" ) 
+						 FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots()  
+						forward("updateGui", "slotLiberi($FREESLOTS)" ,"guiupdater" ) 
+						updateResourceRep( "freeslots(${FREESLOTS})"  
+						)
 						println("Car is in Outdoor area | SERVICE")
 						 } 
 								}  
@@ -327,12 +354,6 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						println("Invalid insert Token!")
 					}
 					 transition( edgeName="goto",targetState="check", cond=doswitch() )
-				}	 
-				state("timeout") { //this:State
-					action { //it:State
-						println("%%%% TIMEOUT %%%%")
-						emit("alarm", "timeout(alarm)" ) 
-					}
 				}	 
 			}
 		}

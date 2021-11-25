@@ -4,6 +4,7 @@ import com.andreapivetta.kolor.Color
 import it.unibo.actor0.sysUtil
 import it.unibo.kactor.ActorBasic
 import it.unibo.kactor.QakContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
@@ -22,18 +23,15 @@ https://spring.io/guides/gs/messaging-stomp-websocket/
 
 @Controller
 class HIController {
-    @Value("\${human.logo}")
+    @Value("Gui for interaction")
     var appName: String?    = null
 
-    var coapForParking      = CoapSupport("coap://localhost:5683", "ctxparkingservice/parkingmanagerservice")
-    var coapForTrolley      = CoapSupport("coap://127.0.0.1:5685", "ctxtrolley/trolley")
-    var coapForFan          = CoapSupport("coap://localhost:5683", "ctxparkingservice/fan")
-    var coapForThermometer  = CoapSupport("coap://localhost:5683", "ctxparkingservice/thermometer")
-    var coapForWeightsensor = CoapSupport("coap://localhost:5683", "ctxparkingservice/weightsensor")
-    //var coapForOutdoor      = CoapSupport("coap://localhost:5683", "ctxparkingservice/sonarhandler")
-    //IF SIMULATE:
-    var coapForOutdoor      = CoapSupport("coap://localhost:5683", "ctxparkingservice/outsonar")
+    var systemStarted = false
 
+    val url = "coap://localhost:5683"
+    val ctx = "ctxparkingservice"
+
+    var coapForGUI = CoapSupport(url, "ctxparkingservice/guiupdater")
 
     /*
      * Update the page vie socket.io when the application-resource changes.
@@ -46,25 +44,26 @@ class HIController {
     //var ws         = IssWsHtttpJavaSupport.creaeForWs ("localhost:8083")
     init{
 
-        ValuesForGui.setController(this)
         SenderToPark.start(this)
 
         sysUtil.colorPrint("HumanInterfaceController | INIT", Color.GREEN)
         //connQakSupport = connQakCoap()
         //connQakSupport.createConnection()
-        coapForParking.observeResource(ParkingCoapHandler(this) )
-        coapForFan.observeResource(ParkingCoapHandler(this) )
-        coapForThermometer.observeResource(ParkingCoapHandler(this))
-        coapForTrolley.observeResource(TrolleyCoapHandler(this))
-        coapForWeightsensor.observeResource(ParkingCoapHandler(this))
-        coapForOutdoor.observeResource(ParkingCoapHandler(this))
-
+        coapForGUI.observeResource(ParkingCoapHandler(this) )
+        println("init finished")
     }
 
     @GetMapping("/")    //defines that the method handles GET requests.
     fun entry(model: Model): String {
         model.addAttribute("arg", appName )
         sysUtil.colorPrint("HIController | entry model=$model", Color.GREEN)
+        if(!systemStarted) {
+            SenderToPark.send("start")
+            systemStarted = true
+        }
+        else {
+            ValuesForGui.updateLastValues()
+        }
         return  "ManagerGui"
     }
 

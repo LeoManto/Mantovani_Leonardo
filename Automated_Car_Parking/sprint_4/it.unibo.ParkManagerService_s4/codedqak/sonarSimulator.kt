@@ -25,7 +25,6 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 @kotlinx.coroutines.ExperimentalCoroutinesApi
     override suspend fun actorBody(msg: ApplMessage) {
   		if( msg.msgId() == "caroutdoorarrival" &&  msg.msgType() == "event") startSonar()
-  		else if ( msg.msgId() == "carwithdrawn" &&  msg.msgType() == "event") stopSonar()
  	}
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -33,7 +32,9 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 	  suspend fun startSonar(){
 		
 		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false
-		 	updateResourceRep( "{\"outdoorStatus\":\"BUSY\"}")
+		     forward("updateGui", "outdoorStatus(BUSY)" ,"guiupdater" )
+		 	////updateResourceRep( "{\"outdoorStatus\":\"BUSY\"}")
+		 	updateResourceRep( "outdoor(BUSY)") //test
 		 	mainScope = CoroutineScope(Dispatchers.Default)
 		    startTimer()
 		}
@@ -43,7 +44,9 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 	  suspend fun stopSonar(){
 	
 		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true
-		 	updateResourceRep( "{\"outdoorStatus\":\"FREE\"}")
+		 	forward("updateGui", "outdoorStatus(FREE)" ,"guiupdater" )
+		 	////updateResourceRep( "{\"outdoorStatus\":\"FREE\"}")
+		 	updateResourceRep( "outdoor(FREE)") //test
 		    mainScope.cancel()
 		    tmp = DTFREE
 		}
@@ -56,10 +59,12 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 			  while( tmp > 0){  		
 			  	tmp = tmp - 1 
 			  	delay(1000)
+				stopSonar()
 	  }
-
 	  val m1 = MsgUtil.buildEvent(name, "timeout", "timeout(alarm)")
 	  emit(m1)
+	  forward("updateGui", "alarm(TIMEOUT)" ,"guiupdater" )
+	  ////updateResourceRep( "{\"alarm\":\"TIMEOUT\"}")
 				}	
 }
 

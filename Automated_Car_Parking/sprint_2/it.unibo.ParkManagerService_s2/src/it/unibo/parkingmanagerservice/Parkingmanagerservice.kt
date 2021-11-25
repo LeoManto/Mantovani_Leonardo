@@ -43,7 +43,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						stateTimer = TimerActor("timer_s0", 
 							scope, context!!, "local_tout_parkingmanagerservice_s0", 1000.toLong() )
 					}
-					 transition(edgeName="t01",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_s0"))   
+					 transition(edgeName="t05",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_s0"))   
 				}	 
 				state("check") { //this:State
 					action { //it:State
@@ -76,9 +76,9 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						stateTimer = TimerActor("timer_ready", 
 							scope, context!!, "local_tout_parkingmanagerservice_ready", 5000.toLong() )
 					}
-					 transition(edgeName="t02",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_ready"))   
-					transition(edgeName="t03",targetState="acceptin",cond=whenRequest("reqenter"))
-					transition(edgeName="t04",targetState="acceptout",cond=whenDispatch("pickup"))
+					 transition(edgeName="t06",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_ready"))   
+					transition(edgeName="t07",targetState="acceptin",cond=whenRequest("reqenter"))
+					transition(edgeName="t08",targetState="acceptout",cond=whenDispatch("pickup"))
 				}	 
 				state("readyOnlyIndoor") { //this:State
 					action { //it:State
@@ -86,8 +86,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						stateTimer = TimerActor("timer_readyOnlyIndoor", 
 							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyIndoor", 5000.toLong() )
 					}
-					 transition(edgeName="t05",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyIndoor"))   
-					transition(edgeName="t06",targetState="acceptin",cond=whenRequest("reqenter"))
+					 transition(edgeName="t09",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyIndoor"))   
+					transition(edgeName="t010",targetState="acceptin",cond=whenRequest("reqenter"))
 				}	 
 				state("readyOnlyOutdoor") { //this:State
 					action { //it:State
@@ -95,15 +95,15 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						stateTimer = TimerActor("timer_readyOnlyOutdoor", 
 							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyOutdoor", 5000.toLong() )
 					}
-					 transition(edgeName="t07",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyOutdoor"))   
-					transition(edgeName="t08",targetState="acceptout",cond=whenDispatch("pickup"))
+					 transition(edgeName="t011",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyOutdoor"))   
+					transition(edgeName="t012",targetState="acceptout",cond=whenDispatch("pickup"))
 				}	 
 				state("notReady") { //this:State
 					action { //it:State
 						stateTimer = TimerActor("timer_notReady", 
 							scope, context!!, "local_tout_parkingmanagerservice_notReady", 5000.toLong() )
 					}
-					 transition(edgeName="t09",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_notReady"))   
+					 transition(edgeName="t013",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_notReady"))   
 				}	 
 				state("moveToHome") { //this:State
 					action { //it:State
@@ -131,13 +131,13 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						println("Trolley is moving to Indoor | SERVICE")
 						 }  
 					}
-					 transition(edgeName="t010",targetState="carenter",cond=whenRequest("carenter"))
+					 transition(edgeName="t014",targetState="carenter",cond=whenRequest("carenter"))
 				}	 
 				state("carenter") { //this:State
 					action { //it:State
 						emit("carindoorarrival", "cia(car_arrived)" ) 
 					}
-					 transition(edgeName="t011",targetState="weightcheck",cond=whenEvent("weightsensor"))
+					 transition(edgeName="t015",targetState="weightcheck",cond=whenEvent("weightsensor"))
 				}	 
 				state("weightcheck") { //this:State
 					action { //it:State
@@ -170,7 +170,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						stateTimer = TimerActor("timer_receipt", 
 							scope, context!!, "local_tout_parkingmanagerservice_receipt", 1000.toLong() )
 					}
-					 transition(edgeName="t012",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_receipt"))   
+					 transition(edgeName="t016",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_receipt"))   
 				}	 
 				state("weightError") { //this:State
 					action { //it:State
@@ -208,7 +208,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						stateTimer = TimerActor("timer_picking", 
 							scope, context!!, "local_tout_parkingmanagerservice_picking", 100.toLong() )
 					}
-					 transition(edgeName="t013",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_picking"))   
+					 transition(edgeName="t017",targetState="check",cond=whenTimeout("local_tout_parkingmanagerservice_picking"))   
 				}	 
 				state("tokenError") { //this:State
 					action { //it:State

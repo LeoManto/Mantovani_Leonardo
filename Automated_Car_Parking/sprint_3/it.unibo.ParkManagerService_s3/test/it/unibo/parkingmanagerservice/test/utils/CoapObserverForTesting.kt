@@ -48,7 +48,6 @@ class CoapObserverForTesting(val name: String      = "testingobs",
 	  
 	   setup(channel,expected)
 	   client!!.observe( handler )
-	   
 	}		 
  
 	fun terminate(){

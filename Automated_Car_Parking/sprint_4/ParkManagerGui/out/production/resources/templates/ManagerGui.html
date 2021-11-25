@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>AutomatedCarParking - ManagerGui </title>
+
+<!-- SOCKET in SpringBoot -->
+<!--
+Imports the SockJS and STOMP javascript libraries that will be used
+to communicate with our server through STOMP over websocket.
+We also import app.js, which contains the logic of our client application.
+-->
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+
+    <script src="/app.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+
+    <script>
+    function myIp() {
+      var ip = location.host;
+      //alert(ip);
+      //document.getElementById("myIp").innerHTML   = ip;
+      //document.getElementById("raspIp").innerHTML = "192.168.1.5";
+    }
+
+    //myIp()
+    connect() //defined in app.js
+  </script>
+
+</head>
+
+<body>
+    <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+        enabled. Please enable
+        Javascript and reload this page!</h2>
+    </noscript>
+
+    <div>
+        <nav class="navbar navbar-dark bg-dark">
+            <h1 class="h1" style="text-align:center; color: white;">AuthomatedCarParking - Parking Manager Gui</h1>
+        </nav>
+    </div>
+<!-- ----------------------------------------------------------------------------------------------------------------------- -->
+
+    <!--<div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <center>INDOOR State Value</center>
+                </div>
+                <div class="card-body">
+                    <span id="indoorDisplay"><pre>null<br></pre></span></br>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <center>Temperature Value</center>
+                </div>
+                <div class="card-body">
+                    <span id="tempDisplay">  <pre>null<br></pre></span></br>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <center>Fan Value</center>
+                </div>
+                <div class="card-body">
+                    <span id="fanDisplay">  <pre>null<br></pre></span></br>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <center>Current Car Weight</center>
+                </div>
+                <div class="card-body">
+                    <span id="weightDisplay"><pre>null<br></pre></span></br>
+                </div>
+            </div>
+        </div>
+    </div>-->
+
+
+    <div class="row">
+        <div class="col-6" style="width: 42.5%; margin-left: 5%;">
+            <center><h1>TROLLEY CONTROLLER</h1></center>
+            </br>
+            <div class="row">
+                <div class="col-6">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>TROLLEY STATUS</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="statusDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+
+                    <div class="card border-primary mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>TROLLEY DESTINATION</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="destDisplay" style="font-size: 12px;">  <pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>TROLLEY POSITION</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="posDisplay" style="font-size: 12px;">  <pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+
+                    <div class="card border-primary mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>TROLLEY DIRECTION</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="dirDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form action="/stop" id="myStopForm" method="post" name="myForm" target="hiddenFrame">
+                <center><button id="stopbtn" class="btn btn-danger" type="submit" name="stopbtn" value="stop" style="font-size: 12px;"><b>STOP Trolley</b></button></center>
+            </form>
+            <br>
+
+            <form action="/resume" id="myResumeForm" method="post" name="myForm" target="hiddenFrame" style="margin-bottom:1%;">
+                <center><button id="resumebtn" class="btn btn-success" type="submit" name="resumebtn" value="resume" style="font-size: 12px;"><b>RESUME Trolley</b></button></center>
+            </form>
+        </div>
+
+        <div class="col-6" style="width: 42.5%; margin-left: 5%;">
+            <center><h1>INDOOR & OUTDOOR STATUS</h1></center>
+            </br>
+            <div class="row">
+                <div class="col-6">
+                    <div class="card border-danger mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>INDOOR STATUS</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="indoorDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+
+                    <div class="card border-danger mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>OUTDOOR STATUS</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="outdoorDisplay" style="font-size: 12px;">  <pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-danger mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>CURRENT CAR WEIGHT</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="weightDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+                    <div class="card border-danger mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>ALARM STATUS</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="alarmDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-danger mb-3">
+                <div class="card-header" style="font-size: 15px;">
+                    <center><b>FREE SLOTS</b></center>
+                </div>
+                <div class="card-body">
+                    <span id="slotDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 1%;">
+        <div class="col-6" style="width: 42.5%; margin-left: 5%;">
+            <center><h1>ENVIRONMENT STATUS</h1></center>
+            </br>
+            <div class="row">
+                <center><div class="col-6">
+                    <div class="card border-success mb-3" >
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>TEMPERATURE CURRENT VALUE</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="tempDisplay" style="font-size: 12px;"><pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+
+                    <div class="card border-success mb-3">
+                        <div class="card-header" style="font-size: 15px;">
+                            <center><b>FAN STATUS</b></center>
+                        </div>
+                        <div class="card-body">
+                            <span id="fanDisplay" style="font-size: 12px;">  <pre>null<br></pre></span></br>
+                        </div>
+                    </div>
+                </div></center>
+            </div>
+        </div>
+        <div class="col-6" style="width: 42.5%; margin-left: 5%;">
+            <center><h1>ENVIRONMENT CAMERA</h1></center>
+            </br>
+            <iframe src="http://localhost:8090/" width="100%" height="400" style="border:none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+
+    </script>
+
+    <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+
+
+    <br>
+
+    <!--
+    <iframe src="http://localhost:8090/" width="100%" height="500" style="border:none;"></iframe>
+    -->
+
+</body>
+</html>

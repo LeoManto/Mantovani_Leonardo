@@ -61,8 +61,6 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 				delay(3000)
 			}	
 		}
-		//job.join()
-		//println("done | FAN") 
 	}
 }
 	

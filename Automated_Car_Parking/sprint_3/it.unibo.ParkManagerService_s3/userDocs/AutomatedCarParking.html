@@ -246,334 +246,11 @@
 			<p>In this document it will be analysed the third SPRINT of the project.
 				In this phase we will extend previous SPRINT's model, adding the implementation of an virtual <k>trolley</k> that performs the movements during the parking and picking phases.
 			</p>
+			<p>
+				Link to <a href="https://htmlpreview.github.io/?https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_1/it.unibo.ParkManagerService_s1/userDocs/AutomatedCarParking.html">SPRINT 2</a>
+			</p>
 		</div>
 
-		<h2>Requirements</h2>
-		<div class="remark">
-
-			A company intends to build an <i>automating parking service</i> composed of a set of elements:
-
-			<ul>
-				<li>A software system, named <em>ParkManagerService</em>, that implements the required automation
-					functions.
-				</li>
-				<li>A <tt>DDR</tt> robot working as a <em>transport trolley</em>, that is intially situated in its
-					<em>home</em> location.
-					The <tt>transport trolley</tt> has the form of a square of side length <em>RD</em>.
-				</li>
-				<li>A <em>parking-area</em> is an empty room that includes;
-					<ul>
-						<li>an <em>INDOOR</em> to enter the car in the area. Facing the <tt>INDOOR</tt>, there is
-							a <em>INDOOR-area</em> equipped with a <em>weightsensor</em> that measures the
-							<em>weight</em>
-							of the car;</li>
-						<li>an <em>OUTDOOR</em> to exit from the <tt>parking-area</tt>. Just after the <tt>OUTDOOR</tt>,
-							there is
-							<em>OUTDOOR-area</em> equipped with a <em>outsonar</em>, used to detect the presence of a
-							car.
-							The <tt>OUTDOOR-area</tt>, once engaded by a car, should be freed within a prefixed interval
-							of
-							time <em>DTFREE</em>; </li>
-						<li>a number <tt>N (N=6)</tt> of <em>parking-slots</em>;</li>
-						<li>a <em>thermometer</em> that measures the temperature <em>TA</em> of the area;</li>
-						<li>a <em>fan</em> that should be activated when <k>TA > TMAX</k>, where <em>TMAX</em> is a
-							prefixed
-							value (e.g. <tt>35</tt>)</li>
-					</ul>
-					A <em>map</em> of the parking area, represented as a grid of squares of side length <em>RD</em>,
-					is available in the file <a href="parkingMap.txt" target="code">parkingMap.txt</a>:
-					<pre>
-|r, 0, 0, 0, 0, 0, 0, X, 
-|0, 0, <bc>X, X,</bc>  0, 0, 0, X, 
-|0, 0, <bc>X, X,</bc>  0, 0, 0, X, 
-|0, 0, <bc>X, X,</bc>  0, 0, 0, X, 
-|0, 0, 0, 0, 0, 0, 0, X, 
-|X, X, X, X, X, X, X, X, </pre>
-					The map includes the positions of the <tt>parking-slots</tt> (marked above with the symbol <k>X</k>)
-					and of the <em>fixed obstacles</em> in the area (the walls marked with the symbol <b>X</b>).
-					<br /><br />
-					The area marked with <k>X</k> is a sort of 'equipped area' upon which the <tt>transport trolley</tt>
-					cannot walk.
-					Thus, to get the car in the <tt>parking-slot</tt>
-					<ks>(2,2)</ks>, the <tt>transport trolley</tt> must
-					go in cell <ks>(1,2)</ks>.
-					<br /><br />
-
-					The proper scene for the WEnv is reported in: <a href="parkingAreaConfig.js"
-						target="code">parkingAreaConfig.js</a>
-
-
-					<center><img src="./img/parkingAreaZone.PNG" alt="parkingAreaZone.PNG" width="45%" height="32%" />
-					</center>
-				</li>
-				<li>a <em>parking-manager</em> (an human being) which supervises the state of the <tt>parking-area</tt>
-					and handles critical situations
-					<!-- by using a software system named <em>ParkMonitoringService</em> -->. </li>
-			</ul>
-
-			<div class="remark">
-				The job of our company is to design, build and deploy the <em>ParkManagerService</em>.
-			</div>
-			<!-- and the <em>ParkMonitoringService</em>.-->
-			The <tt>ParkManagerService</tt> should create the <tt>ParkServiceGUI</tt> (for the client)
-			and the <tt>ParkServiceStatusGUI</tt> (for the manager) and then perform the following tasks:
-
-
-			<ul>
-
-				<li>
-					<hr />
-					<em>acceptIN</em>: accept the request of a client to park the car if there is at least one
-					<tt>parking-slot</tt> available,
-					select a free slot identified with a unique <tt>SLOTNUM</tt>.<br />
-					A request of this type can be elaborated only when the <k><tt>INDOOR-area</tt> is free</k>,
-					and the <tt>transport trolley</tt> is at <tt>home</tt> or working (<k>not stopped</k> by the
-					manager).
-					If the <tt>INDOOR-area</tt> is already engaged by a car, the request is not immediately processed
-					(the client could simply wait or could - optionally - receive a proper notice).
-					<br />
-				<li><em>informIN</em>: inform the client about the value of the <tt>SLOTNUM</tt>.</li>
-				If <k>SLOTNUM>0</k>:
-				<ol>
-					<li><em>moveToIn</em>: move the <tt>transport trolley</tt> from its current localtion to the
-						<tt>INDOOR</tt> ;</li>
-					<li><em>receipt</em>: send to the client a receipt including the value of the <tt>TOKENID</tt> ;
-					</li>
-					<li><em>moveToSlotIn</em>: move the <tt>transport trolley</tt> from the <tt>INDOOR</tt> to the
-						selected
-						<tt>parking-slot</tt>;</li>
-					<!-- <li>accept another request (<tt>acceptIN</tt> or <tt>acceptOUT</tt>). -->
-					<li><em>backToHome</em>: if no other request is present, move the <tt>transport trolley</tt> to its
-						<tt>home</tt> location,
-						else <em>acceptIN</em> or <em>acceptOUT</em>.</li>
-				</ol>
-
-				If <k>SLOTNUM==0</k>:
-				<ul>
-					<li><em>moveToHome</em>: if not already at home, move the <tt>transport trolley</tt> to its
-						<tt>home</tt> location.</li>
-				</ul>
-
-				<li>
-					<hr />
-					<em>acceptOUT</em>: accept the request of a client to get out the car with <tt>TOKENID</tt>.
-					A request of this type can be elaborated only when the <k><tt>OUTDOOR-area</tt> is free</k>
-					and the <tt>transport trolley</tt> is at <tt>home</tt> or working (<k>not stopped</k> by the
-					manager).
-					If the <tt>OUTDOOR-area</tt> is still engaged by a car, the request is not immediately processed
-					(the client could simply wait or could - optionally - receive a proper notice).
-
-					<ol>
-						<li><em>findSlot</em>: deduce the number of the parking slot (<em>CARSLOTNUM</em>) from the
-							<tt>TOKENID</tt>;</li>
-						<li><em>moveToSlotOut</em>: move the <tt>transport trolley</tt> from its current localtion to
-							the
-							<tt>CARSLOTNUM/parking-slot</tt> ;</li>
-						<li><em>moveToOut</em>: move the <tt>transport trolley</tt> to the <tt>OUTDOOR</tt> ;</li>
-						<li><em>moveToHome</em>: if no other request is present move the <tt>transport trolley</tt> to
-							its
-							<tt>home</tt> location; <br />
-							else <em>acceptIN</em> or <em>acceptOUT</em></li>
-
-					</ol>
-				</li>
-				<li>
-					<hr />
-					<em>monitor</em>: update the <tt>ParkServiceStatusGUI</tt> with the required information about the
-					state
-					of the system.
-				</li>
-
-				<li>
-					<hr />
-					<em>manage</em>: accept the request of the manager to stop/resume the behavior of the <tt>transport
-						trolley</tt>.
-				</li>
-
-			</ul>
-			<h3>User stories</h3>
-			As a <bc>client - parking phase</bc> :
-			<ul>
-				<li>I intend to use a <em>ParkServiceGUI</em> provided by the <tt>ParkManagerService</tt> to notify my
-					interest in <i>entering</i>
-					my auto in the <tt>parking-area</tt> and to receive as answer the number <em>SLOTNUM</em> of a free
-					parking-slot (<tt>1&lt;=SLOTNUM&lt;=6</tt>).
-					<tt>SLOTNUM<k>==0</k></tt> means that no free slot is available.
-
-				</li>
-				<li>If <tt>SLOTNUM <k>>0</k></tt>, I move my car in front to the <tt>INDOOR</tt>, get out of the car and
-					afterwards press a <em>CarEnter</em> button on the
-					<em>ParkServiceGUI</em>. Afterwards, the <tt>transport trolley</tt> takes over my car and moves it
-					from
-					the <tt>INDOOR</tt>
-					to the selected <tt>parking-slot</tt>.
-					The <tt>ParkServiceGUI</tt> will show to me a receipt that includes a (unique) <em>TOKENID</em>,
-					to be used in the <i>car pick up</i> phase.</li>
-			</ul>
-
-			As a <bc>client - car pick up phase</bc> :
-			<ul>
-				<li>I intend to use the <tt>ParkServiceGUI</tt> to submit the request to pick up my car, by sending the
-					<tt>TOKENID</tt> previously received. </li>
-				<li>Afterwards, the <tt>transport trolley</tt> takes over my car and moves it from its
-					<tt>parking-slot</tt>
-					to the <tt>OUTDOOR-area</tt>.</li>
-				<li>I move the car, so to free the <tt>OUTDOOR-area</tt>.
-				</li>
-			</ul>
-
-			As a <bc>parking-manager</bc>:
-			<ul>
-				<li>I intend to use the <em>ParkServiceStatusGUI</em> provided by the <tt>ParkManagerService</tt>
-					to observe the <em>current state</em> of the <tt>parking area</tt>, including the value <tt>TA</tt>
-					of
-					the temperature,
-					the state of the <tt>fan</tt> and the state of the <tt>transport trolley</tt> (<k>idle, working or
-						stopped</k>).</li>
-				<li>I intend to <em>stop</em> the <tt>transport trolley</tt> when <k>TA > TMAX</k>, activate the
-					<tt>fan</tt> and
-					wait until <k>TA &lt; TMAX</k>. At this time, I stop the <tt>fan</tt> and resume the behavior of the
-					<tt>transport trolley</tt>.
-					Hopefully, the <b>start/stop</b>
-					<ks>of the fan</ks> could also be automated by the <tt>ParkManagerService</tt>,
-					while the <b>start/stop</b>
-					<ks>of the transport trolley</ks> is always up to me.
-				</li>
-
-				<li>I expect that the <tt>ParkManagerService</tt> sends to me an <em>alarm</em> if it detectes that the
-					<tt>OUTDOOR-area</tt>
-					has not been cleaned within the <tt>DTFREE</tt> interval of time.</li>
-			</ul>
-
-
-
-			<h4>About the devices</h4>
-			All the sensors (<tt>weightsensor</tt>, <tt>outsonar</tt>, <tt>thermometer</tt> ) and the <tt>fan</tt>
-			should be
-			properly simulated
-			by mock-objects or mock-actors.
-
-			<h4>When using a real robot</h4>
-			No further requirement.
-
-			<h4>When available a Raspberry and a sonar</h4>
-			The <tt>outsonar</tt> could be a real device. We can simulate the presence/absence of a car.
-
-			<h4>When using <k>only</k> the virtual robot or <k>no real sonar</k> available</h4>
-			Consider the new requirement:
-			<ul>
-				<li>
-					<ks>authorize</ks>: allow a manager to use the <tt>ParkServiceStatusGUI</tt> only if she/he owns
-					<bc>
-						proper permissions</bc>.
-				</li>
-
-			</ul>
-		</div>
-		<h2>Requirement analysis</h2>
-		<div class="remark">
-			<h3>Meanings analysis</h3>
-			<p>After interviewing client, meanings he associates with nouns have been clarified:</p>
-			<ul>
-				<li>
-					<ks>WeightSensor: </ks> is a sensor that provide weight of the car which is located in the
-					INDOOR-area.
-					Initially this sensor has the purpose of signaling the presence of a car in the entrance area.
-				</li>
-				<li>
-					<ks>OutSonar: </ks>is a sensor that provide a signal if a car is located in the OUTDOOR-area.
-					Initially
-					this sensor has the purpose of signaling the presence of a car in the exit area.
-				</li>
-				<li>
-					<ks>Thermometer: </ks> is a sensor that measures temperature of the environment.
-				</li>
-				<li>
-					<ks>ParkServiceGUI: </ks>this is the GUI associated with Clients. Provides to them all informations
-					concerning parking area status.
-					Moreover provide buttons that permit them to make a parking request and to withdraw the car from
-					this
-					area.
-				</li>
-				<li>
-					<ks>ParkServiceStatusGUI: </ks>this is the GUI associated with ParkingManager, and provides all the
-					tools concerning parking area management.
-				</li>
-				<li>
-					<ks>Transport Trolley: </ks> is a DDR robot that has the task of parking cars from INDOOR to an
-					assigned park-slot and, on a withdraw request, of moving cars from park-slot to OUTDOOR.
-					Trolley have three operative state: <k>idle</k>, <k>working</k>, <k>stopped</k>.
-					<ul>
-						<li>
-							When he is in <k>idle</k> state, means that he don't has any request to serve. In this case
-							he returns to his main place (<k>HOME</k>).
-						</li>
-						<li>
-							When he is in <k>working</k> state, means that he has to serve (or is serving) a request.
-						</li>
-						<li>
-							When he is in <k>stopped</k> state, means that there are some problems in the environment
-							and the <ks>Parking Manager</ks> has manually stopped the trolley work.
-							When he is in this situation, Trolley immediately stops whatever type of work it is doing
-							and stays where he is.
-						</li>
-					</ul>
-				</li>
-				<li>
-					<ks>Home: </ks>trolley's main parking area. At application start and when there are no work,
-					this is tha place in where trolley wait. It is situated in the north-west corner of room,
-					coordinates
-					(0,0).
-					<!--*REVIEW Anche quando scatta l'allarme e viene messo in attesa? Oppure resta nel punto in cui si trova in quel momento?-->
-				</li>
-				<li>
-					<ks>TOKENID: </ks> is the <k>UNIQUE</k> an identification number of the parking operation, strictly
-					associated with the
-					client owner of the parked car.
-					This number will be used at the end when the client decides to withdraw the car from the parking
-					area.
-				</li>
-
-			</ul>
-
-			<p>Regarding to actions (verbs):</p>
-			<ul>
-				<li>
-					When a client notify system that he wants to enter in the parking-area, receive an answer containing
-					number of free slots, whether they are <k>0</k> or <k>>0</k>.
-					His request will be processed when the <k>INDOOR</k> area is free.
-				</li>
-				<li>
-					When a client make request for withdraw his car from parking-area have to enter manually his <k>
-						TOKENID</k> on ParkServiceGUI.
-				</li>
-			</ul>
-			<h3> Components Analysis </h3>
-			<ul>
-				<li>
-					<k>trolley:</k> is a virtual robot that can move in the environment (virtual parking-area). The
-					customer will provide us with this software component, called <kc>ActorBasicRobot</kc>.
-				<li>
-					<k>map:</k> is a representation of the parking-area map. We are already in possession of this
-					software component, it was developed previously in the project <kc>it.unibo.kotlinSupports.</kc>
-				<li>
-					<k>parking-slot:</k> each parking slot is identified as a tuple of values (eg. <i>(3,2)</i>)
-					indicating the position of the parking spaces in the map.
-				<li>
-					<k>weightsensor:</k> is a component that is not provided by the customer, so it will be simulated.
-				<li>
-					<k>outsonar: </k> is a component that may be simulated by a software or implemented by a C library
-					called <ks>SonarAlone.c</ks> provided by customer and handled by a kotlin class called <ks>
-						sonarHCSR04Support2021.kt</ks>
-				<li>
-					<k>thermometer:</k> it has not been supplied by the customer, so a sensor measuring the ambient
-					temperature will be simulated by software.
-				<li>
-					<k>fan:</k> is a software component that will simulate the operation of a fan
-			</ul>
-
-
-		</div>
 		<h2>Problem analysis</h2>
 		<div class="remark">
 			<p>As mentioned in the <a href="#introduction">Introduction</a> in this SPRINT, we will analyze a simplified
@@ -585,17 +262,16 @@
 					<br><br>
 					<ul>
 						<li>no <k>GUI</k> will be implemented (neither for the client nor for the parking-manager);
-							<div class="remark2">GUIs will not be implemented because, during these early stages of
-								project development, we will only carry out local tests.</div>
-
+							<div class="remark2" ;>GUIs will not be implemented because, during these early stages of
+								project development, we will only carry out local tests. </div>
+								
 						<li>Actions of <k>Parking-Manager</k> will not be performed;
-							<div class="remark2">The manager performs its actions through the GUI, as it is not
-								implemented
+							<div class="remark2">The manager performs its actions through the GUI, as it is not implemented
 								it cannot perform operations either</div>
 
 						<li>
-							<k>Outsonar</k> is a component simulated by a software;
-							<div class=remark2>This sensor is simulated because it is not yet physically available.
+							<k>Outsonar</k> and <k>WeightSensor</k> are components simulated by a software;
+							<div class=remark2>These sensors are simulated because they are not yet physically available.
 								It is possible that real <b>outsonar</b> will be used in future SPRINTs.</div>
 
 						<!--<li>
@@ -616,9 +292,7 @@
 				</p>
 
 				<h3>Model - SPRINT 3</h3>
-				<center>
-					<ks><a href="../src/parkingservice.qak">parkingmanagerservice.qak</a></ks>
-				</center>
+			
 				<br>
 				<table style="width:100%; border:1px solid; font-family: Consolas; background-color:#f5f5f5;">
 					<tr>
@@ -660,7 +334,7 @@
                   
                 <li><b>parkingmanagerservive</b> emits an event <tt>carindoorarrival</tt>, to notify that	the client's car is in <em>INDOOR-area</em>.  
 								
-                <li><ks>[moveToIn]</ks> Commands are sent to the <b>trolley</b> so that it performs the movements to go from the current position to <em>INDOOR</em>
+                <li><ks>[moveToIn]</ks> Commands are sent to the <b>trolley</b> so that it performs the movements to go from its current position to <em>INDOOR</em>
                   
                 <li>The <b>weightsensor</b> perceives <tt>carindoorarrival</tt> and emit the event <tt>weight(CARWEIGHT)</tt>.
                   
@@ -813,84 +487,7 @@
     traslate these in the relative pair of coordinates understandable by the <b>planner</b> provided by customer, which calculates the list of movements that the <k>Trolley</k> must carry out to 
     reach the goal.
     
-				<!--<h4>Handling of <k>Parking</k> and <k>Picking</k> requests (check state)</h4>
-                <p>In this second SPRINT we have introduced a check, in order to verify if <tt>reqenter</tt> and
-                    <tt>pickup</tt> sended by a <b>client</b> can be accepted by <b>parkingmanagerservice</b>.</p>
-                <p>
-                    The <tt>reqenter</tt> will be accepted if:
-                    <ul>
-                        <li>There is at least a free parking slot;
-                    </ul>
-
-                    By requirements, <tt>reqenter</tt> can be accepted only if there is at least one parking-slot
-                    available, and can be subsequently elaborated in case of the <em>INDOOR-area</em> is free.
-                    <br>If <em>INDOOR-area</em> is occupied, <b>parkingmanagerservice</b> send to <b>client</b> a
-                    message <tt>waitIndoor</tt> to notify him that at this moment he can't bring his car to
-                    <em>INDOOR-area</em> and that He have to wait.
-                </p>
-                <p>
-                    The <tt>picking</tt> will be accepted if:
-                    <ul>
-                        <li><em>OUTDOOR-area</em> is free;</li>
-                    </ul>
-                </p>
-
-
-				<h4>TokenID handling</h4>
-				<p>In previous SPRINT, the <tt>TokenID</tt> was simply a value equals to <tt>SLOTNUM</tt> value, but now
-					it's appropriate to generate a
-					UNIQUE TokenID that is uniquely linked to <tt>SLOTNUM</tt>.
-					So, in this version, <tt>TOKENID</tt> is a code composed by 5 digits of which the first indicates
-					the <tt>SLOTNUM</tt> and the others are
-					4 random digits that are added for safety reason.
-				</p>
-				<p>
-					Furthermore all generated <tt>TOKENID</tt> are saved into a file, <ks>tokens.txt</ks>. <br>
-					When a <tt>pickup(TOKENID)</tt> message arrives to <b>parkingmanagerservice</b>, it's performed a
-					check that establishes
-					if the inserted <tt>TOKENID</tt> is valid (if it is present in the file).<br>
-					While when a car is picked by a <b>client</b> his related <tt>TOKENID</tt> is deleted from file.
-				</p>
-
-				<h4>Fan and Thermometer</h4>
-				<p>
-					<b>Fan</b> and <b>Thermometer</b> are two components simulated by software:
-					<ul>
-						<li>
-							<k>Thermometer</k> simulated the measurement of parking temperatures, in particular It is considered 
-							that the temperature increases progressively due to the operation of machinery within the automated car park. 
-						<li>
-							<k>Fan</k> continuously reads the temperature measured by the <b>thermometer</b> and checks that it
-							does not exceed a certain threshold.<br>
-							When the maximum temperature is reached, <b>Fan</b> actives itself, simulating the switching
-							on of some fans whose task is to lower the temperature of the car park.<br>
-							The <b>Fan</b> keeps in working until the temperature reaches a certain minimun threshold,
-							then it deactive itself.
-					</ul>
-				</p>
-
-				<h4>ParkingSlotKb</h4>
-				<p>
-					It's necessary to introduce a knowledge base, to permit the system to know and modify the status of
-					<em>parking slots</em> and <em>INDOOR</em> and
-					<em>OUTDOOR</em> areas.<br>
-					As a data structure to manage the slots of parking area, it can be using a <b>boolean array</b>, while to
-					represent the <em>INDOOR</em> and
-					<em>OUTDOOR</em> areas status, it' possible using two <b>boolean variables</b>. <br>
-					A possible way of implementing this knowledge base can be seen in the file <a
-						href="..\resources\it\unibo\utils\ParkingSlotsKb.kt">ParkingSlotKb.kt</a>.
-				</p>
-
-				<h4>External tools</h4>
-				<p>
-					At this stage it is useful to create tools to test the functioning of the system. <br>
-					Since no real GUIs are implemented yet, a python script has been created that sends
-					messages to the <b>parkingmanagerservice</b> as if it were a remote client.<br>
-					The file is called <a href="..\ClientGUIsimulator.ipynb">ClientGUIsimulator.ipynb</a> and it must be
-					launched using <ks>jupyter notebook</ks>.
-				</p>-->
-
-				<!-- Dobbiamo dire DOPO che sono i sensori ad impostare se le aree sono libere o no -->
+				
 
 				<h3>Logical Architecture</h3>
 				<p>
@@ -907,7 +504,7 @@
 								<ul>
 									<li><b>parkingmanagerservice</b>
 									<li><b>client</b>
-                  <li><b>trolley</b>
+                  					<li><b>trolleycmd</b>
 									<li><b>weightsensor</b> (mock-actor)
 									<li><b>outsonar</b> (mock-actor)
 									<li><b>thermometer</b> (mock-actor)
@@ -916,7 +513,6 @@
 
 							</td>
 							<td>
-								<!-- TODO pensare a come comunicano e quale tipo di messaggi si scambiano i diversi qaktor -->
 								<center><img src="./img/actors.png"></center>
 
 							</td>
@@ -924,38 +520,26 @@
 						<tr>
 							<td>
 								<center>
-									<ks>parkingmanagerservice: </ks>
+									<ks>parkingmanagerservice: </ks><br><br>
 								</center>
-								<center> <a href="../src/parkingservice.qak">parkingservice.qak: </a></center><br>
-								This QActor represents the system. It handles all client's request: <tt>reqenter</tt>,
+							
+								This QActor represents the system. It handles, checking also if several conditions are satisfied, and elabotares all client's requests: <tt>reqenter</tt>,
 								<tt>carenter</tt> and <tt>pickup</tt>.
-								It provides the clients the SLOTNUM and the TOKENID. It coordinates the movements of
-								the
-								trolley
-								(in this version they are only simulated with delays). <br>
-								This actor also triggers the activation of <tt>weightsensor</tt> and
-								<tt>outsonar</tt>.<br><br>
-								<center><b>How sensor activation can be triggered?</b></center>
-								<br>
-								<tt>weightsensor</tt> and <tt>outsonar</tt> must be triggered when a car is,
-								respectively,
-								in INDOOR and OUTDOOR area.<br>
-								<k>parkingmanagerservice</k> is the only component who knows when a car is in INDOOR or
-								OUTDOOR area,
-								it can be notify it in two ways:
-								<ol>
-									<li>sending a <k>dispatch</k> to the sensor when a car is in the right area.
-									<li>emitting an <k>event</k>, since the sensor there are in the same context.
-								</ol>
-								During the analysis phase it can already be observed that the second solution is more
-								appropriate because
-								it is independent of the characteristics of the sensors and their quantity and position.
+								It provides the clients the <em>SLOTNUM</em> and the <em>TOKENID</em>. <br>
+								It coordinates the movements of the <b>trolley</b>, sending to it the positions to reach. <br>
+								This actor also triggers the activation of:
+								<ul>
+									<li><tt>weightsensor</tt>, through the event <tt>carindoorarrival</tt>.
+									<li><tt>thermometer</tt> by sending a dispatch <tt>startthermometer</tt> to it.
+									<li><tt>sonarhandler</tt> by sending a dispatch <tt>startsonar</tt>  to it.
+								</ul>
+								
 							</td>
 							<td>
 								<center>
-									<ks>client: </ks>
+									<ks>client: </ks><br><br>
 								</center>
-								<center> <a href="../src/parkingservice.qak">parkingservice.qak: </a></center><br>
+								
 								It's the QActor that sends the requests (<tt>reqenter</tt> and <tt>carenter</tt>) to the
 								system during the parking phase
 								and sends dispatch (<tt>pickup</tt>) during the picking phase.<br>
@@ -969,25 +553,24 @@
 						<tr>
 							<td>
 								<center>
-									<ks>weightsensor: </ks>
+									<ks>weightsensor: </ks><br><br>
 								</center>
-								<center> <a href="../codedqak/weightsensorSimulator.kt">weightsensorSimulator.kt: </a>
-								</center><br>
+								
 								This mock-actor generates a random value that represents the
 								weight of car in entrance and propagates it by emitting an event
 								<tt>weightsensor</tt>.<br>
-                This actor has the task of updating <em>INDOOR-area</em> status.<br>
+                This actor has the task of updating <em>INDOOR-area</em> status when he perceives the precense or absence of a car in this area.<br>
 								It starts the simulation when perceives the <k>carindoorarrival</k> event, emitted by <b>parkingmanagerservice</b>, as previously mentioned.
 							</td>
 							<td>
 								<center>
-									<ks>outsonar: </ks>
+									<ks>outsonar: </ks><br><br>
 								</center>
-								<center> <a href="../codedqak/sonarSimulator.kt">sonarSimulator.kt: </a></center><br>
+								
 								This actor has a boolean variable <k>busy</k>, that indicates if
 								the car is present in the outdoor, so as to simulate a real sensor. It start the
 								simulation when perceives <k>caroutdoorarrival</k> event, emitted by <b>parkingmanagerservice</b>, as previously mentioned.<br>
-                This actor has the task of updating <em>OUTDOOR-area</em> status.<br>
+                This actor has the task of updating <em>OUTDOOR-area</em> status when perceives the precense or absence of a car in the related area.<br>
                 When the simulation stats, it's activated also an internal timer. <br>
 								This timer performs a countdown from <tt>DTFREE</tt> value, if it arrives to 0 it's
 								emitted an event <tt>timeout</tt>.
@@ -1002,10 +585,10 @@
 						<tr>
 							<td>
 								<center>
-									<ks>thermometer: </ks>
+									<ks>thermometer: </ks><br><br>
 								</center>
-								<center> <a href="../codedqak/thermometerSimulator.kt">thermometerSimulator.kt: </a>
-								</center><br>
+								
+								
                 This mock-actor is activated immediately, during the initialization of <b>parkingmanagerserive</b>. It performs two
 								different tasks:
 								<li>emit continuously an event, in which are the current temperature of environment</li>
@@ -1023,9 +606,9 @@
 							</td>
 							<td>
 								<center>
-									<ks>fan: </ks>
+									<ks>fan: </ks><br><br>
 								</center>
-								<center> <a href="../codedqak/fanSimulator.kt">fanSimulator.kt: </a></center><br>
+								
 								This mock-actor is strictly related with thermometer actor. It evaluates every
 								<tt>temp</tt> event that thermometer emit and check if the temperature of the
 								environment
@@ -1041,9 +624,9 @@
             <tr>
             	<td colspan="2">
 								<center>
-									<ks>trolley: </ks>
+									<ks>trolleycmd: </ks><br><br>
 								</center>
-								<center> <a href="../src/parkingservice.qak">parkingservice.qak: </a></center><br>
+								
                 
                This QActor works as an intermediary between the system and the remote virtual robot.<br>
                It can receive from <b>parkingmmanagerservice</b> dispatch <tt>move:move(GOAL)</tt>, where <i>GOAL</i> represents the location that must be reached by the Trolley inside the
@@ -1066,17 +649,17 @@
 						</tr>
 					</table>
 				</p>
-				<!--TODO fare spiegazione logica del programma con linguaggio naturale.-->
+				
 		</div>
 		<h2>Test plans</h2>
-		<a href="../test/it/unibo/parkingmanagerservicetest/TestPlan.kt">TestPlan.kt </a><br>
+		
 		<p>
 			In this test plan are considered only <ks>non-distributed</ks> tests.
 			<br>
 			<p>
 				Tests is built using CoapObserver provided by the costumer in the project <ks>it.unibo.qak21.basicrobot
 				</ks> (<a
-					href="../test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">CoapObserverForTesting.kt</a>).
+					href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3/it.unibo.ParkManagerService_s3./test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">CoapObserverForTesting.kt</a>).
 				<br>
         In this SPRINT we have added only the <k>Trolley</k> compared to the previous SPRINT, so for the correct functioning of the <b>parkingmanagerservice</b> the tests done in the
         previous sprint are sufficient.
@@ -1132,6 +715,816 @@
 		
 		<h2>Project</h2>
 
+		<div class=remark>
+			<p><h3>Parking Phase - <a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3/it.unibo.ParkManagerService_s3/src/parkingservice.qak">parkingservice.qak: </a></h3></p>
+			<table>
+				<tr>
+					<td>
+<pre>
+State acceptReqEnter{
+} Goto ready if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree &&
+		unibo.robot.TrolleyKb.trolleyStatus != `it.unibo`.utils.TrolleyStatus.STOPPED#]
+	else readyOnlyReqEnter
+			
+
+State checkOutdoor{
+}Goto readyOnlyOutdoor if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree &&
+			unibo.robot.TrolleyKb.trolleyStatus != `it.unibo`.utils.TrolleyStatus.IDLE #]
+	else notReady
+</pre>
+					</td>
+					<td style='text-align:center; padding: 10px;'>
+						<p>
+							Respect to Sprint 2 check operations, in this Sprint we also check <b>Trolley</b> Status.    
+						</p>
+					</td>
+				</tr>
+				<tr >
+					<td colspan=2 style="border-left-color: transparent; border-right-color: transparent;">
+						<p></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+State moveToHome{
+	[# if(unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.IDLE  && GOAL != "home") { #]
+		println("##### IN MOVE TO HOME ##########")
+	println("Moving Trolley to HOME")
+	updateResource[# "toHome(V)" #]
+	[# GOAL = "home" #]
+	forward trolley -m move : move($GOAL) 
+	[# } #]
+} Goto check	
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						If <b>Trolley</b> doesn't receive any requests for a certain time and he is in <em>IDLE</em> Status, it automatically come back to home.
+					</td>
+				</tr>
+				<tr >
+					<td colspan=2 style="border-left-color: transparent; border-right-color: transparent;">
+						<p></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+State acceptin{
+	//================[ acceptIN ]=====================	
+	[# SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot() #]
+	[# `it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false) #]
+
+	[# if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree || 
+			unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.STOPPED
+	){ #]
+		replyTo reqenter with waitIndoor : slotsnum ($SLOTNUM)
+		updateResource [# "wait(${SLOTNUM}) " #]
+	[# } #]
+	[# else {#]
+	//================[ informIN ]=====================
+	replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
+	updateResource [# "slotnum(${SLOTNUM}) " #]
+	println("SLOTNUM = $SLOTNUM | SERVICE" )
+	[# } #]	
+} Transition t0
+	whenRequest carenter -> carenter
+							
+State carenter{
+	emit carindoorarrival : cia(car_arrived)  //questo lo deve catturare il weightsensor
+	//================[ moveToIn ]=====================
+		[# GOAL = "indoor" #]
+		forward trolley -m move : move($GOAL) 
+		println("Trolley is moving to Indoor | SERVICE")
+	}Transition t0
+		whenEvent weightsensor -> weightcheck
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						In <k>acceptin</k> state, before serving an acceptin request, is also checked that <em>TrolleyStatus</em> isn't settes to <em>STOPPED</em>. <br><br>
+						If the acceptin can be served and a carenter request is received, in carenter state we send to <b>Trolley</b> a message. <br>
+						This message specify that it has to go to <em>INDOOR</em> in where there is a car waiting to be parcked. 
+					</td>
+				</tr>
+				<tr >
+					<td colspan=2 style="border-left-color: transparent; border-right-color: transparent;">
+						<p></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+State weightcheck{
+	onMsg(weightsensor : weight(W)){
+		[# 
+			WEIGHT = payloadArg(0).toInt()
+			println("Weight: " + WEIGHT)
+		#]
+		}
+} Goto waitTrolleyIndoor if [# WEIGHT > 0 #] else weightError
+
+State waitTrolleyIndoor{
+} Transition t0
+		whenEvent finished -> receipt
+			
+State receipt{ 
+	onMsg(finished : finished(GOAL)){
+		[# trolleyPos = payloadArg(0) #]
+	}
+	[# if(trolleyPos == "indoor") { #]
+		println("Trolley is in INDOOR| SERVICE")
+		[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
+		//==========[receipt]==========
+		replyTo carenter with receipt : receipt($INDOORTOKEN)
+		updateResource [# "receipt($INDOORTOKEN)" #]
+	[# } #]
+} Goto moveToSlotIn if [# trolleyPos == "indoor"#]
+		else waitTrolleyIndoor
+				
+State moveToSlotIn{
+	//========================[ moveToSlotIN ]========================
+	[# 	GOAL = "p" + SLOTNUM.toString()	#] 
+	forward trolley -m move : move($GOAL)
+	println("Trolley moves from INDOOR to $SLOTNUM")
+} Transition t0 
+		whenEvent finished -> checkPark
+
+
+State checkPark{
+	onMsg(finished : finished(GOAL)){
+		[# trolleyPos = payloadArg(0) #]
+	}
+} Goto parkedCar if [# trolleyPos == GOAL #]
+	else parkingError
+	
+	
+State parkedCar{
+	println("Car is parked at p$SLOTNUM")
+} Transition t0
+		whenTime 500 -> check
+
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						After the check of the <k>weightcheck</k> we go in a state called <k>waitTrolleyIndoor</k>. In this state we wait for a finished event (emitted by the <b>Trolley</b>).
+						Subsequently in the <k>receipt</k> state we do a check on the trolley position, that if it is not equal to <em>INDOOR</em> we return back to <k>waitTrolleyIndoor</k> status.
+						This means that a client could arrive in the <em>INDOOR</em> while the Trolley is performing another operation. Therefore a finished event could be emitted, but related to another operation.<br><br>
+						When <b>Trolley</b> arrive to <em>INDOOR</em> and the client receive his <em>INDOORTOKEN</em> we go to MoveToSlotIn, in where is sended to trolley the position of the parking space assigned to the client. <br><br>
+						At the end it's checked that the car was parked in the correct slot and return to the check state. 
+
+					</td>
+				</tr>
+				<tr >
+					<td colspan=2 style="border-left-color: transparent; border-right-color: transparent;">
+						<p><h3>Picking Phase - <a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3/it.unibo.ParkManagerService_s3/src/parkingservice.qak">parkingservice.qak: </a></h3></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+State picking{	 	
+	//====================[moveToSlotOut]========================
+	delay 1000
+	[# `it.unibo`.utils.ParkingSlotsKb.setSlot(CARSLOTNUM, true) 
+		GOAL = "p" + CARSLOTNUM.toString()
+	#]
+	forward trolley -m move : move($GOAL)
+	println("Trolley picking car from slot $CARSLOTNUM | SERVICE")
+}
+Transition t0
+	whenEvent finished -> checkCarPicked
+
+State checkCarPicked{
+	onMsg(finished : finished(W)){
+		[# 
+			trolleyPos = payloadArg(0)
+		#]
+		}
+} Goto moveToOut if[# trolleyPos == GOAL #]
+	else trolleyToPickingSlot
+	
+	
+State trolleyToPickingSlot{
+	println("WAIT THAT TROLLEY ARRIVE AT PICKING SLOT | SERVICE")
+}Transition t0
+	whenTime 5000 -> check
+	whenEvent finished -> checkCarPicked
+		
+		
+State moveToOut{
+	//====================[moveToOut]========================
+	[# GOAL = "outdoor" #]
+	forward trolley -m move : move($GOAL)
+}Transition t0 	
+	whenEvent  finished	-> carInOutdoor
+
+
+State carInOutdoor{
+	onMsg(finished : finished(W)){
+		[# trolleyPos = payloadArg(0) #]
+		}
+	[# if (trolleyPos == "outdoor") {#]	
+	emit caroutdoorarrival : coa(car_arrived)  //questo lo deve catturare il outsonar
+	println("Car is in Outdoor area | SERVICE")
+	[# } #]
+} Goto check if [# trolleyPos == "outdoor" #]
+	else outdoorError
+
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						After getting <em>INDOORTOKEN</em>, in state picking, it's sended to the <b>Trolley</b> the position of the car that has to be transported to <em>OUTDOOR</em>.<br>
+						For the same reason of the case of <tt>waitTrolleyIndoor</tt>, in <k>trolleyToPickingSlot</k>, it's checked that when a finished event is emitted, the postion of <b>Trolley</b> is equal to parking slot position. 
+						Otherwise we wait for the next finished event with the correct <b>Trolley</b> position.<br><br>
+						Once the machine has been picked up, Trolley brings the car to <em>OUTDOOR</em>. 
+						At the end one last check is performed to determine that car was really to <em>OUTDOOR</em> and return to check state. 
+						
+
+					</td>
+				</tr>
+				<tr >
+					<td colspan=2 style="border-left-color: transparent; border-right-color: transparent;">
+						<p><h3>TrolleyCmd - <a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3/it.unibo.ParkManagerService_s3/src/parkingservice.qak">parkingservice.qak: </a></h3></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+State work{ 
+	[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE #]
+	[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
+	updateResource [# "status($STATUS)" #]
+	println("basicrobot waiting ... | TROLLEY")  
+}Transition t0
+	whenMsg move -> path	  
+
+
+State path{
+	onMsg(move : move(GOAL)){
+		[# GOAL = payloadArg(0) #]
+		println("GOAL = $GOAL | TROLLEY")
+		run planner.getPathPlan(GOAL)
+		[# CurPath = itunibo.planner.plannerUtil.getActions().toString() #]
+		updateResource [# "path($CurPath)" #]
+	}
+	[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
+	[#STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()#]
+	updateResource [# "status($STATUS)" #]
+	
+} Goto execPlannedMoves if [# GOAL != "home" #]
+	else checkInterrupt
+	
+	
+State checkInterrupt{
+}Transition t0 
+		whenTime 100   -> execPlannedMoves
+		whenMsg move   -> path
+
+
+State execPlannedMoves{   
+	//delay 300
+	[#  CurrentPlannedMove = itunibo.planner.plannerUtil.getNextPlannedMove() #]
+	println("+++++++++++++++++++++++++++++++ $CurrentPlannedMove | TROLLEY")
+}
+Goto doMove if [# CurrentPlannedMove.length>0 #] else halt //parkthecar
+
+
+State doMove{ 	
+	[#StepTime = #] run unibo.robot.robotSupport.move( "$CurrentPlannedMove" ) 
+	//[# StepTime = StepTime+100 #]
+}Transition t0 
+		whenTimeVar StepTime   -> checkObstacle   
+
+
+State checkObstacle{
+}Transition t0
+	whenTime 100 -> stepDone
+	whenEvent obstacle -> handleObstacle
+
+
+State stepDone{  
+	printCurrentMessage
+	[#if (CurrentPlannedMove == "w" || CurrentPlannedMove == "s") {#]
+		run unibo.robot.robotSupport.move( "h" )
+	[#}#]
+	
+	//updateResource [# itunibo.planner.plannerUtil.getMap() #]
+	updateResource [# "stepdone($CurrentPlannedMove)" #]
+	run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
+	
+	//run itunibo.planner.plannerUtil.showCurrentRobotState( )
+	//updateResource [# "stepDone" # ]
+} 
+Goto execPlannedMoves if[# GOAL != "home" #]
+	else checkInterrupt
+
+	
+State halt{
+	[# var timeDelay = #] run planner.exactDir(GOAL)
+	[# delay(timeDelay) #] 
+	println("path finished | TROLLEY")
+	run itunibo.planner.plannerUtil.showCurrentRobotState()
+	updateResource [# "finished($GOAL)" #]
+	emit finished : finished($GOAL) 
+	println("finished($GOAL) | TROLLEY")
+} Goto work
+
+
+State handleObstacle{   
+	run unibo.robot.robotSupport.move( "h" )
+	println("basicrobot | handleObstacleeeeeeeeeeeeeeeeeeee CurrentMove=$CurrentMove")	
+	printCurrentMessage
+} Goto stepDone if[# !planner.checkObstacle(itunibo.planner.plannerUtil.getPosX(),
+		 itunibo.planner.plannerUtil.getPosY()) #]
+	else restart
+
+
+State restart{
+	run planner.getPathPlan(GOAL)
+	[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
+	[#STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()#]
+	updateResource [# "status($STATUS)" #]
+} Goto execPlannedMoves if [# GOAL != "home" #]
+	else checkInterrupt
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						
+						<b>trolleycmd</b> is made starting from <a href="https://github.com/anatali/issLab2021/tree/main/it.unibo.qak21.basicrobot">basicrobot</a> regarding communication with real trolley, 
+						to send it information of what move it has to perform. Instead, regarding interactions with map ad its updates we use 
+						<a href="https://github.com/anatali/issLab2021/tree/main/it.unibo.kotlinSupports">kotlinSupports</a> a library provided us by the custormer.<br><br>
+						<b>trolleycmd</b> waits in <tt>work</tt> state until a <tt>move</tt> request is received. In a <tt>move</tt> request is specificated what is the destination that has to be reached.
+						After receiving it, a <k>planner</k> calculate in relation to received destination, the shortest and optimal path to reach them. A path is a list of basic moves 
+						(<k>w</k>, <k>s</k>, <k>l</k>, <k>r</k>). <b>trolleycmd</b> continue to exec until the planned moves of the path isn't terminated.
+						For each move a message is sent to real trolley in order to actually execute that move. After a delay, represents the time <b>Trolley</b> takes to complete the move,
+						the map is updated. Once Trolley reach its destination, a <tt>finished : finished($GOAL)</tt> event is emitted and it will be perceived by the <b>parkingmanagerservice</b>. <br><br>
+
+						This is the normal process when <b>trolley</b> has to permorm a travel to one destination. However, if the destination is <k>"home"</k> the process is a little bit different.
+						At the end of each move of the planned path, process go through the <em>checkInterrupt</em> status. Since during the return <k>home</k> the trolley is in the <em>IDLE</em> state, it's checked that
+						a <tt>move</tt> request is received. In that case the returning to home is stopped and a new path to current destination will be calculated.<br><br>
+
+						There are also three state that alow <b>trolley</b> to check accidental presence of obstacle. An obstacle is reported only if it is unexpected,
+						if it isn't the process continues normally. If an unexpected obstacle is encountered, actual work of <b>trolley</b> is stopped, the map is updated and a new path that
+						excludes that occupied cell will be calculated. After these operations the work can restart.<br><br>
+
+
+					</td>
+				</tr>
+				<tr >
+					<td colspan=2 style="border-left-color: transparent; border-right-color: transparent;">
+						<p><h3>TrolleySupport - <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_3/it.unibo.ParkManagerService_s3/resources/it/unibo/utils/TrolleySupport.kt">TrolleySupport.kt</a></h3></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+<pre>
+fun getPathPlan(goal : String) : Unit{
+	
+	when(goal){
+		"home" -> {
+			return plannerUtil.planForGoal("0", "0")
+		}
+		"outdoor" -> {
+			return plannerUtil.planForGoal("6", "4")
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+
+fun exactDir(goal : String) : Long {
+	var time : Long  = 0 
+	when(goal){
+		"home" -> {
+			while(plannerUtil.getDirection()!="downDir"){
+				unibo.robot.robotSupport.move( "r" )
+				plannerUtil.updateMap(  "r" )
+				time = time + 100
+			}
+			return time
+		}
+		"outdoor" -> {
+			while(plannerUtil.getDirection()!="upDir"){
+				unibo.robot.robotSupport.move( "r" )
+				plannerUtil.updateMap(  "r" )
+				time = time + 100
+			}
+			return time
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+
+fun checkObstacle(x : Int, y : Int) : Boolean{
+		
+	var pos = getObstaclePos(x, y)
+	
+	if(!map.isObstacle(pos.first, pos.second)){
+		map.put(pos.first, pos.second, Box(true, false, false))
+		return true	
+	}else{
+		return false
+	}	
+	
+}
+
+fun getObstaclePos(x : Int, y : Int) : Pair<Int, Int>{
+	when(plannerUtil.getDirection()){
+		
+		"upDir"		-> 	return Pair(x, y-1)
+	
+		"downDir"	-> return Pair(x, y+1)
+		
+		"leftDir"	-> return Pair(x-1, y)
+		
+		"rightDir"	-> return Pair(x+1, y)
+			
+	}
+	return Pair(-1, -1)
+}
+
+//----------------------------------------------------------------------------
+
+fun mapConfiguring() : Boolean{
+		
+	var parkMap = "parkingMap"
+	
+	var i : Int
+	var j : Int
+	for (i in 0..6){
+		for (j in 0..4){
+			 if(i==0 && j==0){println("RRRRRRRRRRRRRRRRRRR")}
+			 else
+				 map.put(i, j, Box(false, true, false))
+		}
+	}	
+	for(i in 0..7){
+		map.put(i, 5, Box(true, false, false))
+	}
+	
+	for(i in 0..4){
+		map.put(7, i, Box(true, false, false))
+	}
+	
+	
+	map.put(2, 1, Box(true, false, false))
+	
+	map.put(3, 1, Box(true, false, false))
+	
+	map.put(2, 2, Box(true, false, false))
+	
+	map.put(3, 2, Box(true, false, false))
+	
+	map.put(2, 3, Box(true, false, false))
+	
+	map.put(3, 3, Box(true, false, false))
+		
+	plannerUtil.showMap()
+	plannerUtil.saveRoomMap(parkMap)
+	
+	return true
+		
+}
+
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						
+						<b>TrolleySupport</b> is a kotlin file that contain some functions that help us to obtain informations usefull to the <b>trolleycmd</b>.
+						<ul>
+							<li><ks>getPathPlan(goal : String)</ks>: accept as parameter one of known destinations of our environment that <b>trolley</b> has to reach and it return the list of
+								 planned moves that has to be performed to reach it. 
+							<li><ks>exactDir(goal : String)</ks>: according to the cell, representing one of known destinations of our environment, we are in,
+								 this function permits to make the trolley assume the correct direction.
+							<li><ks>checkObstacle(x : Int, y : Int)</ks> and <ks>getObstaclePos(x : Int, y : Int)</ks>: permit us to check if an obstacle is unxepected or not. If it is unxepected, it updates the map.
+							<li><ks>mapConfiguring()</ks>: is the function that allowed us to create our custom environment map accordind to requirements.
+						</ul> 
+
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<h2>Testing</h2>
+		<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_3/it.unibo.ParkManagerService_s3/test/it/unibo/parkingmanagerservicetest/TestPlan.kt">TestPlan.kt </a><br>
+		<p>
+			In this test plan are considered only <ks>non-distributed</ks> tests.
+			<br>
+			<p>
+				Tests is built using CoapObserver provided by the costumer in the project <ks>it.unibo.qak21.basicrobot
+				</ks> (<a
+					href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_3/it.unibo.ParkManagerService_s3/test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">CoapObserverForTesting.kt</a>).
+				<br>
+        In this SPRINT we have added only the <k>Trolley</k> compared to the previous SPRINT, so for the correct functioning of the <b>parkingmanagerservice</b> the tests done in the
+        previous sprint are sufficient.
+        In this phase, the tests will be limited to verify the correct functioning of the <k>Trolley</k> in different situations. <br>
+        In order to observe trolley movements, we will use the virtual enviroment provided by costumer. To start this eviroments, it's necessary launch a <i>.yaml</i> file with <b>Docker</b>,
+        in particular running: <pre> docker-compose -f basicrobotVirtual.yaml up </pre>
+			</p>
+			<kc>TestPlans goals:</kc>
+			<ul>
+				<li>Ensure that the workflow of the system meets a set of requirements <k><b>(integration testing)</b></k>. <br> <br>
+					
+         <div class=remark2>
+            <h3>Workflow</h3>
+           During this test, it's verified the correct behaviour of the system. This kind of test was performed in the previous SPRINT, but in this case, the aim test is to check if <k>Trolley</k>
+           movements are correct. Only the movements of the <k>trolley</k> are verified because the correct functioning of the rest of the system has already been checked previously.
+		   <br><br>
+		   <table>
+			   <tr>
+				   <td>
+<pre>
+clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
+		
+delay(2000)
+
+//--------------------------------------------------------------------------------
+
+clientactor!!.request("carenter","carenter(ok)","parkingmanagerservice")
+
+var result = channelForObserver.receive()
+println("+++++++++ trolleyInIndoor RESULT=$result +++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("indoor", position)
+
+var result2 = channelForObserver2.receive()
+var token = result2.substringAfter("(",result2).substringBefore(")",result2).toInt()
+println("token = $token")
+
+delay(4000)
+</pre>
+				   </td>
+				   <td style="padding: 10px;">
+						<p>
+							In this part of workflow testing is checket <b>Trolley</b> position that after a <tt>carenter</tt> request by <b>Client</b> has to be <em>INDOOR</em>. 
+							Is also checke that the <tt>TOKENID</tt> is corrrectly given to <b>Client</b>.
+						</p>
+				   </td>
+			   </tr>
+			   <tr>
+				<td>
+<pre>
+result = channelForObserver.receive()
+println("+++++++++ trolleyToParkingSlot RESULT=$result +++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("p1", position)
+
+delay(3000)
+</pre>
+				</td>
+				<td style="padding: 10px;">
+					 <p>
+						 After is checked that <b>Trolley</b> bring the car to his assigned parking slot. Is so checked that the final <b>Trolley</b> position is equal to that slot.
+					 </p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+<pre>
+clientactor!!.forward("pickup","pickup($token)","parkingmanagerservice")
+		
+result = channelForObserver.receive()
+println("+++++++++ trolleyToParkingSlot(PICKUP) RESULT=$result +++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("p1", position)
+
+delay(4000)
+
+//-----------------------------------------------------------------------------------
+
+result = channelForObserver.receive()
+println("+++++++++ trolleyInOutdoor RESULT=$result +++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("outdoor", position)
+
+delay(6000)
+</pre>
+				</td>
+				<td style="padding: 10px;">
+					 <p>
+						Time is left for the trolley to return home. So <b>Client</b> makes a pickup request give his personal <em>TOKENID</em>.
+						In this test is cheked that <b>Trolley</b> effectively goes to correct parking slot in which the car is. 
+						Is so checked that the final <b>Trolley</b> position is equal to that slot.
+					 </p>
+					 <p>
+						After that, the <b>Trolley</b> takes the car that needs to be brought to the exit and goes to <em>OUTDOOR</em>.
+						It is thus checked that the final position of the <b>Trolley</b> is equal to <em>OUTDOOR</em>.
+					 </p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+<pre>
+result = channelForObserver.receive()
+println("+++++++++ trolleyInHome RESULT=$result +++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("home", position)
+</pre>
+				</td>
+				<td style="padding: 10px;">
+					 <p>
+						 After some time, the <b>Trolley</b> return to its <em>HOME</em>. At the finish of this operation is checked that <b>Trolley</b> position is equal to <em>Home</em>.
+					 </p>
+				</td>
+			</tr>
+		   </table>
+         </div>
+				<li>Ensure that some components work properly individually. <k><b>(unit testing)</b></k> <br>
+				<br>
+          </ul>
+				Here it's tested the correct behaviour of <tt>trolley</tt>. During this kind of test, like in the <k>integration test</k>, the components updates some resouces whose values
+				are observed and then checked.
+
+		<div class=remark2>
+			<h3>Simple moves test</h3>
+			This is a preliminary test to check if the libraries used for the <k>trolley</k> movements and for the map updating, work correctly. In this way we can use the map to conduct future tests.
+			<br><br>
+			<table>
+				<tr>
+					<td>
+<pre>
+val move = "w"
+		
+delay(3000)
+
+delay(robotSupport.move(move))
+robotSupport.move("h")
+
+delay(1000)
+
+plannerUtil.updateMap(  "$move" )
+
+println("+++++++++ testSingleMove ")	
+
+var curPos = plannerUtil.get_curPos().toString()
+
+testingObserver!!.addObserver(channelTmp,"null")
+trolleyObserver!!.addObserver(channelTmp,"null")
+
+assertEquals(curPos,"(0, 1)")
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						<p>
+							In this test the trolley is made to make one move only. After the move has been completed is ckeched that postion of the <b>Trolley</b> is the expected one. 
+						</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class=remark2>
+            <h3>Path test</h3>
+				The aim of this test is to verify if the <k>Trolley</k>, after having received the command to go to a certain position into the parking, 
+				obtains and executes the right path to reach it. After the movements, it is checked that the calculated path is the one actually executed by the <k>Trolley</k>.
+				<br><br>
+				<table>
+					<tr>
+						<td>
+<pre>
+myactor!!.forward("move","move(p5)","trolley")
+trolleyObserver!!.addObserver(channelForObserver, "path")
+trolleyObserver!!.addObserver(channelForObserver2, "stepdone")
+
+println("+++++++++ testTraveToDestination ")	
+
+var result = channelForObserver.receive()
+var expectedpath : String = result.substringAfter("(",result).substringBefore(")",result).toString()
+expectedpath = expectedpath.replace("[","").replace("]","").replace(",","").replace(" ","")
+println("EXP__PATH: $expectedpath")
+//--------------------------------------------------------------------------------
+
+var realpath = ""
+var len = expectedpath.length
+println("LENGTH....$len")
+for(i in 1..expectedpath.length) {	
+result = channelForObserver2.receive()
+result = result.substringAfter("(",result).substringBefore(")",result)
+realpath = realpath.plus( result )
+}
+
+println("REAL__PATH: $realpath")
+	testingObserver!!.addObserver(channelTmp,"null")
+assertEquals(expectedpath, realpath)
+</pre>
+						</td>
+						<td style="padding: 10px;">
+							 <p>
+								In this test after calculate the path that has to performed by <b>Trolley</b> to reach the given destination,
+								is checked that at the end the effectively executed path is equal to the calculated one.
+							 </p>
+						</td>
+					</tr>
+				</table>
+        </div>
+          <div class=remark2>
+          	<h3>Direction test</h3>
+            This test has the goal of verifying that at the end of current travel, the <k>trolley</k> assumes the correct direction. 
+            Depending on the position in which the robot is located at the end of the travel, the final direction will be different.
+            For example if the destination of the travel is "indoor" that is located in the upper-right corner of the map, 
+            final position of the trolley will be <tt>downDir</tt>. For park slot "p1" will be instead <tt>leftDir</tt>, so it will be for all parking slots on the left.
+            For the parking slot on the right the final direction will be <tt>rightDir</tt>.
+			<br><br>
+			<table>
+				<tr>
+					<td>
+<pre>
+myactor!!.forward("move","move(indoor)","trolley")
+			
+var result = channelForObserver.receive()
+var direction = plannerUtil.getDirection()
+println("+++++++++ trolleyInIndoor RESULT=$result - DIRECTION=$direction+++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("indoor", position)
+assertEquals("downDir", plannerUtil.getDirection())
+
+delay(4000)
+//----------------------------------------------------------------------------------
+
+myactor!!.forward("move","move(p1)","trolley")
+
+result = channelForObserver.receive()
+direction = plannerUtil.getDirection()
+println("+++++++++ trolleyInP1 RESULT=$result - DIRECTION=$direction+++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("p1", position)
+assertEquals("leftDir", plannerUtil.getDirection())
+
+delay(4000)
+//----------------------------------------------------------------------------------
+
+myactor!!.forward("move","move(outdoor)","trolley")
+
+result = channelForObserver.receive()
+direction = plannerUtil.getDirection()
+println("+++++++++ trolleyInOutdoor RESULT=$result - DIRECTION=$direction+++++++++")
+position = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("outdoor", position)
+assertEquals("upDir", plannerUtil.getDirection())
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						<p>
+							In this test, for every destination reached by <b>Trolley</b> is checked that his final direction is equal to the expected one.
+						</p>
+					</td>
+				</tr>
+			</table>
+          </div>
+          <div class=remark2>
+            <h3>Trolley status behaviour test</h3>
+            The goal of this test is to verify that in different situation the <k>trolley</k> change his status. In this version trolley status can be "IDLE" and "WORKING".
+            <ul>
+            <li>Trolley assumes <ks>IDLE</ks> status when it is waiting for a request of work or, after the end of a work,
+              it doesn't have nothing to do and no job request is sent.
+            <li>Trolley must assume <ks>WORKING</ks> state when it is actually doing a job. Returning to "home" position is not considered as a "WORKING" state.
+            </ul>
+			<br>
+			<table>
+				<tr>
+					<td>
+<pre>
+var result = channelForObserver.receive()
+println("+++++++++ trolleyInitialState RESULT=$result+++++++++")
+status = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("IDLE", status)
+
+delay(4000)
+//----------------------------------------------------------------------------------
+myactor!!.forward("move","move(indoor)","trolley")
+
+
+result = channelForObserver.receive()
+println("+++++++++ trolleyWorkingState RESULT=$result+++++++++")
+status = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("WORKING", status)
+
+delay(4000)
+//----------------------------------------------------------------------------------
+
+result = channelForObserver.receive()
+println("+++++++++ trolleyEndWorkState RESULT=$result+++++++++")
+status = result.substringAfter("(",result).substringBefore(")",result)
+assertEquals("IDLE", status)
+</pre>
+					</td>
+					<td style="padding: 10px;">
+						<p>
+							In this test is checked <b>Trolley</b> status in different situations.
+							<ul>
+								<li>At the system start is checked that <b>Trolley</b> status is <em>IDLE</em>.
+								<li>After a request of work that <b>Trolley</b> status is <em>WORKING</em>.
+								<li>At the end of the work that <b>Trolley</b> status is <em>IDLE</em>.
+							</ul>
+						</p>
+					</td>
+				</tr>
+			</table>
+          </div>
+            
+
+			</ul>
+		</p>
 		<h2>Deployment</h2>
 		The deployment of SPRINT 3 consists in a release on a <a
 			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3">Github repository</a>.

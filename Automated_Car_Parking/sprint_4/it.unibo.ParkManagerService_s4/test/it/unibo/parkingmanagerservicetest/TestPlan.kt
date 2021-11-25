@@ -22,16 +22,24 @@ import org.junit.After
 import kotlinx.coroutines.Job
 import itunibo.planner.plannerUtil
 import unibo.robot.robotSupport
-
+import org.json.JSONObject
+import java.lang.NullPointerException
+import java.lang.ProcessBuilder
 
 //ORDINARE I TEST, COME???
 
 class TestPlan {
-	
+	 
 		companion object tester {
 
-		var testingObserver   : CoapObserverForTesting ? = null
-		var trolleyObserver   : CoapObserverForTesting ? = CoapObserverForTesting("testingTrolleyobs","ctxParkingservice","trolley","5683")
+		var parkingObserver 		: CoapObserverForTesting ? = null	
+		var parkingserviceObserver 	: CoapObserverForTesting ? = null	  
+		var weightObserver   		: CoapObserverForTesting ? = null
+		var trolleyObserver   		: CoapObserverForTesting ? = null	
+		var sonarhandlerObserver   	: CoapObserverForTesting ? = null	
+		var sonarsimulatorObserver  : CoapObserverForTesting ? = null	
+			
+		
 		var systemStarted         = false
 		val channelSyncStart      = Channel<String>()
 		var myactor           : ActorBasic? = null
@@ -58,6 +66,7 @@ class TestPlan {
 					delay(500)
 					myactor=QakContext.getActor("parkingmanagerservice")
 					clientactor = QakContext.getActor("client")
+					
 				}
 				channelSyncStart.send("starttesting")
 			}
@@ -75,8 +84,14 @@ class TestPlan {
 	@Before
 	fun checkSystemStarted()  {
 		
-		println("\n=================================================================== ") 
-	    println("+++++++++ BEFOREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE testingObserver=$testingObserver")
+	    println("+++++++++ BEFOREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+		parkingserviceObserver 	= CoapObserverForTesting("testingServiceobs","ctxparkingservice","parkingmanagerservice","5683")  
+		weightObserver   		= CoapObserverForTesting("testingWeightobs","ctxparkingservice","weightsensor","5683")
+		trolleyObserver   		= CoapObserverForTesting("testingTrolleyobs","ctxparkingservice","trolley","5683")
+		sonarhandlerObserver   	= CoapObserverForTesting("testingSonarhandlerobs","ctxparkingservice","sonarhandler","5683")
+		sonarsimulatorObserver 	= CoapObserverForTesting("testingSonarsimulatorobs","ctxparkingservice","outsonar","5683")
+			
+		
 		if( ! systemStarted ) {
 			runBlocking{
 				channelSyncStart.receive()
@@ -84,18 +99,16 @@ class TestPlan {
 			    println("+++++++++ checkSystemStarted resumed ")
 			}
 		} 
-		if( testingObserver == null)
-			testingObserver = CoapObserverForTesting("obstesting${counter++}")
+		if( parkingObserver == null)
+			parkingObserver = CoapObserverForTesting("obstesting${counter++}")
   	}
 	
 	@After
 	fun removeObs(){
-		println("+++++++++ AFTERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR  ${testingObserver!!.name}")
+		println("+++++++++ AFTERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR  ${parkingObserver!!.name}")
 
-		testingObserver!!.terminate()
-		trolleyObserver!!.terminate()
-		testingObserver = null
-		trolleyObserver = null
+		parkingObserver!!.terminate()
+		parkingObserver = null
 		runBlocking{
 			delay(2000)
 		}
@@ -109,71 +122,112 @@ class TestPlan {
  -  COMPLETE WORKFLOW
 ===========================*/
 	
-	//@Test
+	@Test
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun completeWorkflow(){
 		
 		runBlocking{
-			val channelForObserver = Channel<String>()
-			val channelForObserver2 = Channel<String>()
+			val channelForIndoor 		= Channel<String>()
+			val channelForOutdoor 		= Channel<String>()
+			val channelForParkingOp 	= Channel<String>()
+			val channelForWeight 		= Channel<String>()
+			val channelForSlots 		= Channel<String>()
+			val channelForTrolleyStat 	= Channel<String>()
+			val channelForTrolleyPos	= Channel<String>()
+			val channelForSystem		= Channel<String>()
+
+			parkingserviceObserver!!.addObserver(channelForSystem, "systemready")
+			parkingserviceObserver!!.addObserver(channelForSlots, "freeslots")
+			parkingserviceObserver!!.addObserver(channelForParkingOp, "slotnum")
+			parkingserviceObserver!!.addObserver(channelForIndoor, "indoor")
 			
+			delay(10000)
 			
-			trolleyObserver!!.addObserver(channelForObserver, "finished")
-			testingObserver!!.addObserver(channelForObserver2, "receipt")
+			val s = arrayOf("cmd.exe", "/c", ".\\test.bat")
+			Runtime.getRuntime().exec(s)						
 			
-			clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
+			/*
+			val processBuilder : ProcessBuilder = ProcessBuilder(".\\test.bat")
+			processBuilder.start().waitFor()
+			*/
 			
-			delay(2000)
-		
-			//--------------------------------------------------------------------------------
+			//clientactor!!.forward("startManager","system(ready)","parkingmanagerservice")
+
 			
-			clientactor!!.request("carenter","carenter(ok)","parkingmanagerservice")
-			
-			var result = channelForObserver.receive()
-			println("+++++++++ trolleyInIndoor RESULT=$result +++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("indoor", position)
-			
-			var result2 = channelForObserver2.receive()
-			var token = result2.substringAfter("(",result2).substringBefore(")",result2).toInt()
-			println("token = $token")
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			result = channelForObserver.receive()
-			println("+++++++++ trolleyToParkingSlot RESULT=$result +++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("p1", position)
+			println("TEST ${channelForSystem.receive()}")
 			
 			delay(3000)
+	
+			//clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
 			
-			//-----------------------------------------------------------------------------------
+			var slotsfree 		= channelForSlots.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			println("TEST slotsfree: $slotsfree")
+			assertTrue(slotsfree > 0 && slotsfree < 7)
+			
+			var slotnum 		= channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			assertTrue(slotnum > 0 && slotnum < 7)
+			println("TEST slotnum: $slotnum")
+			
+			delay(3000)
+			//--------------------------------------------------------------------------------
+			
+			//clientactor!!.request("carenter","carenter(ok)","parkingmanagerservice")
+			
+			weightObserver!!.addObserver(channelForIndoor, "indoor")
+			weightObserver!!.addObserver(channelForWeight, "carWeight")
+			trolleyObserver!!.addObserver(channelForTrolleyPos, "endPath")
+			parkingserviceObserver!!.addObserver(channelForParkingOp, "receipt")
+			
+			var weight	= channelForWeight.receive().substringAfter("(","").substringBefore(")","").toInt()
+			assertTrue(weight > 0)
+			println("TEST weight: $weight")
+			
+			var indoor 		= channelForIndoor.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(indoor.equals("BUSY"))
+			println("TEST indoor: $indoor")
+			
+			
+			var posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(posRobot.equals("indoor"))
+			println("TEST pos Robo2t: $posRobot")
+			
+			var token = channelForParkingOp.receive().substringAfter("(","").substringBefore(")","").toInt()
+			assertTrue(token > 10000 && token < 70000 )
+			println("TEST token: $token")
+			
+			posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(posRobot.equals("p${slotnum.toString()[0]}"))
+			println("TEST pos Robot3: $posRobot")
+
+			
+			delay(5000)
+			println("FINISH PARKING OP")
+			//FINISH PARKING OP
+			//----------------------------------------------------------------------------------
+
+			try{
+				sonarsimulatorObserver!!.addObserver(channelForOutdoor,"outdoor")
+			}catch(e: NullPointerException){
+				null
+			}
+			sonarhandlerObserver!!.addObserver(channelForOutdoor, "outdoor")
 			
 			clientactor!!.forward("pickup","pickup($token)","parkingmanagerservice")
 			
-			result = channelForObserver.receive()
-			println("+++++++++ trolleyToParkingSlot(PICKUP) RESULT=$result +++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("p1", position)
+			posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(posRobot.equals("p${token.toString()[0]}"))
 			
-			delay(4000)
+			posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(posRobot.equals("outdoor"))
 			
-			//-----------------------------------------------------------------------------------
+			var outdoor 		= channelForOutdoor.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(outdoor.equals("BUSY"))
 			
-			result = channelForObserver.receive()
-			println("+++++++++ trolleyInOutdoor RESULT=$result +++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("outdoor", position)
+			outdoor 		= channelForOutdoor.receive().substringAfter("(","").substringBefore(")","").toString()
+			assertTrue(outdoor.equals("FREE"))
 			
-			delay(6000)
+			delay(4000)			
 			
-			//-----------------------------------------------------------------------------------
-			
-			result = channelForObserver.receive()
-			println("+++++++++ trolleyInHome RESULT=$result +++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("home", position)
 	  	}
  	}
 	
@@ -204,7 +258,7 @@ class TestPlan {
 			
 			var curPos = plannerUtil.get_curPos().toString()
 			
-			testingObserver!!.addObserver(channelTmp,"null")
+			parkingserviceObserver!!.addObserver(channelTmp,"null")
 			trolleyObserver!!.addObserver(channelTmp,"null")
 			
 			assertEquals(curPos,"(0, 1)")			
@@ -249,7 +303,7 @@ class TestPlan {
 			}
 			
 			println("REAL__PATHHHHHHHH: $realpath")
- 			testingObserver!!.addObserver(channelTmp,"null")
+ 			parkingserviceObserver!!.addObserver(channelTmp,"null")
 			assertEquals(expectedpath, realpath)
 			
 	  	}
@@ -271,7 +325,7 @@ class TestPlan {
 			val channelForObserver = Channel<String>()
 			val channelForObserver2 = Channel<String>()
 			
-			testingObserver!!.addObserver(channelForObserver2, "receipt")
+			parkingserviceObserver!!.addObserver(channelForObserver2, "receipt")
 			trolleyObserver!!.addObserver(channelForObserver, "finished")
 			
 			
@@ -345,7 +399,7 @@ class TestPlan {
  -  STATUS CHECK
 ===========================*/
 
-	@Test
+	//@Test
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun statusCheck(){
 		
@@ -354,7 +408,7 @@ class TestPlan {
 			val channelForObserver = Channel<String>()
 			val channelForObserver2 = Channel<String>()
 			
-			testingObserver!!.addObserver(channelForObserver2, "receipt")
+			parkingserviceObserver!!.addObserver(channelForObserver2, "receipt")
 			trolleyObserver!!.addObserver(channelForObserver, "status")
 			
 			var result = channelForObserver.receive()

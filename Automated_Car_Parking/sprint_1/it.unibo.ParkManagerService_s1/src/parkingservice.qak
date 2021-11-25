@@ -36,7 +36,7 @@ QActor client context ctxParkingservice{
 	#]
 	State s0 initial{
 		println("Client mock simulation START | CLIENT")
-	} Transition t0
+	} /*Transition t0
 					whenTime 4000 -> requestToEnter //init
 					
 					
@@ -89,7 +89,7 @@ QActor client context ctxParkingservice{
 	State pickupcar{
 		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
 		emit carwithdrawn : cw(bye)
-	}
+	}*/
 }
 
  

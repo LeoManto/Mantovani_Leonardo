@@ -132,7 +132,7 @@ object TrolleySupport {
 		}
 	
 	
-	//Mettere l'ostacolo dove la macchina è appena stata parcheggiata
+	//Mettere l'ostacolo dove la macchina Ã¨ appena stata parcheggiata
 	
 	fun checkObstacle(x : Int, y : Int) : Boolean{
 		
@@ -156,7 +156,7 @@ object TrolleySupport {
 			
 			"leftDir"	-> return Pair(x-1, y)
 			
-			"righttDir"	-> return Pair(x+1, y)
+			"rightDir"	-> return Pair(x+1, y)
 				
 		}
 		return Pair(-1, -1)

@@ -46,25 +46,25 @@ CodedQActor fan context ctxParkingservice className "fanSimulator"
  *   TODO: 
  * 
  * 			DOCS (sprint 1):  
- *					• Spiegazione del perchè dei tagli nei requisiti
- * 					• Descrizione formale test (Previo funzionamento dei test in JUnit) 
+ *					ï¿½ Spiegazione del perchï¿½ dei tagli nei requisiti
+ * 					ï¿½ Descrizione formale test (Previo funzionamento dei test in JUnit) 
  * 			
  * 			General: 
- * 					• Far funzionare termometro e fan
- * 					• Cercare qualche metodo per fare i  test in JUnit (sia Sprint1 e Sprint2)
+ * 					ï¿½ Far funzionare termometro e fan
+ * 					ï¿½ Cercare qualche metodo per fare i  test in JUnit (sia Sprint1 e Sprint2)
  *			
  * 			Sprint 3: 
- * 					• Pensare a come far funzionare il trolley
+ * 					ï¿½ Pensare a come far funzionare il trolley
  * 
  * 
  * Assumptions :
  *
- * • no GUIs, but simulated clients (by QActor or Jupyter Notebook)
- * • no handling of Timeout alarm 
- * • state of Trolley is not consider
- * • No real Trolley movements
- * • No start/stop by Human Manager
- * • A first handling of TokenId (security)
+ * ï¿½ no GUIs, but simulated clients (by QActor or Jupyter Notebook)
+ * ï¿½ no handling of Timeout alarm 
+ * ï¿½ state of Trolley is not consider
+ * ï¿½ No real Trolley movements
+ * ï¿½ No start/stop by Human Manager
+ * ï¿½ A first handling of TokenId (security)
  * ------------------------------------------------------------------
 */  
 
@@ -85,23 +85,23 @@ QActor client context ctxParkingservice{
 	State init{
 	}
 	
-	/*
+	
 	State requestToEnter{
 		[# var t = kotlin.random.Random.nextLong(2000,4000) #]
 		[# delay(t) #]
 		println("client notify his interest in entering | CLIENT")
 		request parkingmanagerservice -m reqenter : reqenter(client)
 	} Transition t0 
-					//whenTime 2000 -> noentry //se non si gestisce entro 2 sec, il cliente non entra
+					whenReply waitIndoor -> noImmediatlyEntry
 					whenReply slotsnum -> cartoindoor
 	
 	
-	State noentry{
-		// non entra
-	}
+	State noImmediatlyEntry{
+		delay 3000
+	} Goto cartoindoor
+	
 	
 	State cartoindoor{
-		
 		onMsg(slotsnum : slotsnum (SLOTNUM)){
 			[# SLOTNUM = payloadArg(0).toInt() #]	
 			if [# SLOTNUM > 0 #]{
@@ -135,13 +135,13 @@ QActor client context ctxParkingservice{
 		delay 2000 //in 2 secondi porta via l'auto da OUTDOOR
 		emit carwithdrawn : cw(bye)
 		[# CLIENTDONE = CLIENTDONE + 1 #]
-	}Goto stop if [# CLIENTDONE == 4 #] else requestToEnter 
+	} Goto stop if [# CLIENTDONE == 4 #] else requestToEnter 
 	
 	
 	State stop{
 		println("No more clients") 
 	}
-	  */
+	 
 }
 
 //---------------------------------------------------------------------------------------//
@@ -181,17 +181,17 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State check{
 		delay 5000
 	}
-	Goto okReqenter if [#	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0 #] //TODO:	Trolley status check
+	Goto okReqenter if [#	`it.unibo`.utils.ParkingSlotsKb.checkSlots() > 0 #] 
 		else checkOutdoor
 		
 
 	State okReqenter{
-	} Goto ready if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] //TODO:	Trolley status check
+	} Goto ready if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] 
 				else readyOnlyIndoor
 				
 	
 	State checkOutdoor{
-	}Goto readyOnlyOutdoor if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] //TODO:	Trolley status check
+	}Goto readyOnlyOutdoor if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree #] 
 				else notReady
 						
 								
@@ -232,12 +232,10 @@ QActor parkingmanagerservice context ctxParkingservice{
  	
  	
 	State acceptin{
-			
 			[#
 			SLOTNUM = `it.unibo`.utils.ParkingSlotsKb.findSlot()
 			`it.unibo`.utils.ParkingSlotsKb.setSlot(SLOTNUM, false)
 			#]
-			
 			//================[ acceptIN ]=====================	
 			[# if(! `it.unibo`.utils.ParkingSlotsKb.indoorFree){ #]
 				replyTo reqenter with waitIndoor : slotsnum ($SLOTNUM)

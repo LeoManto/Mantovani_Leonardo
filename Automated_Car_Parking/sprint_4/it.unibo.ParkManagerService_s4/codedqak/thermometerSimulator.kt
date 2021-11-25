@@ -16,7 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 const val maxTemp = 40
-const val minTemp = 20
+const val minTemp = 10
  
 class thermometerSimulator (name : String ) : ActorBasic( name ) {
 	
@@ -53,7 +53,7 @@ class thermometerSimulator (name : String ) : ActorBasic( name ) {
 		//println("Increment TEMP START | THERMOMETER")
 		job = mainScope.launch{
 			while(increment){
-				delay(1000)
+				delay(3000)
 				tempAtt.incTemp()
 				delay(3000)		
 			}
@@ -73,7 +73,8 @@ class thermometerSimulator (name : String ) : ActorBasic( name ) {
 				var t = tempAtt.getTemp().toString()
 				val m5 = MsgUtil.buildEvent(name, "temp", t)
 				emit(m5)
-				updateResourceRep( "{\"temp\":\"$t °C\"}")
+				forward("updateGui", "temp($t °C)" ,"guiupdater" )
+				////updateResourceRep( "{\"temp\":\"$t °C\"}")
 				delay(3000)
 			}
 		}

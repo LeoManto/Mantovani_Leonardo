@@ -33,7 +33,8 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 			var temp = msg.msgContent().toInt()
 			if(temp >= maxTemp){
 				workFan = true
-				updateResourceRep( "{\"fan\":\"WORKING\"}")
+				forward("updateGui", "fan(WORKING)" ,"guiupdater" )
+				////updateResourceRep( "{\"fan\":\"WORKING\"}")
 				startFan()
 			}
 		}
@@ -59,7 +60,8 @@ class fanSimulator (name : String ) : ActorBasic( name ) {
 				tempAtt.decTemp()
 				if(tempAtt.getTemp() <= minTemp){
 					workFan = false
-					updateResourceRep( "{\"fan\":\"STOPPED\"}")
+					forward("updateGui", "fan(OFF)" ,"guiupdater" ) 
+					////updateResourceRep( "{\"fan\":\"STOPPED\"}")
 					//-------------------------------------------------------------------------------------------------------
 					//se si vuole inviare un evento al mockActor...
 					val m5 = MsgUtil.buildEvent(name, "normtemp", "norm(temp)")

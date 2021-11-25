@@ -33,6 +33,72 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 					action { //it:State
 					}
 				}	 
+				state("requestToEnter") { //this:State
+					action { //it:State
+						 var t = kotlin.random.Random.nextLong(2000,4000)  
+						 delay(t)  
+						println("client notify his interest in entering | CLIENT")
+						request("reqenter", "reqenter(client)" ,"parkingmanagerservice" )  
+					}
+					 transition(edgeName="t01",targetState="noImmediatlyEntry",cond=whenReply("waitIndoor"))
+					transition(edgeName="t02",targetState="cartoindoor",cond=whenReply("slotsnum"))
+				}	 
+				state("noImmediatlyEntry") { //this:State
+					action { //it:State
+						delay(3000) 
+					}
+					 transition( edgeName="goto",targetState="cartoindoor", cond=doswitch() )
+				}	 
+				state("cartoindoor") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("slotsnum(SLOTNUM)"), Term.createTerm("slotsnum(SLOTNUM)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 SLOTNUM = payloadArg(0).toInt()  
+								if(  SLOTNUM > 0  
+								 ){println("SLOTNUM = $SLOTNUM . Moving car to Indoor | CLIENT")
+								request("carenter", "carenter(V)" ,"parkingmanagerservice" )  
+								}
+						}
+					}
+					 transition(edgeName="t03",targetState="afterreceipt",cond=whenReply("receipt"))
+				}	 
+				state("afterreceipt") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("receipt(INDOORTOKEN)"), Term.createTerm("receipt(TOKENID)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 TOKENID = payloadArg(0)  
+								updateResourceRep( "TOKENID"  
+								)
+								println("client's TOKENID is $TOKENID | CLIENT")
+								 var t1 = kotlin.random.Random.nextLong(3000, 6000)
+											 delay(15000)  
+						}
+					}
+					 transition( edgeName="goto",targetState="reqpickup", cond=doswitch() )
+				}	 
+				state("reqpickup") { //this:State
+					action { //it:State
+						println("client notify his interest in picking his car | CLIENT")
+						forward("pickup", "pickup($TOKENID)" ,"parkingmanagerservice" ) 
+					}
+					 transition(edgeName="t04",targetState="pickupcar",cond=whenEvent("caroutdoorarrival"))
+				}	 
+				state("pickupcar") { //this:State
+					action { //it:State
+						delay(2000) 
+						emit("carwithdrawn", "cw(bye)" ) 
+						 CLIENTDONE = CLIENTDONE + 1  
+					}
+					 transition( edgeName="goto",targetState="stop", cond=doswitchGuarded({ CLIENTDONE == 4  
+					}) )
+					transition( edgeName="goto",targetState="requestToEnter", cond=doswitchGuarded({! ( CLIENTDONE == 4  
+					) }) )
+				}	 
+				state("stop") { //this:State
+					action { //it:State
+						println("No more clients")
+					}
+				}	 
 			}
 		}
 }

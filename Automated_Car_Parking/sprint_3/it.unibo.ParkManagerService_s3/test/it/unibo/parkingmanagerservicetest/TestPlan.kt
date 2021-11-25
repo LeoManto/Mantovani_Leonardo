@@ -236,7 +236,7 @@ class TestPlan {
 			var result = channelForObserver.receive()
 			var expectedpath : String = result.substringAfter("(",result).substringBefore(")",result).toString()
 			expectedpath = expectedpath.replace("[","").replace("]","").replace(",","").replace(" ","")
-			println("EXP__PATHHHHHHHH: $expectedpath")
+			println("EXP__PATH: $expectedpath")
 			//--------------------------------------------------------------------------------
 			
 			var realpath = ""
@@ -248,7 +248,7 @@ class TestPlan {
 			realpath = realpath.plus( result )
 			}
 			
-			println("REAL__PATHHHHHHHH: $realpath")
+			println("REAL__PATH: $realpath")
  			testingObserver!!.addObserver(channelTmp,"null")
 			assertEquals(expectedpath, realpath)
 			

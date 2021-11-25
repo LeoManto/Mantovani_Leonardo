@@ -48,6 +48,7 @@ class Client : Runnable {
                     //ClientResource.setCurrentSlot(msgArg)
                 }
                 else if(id == "receipt"){
+
                     println("token: $msgArg")
                     val jsonMsg : String = "{\"tokenid\":\"$msgArg\"}"
                     var jsonContent : JSONObject = JSONObject(jsonMsg)
@@ -55,6 +56,14 @@ class Client : Runnable {
                     controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, tokenRep)
                     //AClientApacheHttp.doPostWithParams("http://localhost:8081/token","tokenid",msgArg)
                     //ClientResource.setCurrentToken(msgArg)
+                }
+                else if(id == "waitIndoor"){
+                    val jsonMsg = "{\"waitIndoor\":\"$msgArg\"}"
+                    var jsonContent = JSONObject(jsonMsg)
+                    val waitIndoorRep = ResourceRep("" + HtmlUtils.htmlEscape( "s"+jsonContent.getString("waitIndoor")) )
+                    println("waitIndoor: $msgArg")
+                    TimeUnit.MILLISECONDS.sleep(500L)
+                    controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, waitIndoorRep)
                 }
             }
         } catch (e1: UnknownHostException) {

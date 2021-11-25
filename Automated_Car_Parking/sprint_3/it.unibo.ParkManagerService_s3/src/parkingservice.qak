@@ -45,12 +45,12 @@ CodedQActor fan context ctxParkingservice className "fanSimulator"
  * ------------------------------------------------------------------
  * Assumptions :
  *
- * • no GUIs, but simulated clients (by QActor or Jupyter Notebook)
- * • no handling of Timeout alarm 
- * • state of Trolley is not consider
- * • No real Trolley movements
- * • No start/stop by Human Manager
- * • A first handling of TokenId (security)
+ * ï¿½ no GUIs, but simulated clients (by QActor or Jupyter Notebook)
+ * ï¿½ no handling of Timeout alarm 
+ * ï¿½ state of Trolley is not consider
+ * ï¿½ No real Trolley movements
+ * ï¿½ No start/stop by Human Manager
+ * ï¿½ A first handling of TokenId (security)
  * ------------------------------------------------------------------
 */  
 
@@ -543,127 +543,3 @@ QActor trolley context ctxParkingservice{
 		
 		 
 }	
-
-
-/*State turnMove{
-  		if [# CurrentPlannedMove == "l" || CurrentPlannedMove == "r"  #]{
-  			run unibo.robot.robotSupport.move( "$CurrentPlannedMove" )
-  		} 
- 	}
-  	Transition t0  whenMsg moveok   -> rotationDone
-  				
-
-
- 	State rotationDone{
- 		run itunibo.planner.plannerUtil.updateMap(  "$CurrentPlannedMove" )
-   		run itunibo.planner.plannerUtil.showCurrentRobotState( )
- 	} 
- 	 Transition t0 whenTime 300 -> execPlannedMoves */
-
-/* 
-	State execcmd{
-		printCurrentMessage
-		onMsg( cmd : cmd(MOVE) ){
-  			//activate the motors  
-			run unibo.robot.robotSupport.move( "${payloadArg(0)}" )
-			[# CurrentMove =  "${payloadArg(0)}" #] 
-			if [# CurrentMove != "h" #] { 
-				updateResource [# "moveactivated($CurrentMove)" #]
-			}
-		}
-	 }
-	 Goto work  
-	 
-	State handleObstacle{   
-	    run unibo.robot.robotSupport.move( "h" )
-		println("basicrobot | handleObstacleeeeeeeeeeeeeeeeeeee CurrentMove=$CurrentMove")	
-		printCurrentMessage
-			//msg(obstacle,dispatch,distancefilter,basicrobot,obstacle(5),18)
-		if[# CurrentMove == "w" #]{
-			  
- 			run unibo.robot.robotSupport.move( "s" ) 
-			delay 100 //loose the control ...
-			run unibo.robot.robotSupport.move( "h" ) 	 		    	
-			
-			 // collision Json      : emitted by the virtualrobot 
-			 // obstacle(virtual)   : emitted by the virtualrobotSupport2021 when endmove=false
-			 // obstacle(5)         : emitted by the distanceFilter
-			 // obstacle(w)         : emitted by the basicrobot
-			 
-			onMsg( obstacle : obstacle( T ) ){ 
-				[#	val TargetObs = payloadArg(0)  	#]
-				if[# TargetObs == "5" #]{
-					updateResource [# "obstacle(w)" #]
-				}
-			} 
-		}else{ //CurrentMove != "w"
-			updateResource [# "spurious" #]
-		}  		
-	}
-	Goto work 
- 
-    State backstep{
-		    delay 1500 //give time to the tester to manage the update
-		    println("basicrobot | bakkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")	
-			run unibo.robot.robotSupport.move( "s" ) 
-			delay 100 //loose the control ...
-			run unibo.robot.robotSupport.move( "h" ) 			    	
-    }
-    Goto work 
-    
-	State handleSonar{
-		printCurrentMessage
-	}
-	Goto work
-		
-   	State doStep{ 
- 		printCurrentMessage  
-		onMsg( step : step( T ) ){  
-			[#	StepTime = payloadArg(0).toLong() 	#]  
-			updateResource [# "step(${StepTime})" #]
-  		}  
-        memoCurrentTime StartTime  
-        println("basicrobot | doStep StepTime =$StepTime ")        
-        run unibo.robot.robotSupport.move( "w" )  //moves a real robot forever
-	}  
-	Transition t0 
-		whenTimeVar StepTime  -> stepDone //stepPerhapsDone	//caused by p
-		whenMsg  obstacle     -> stepFail		
-        //whenMsg     cmd       -> execcmd
-  	 
-	
-	State stepDone{   
- 		run unibo.robot.robotSupport.move( "h" )  //stop the real robot already done
-		println("basicrobot | stepDone")
-		updateResource [# "stepDone($StepTime)" #]
-   		//emit info : info( stepdone($StepTime) )
-   		replyTo step with stepdone : stepdone(ok)
-		//println("basicrobot | stepDone reply done")
-  	}
-	Goto work  
- 
-	State stepFail{  		
-		setDuration Duration from StartTime
-		run unibo.robot.robotSupport.move( "h" )  //stop the (real) robot
-		[# var TunedDuration = Duration;  
-			TunedDuration = Duration * 5 / 6
-		#]
-		println("basicrobot | stepFail duration=$Duration TunedDuration=$TunedDuration")
-			run unibo.robot.robotSupport.move( "s" )
-			delayVar TunedDuration 
-			run unibo.robot.robotSupport.move( "h" )  
- 		updateResource [# "stepFail($Duration)" #] 
- 		//emit info : info( stepFail($Duration) )
- 		replyTo step with stepfail : stepfail($Duration, obst)
-    }
-	Goto work
-	
-	State endwork{ 
-		onMsg( end : end( V ) ){ 
-			println("basicrobot | endwork")
-			updateResource [# "basicrobot(end)" #]	 		
-			//run utils.virtualRobotSupportQak.terminatevr( )
-		}
- 		emit endall : endall(normal) 
- 		terminate 1
-	}  */
