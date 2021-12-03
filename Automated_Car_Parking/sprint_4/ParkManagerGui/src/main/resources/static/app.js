@@ -2,32 +2,6 @@ var stompClient = null;
 var curTemp = "-1 °C"
 var curStatus = "-1"
 
-//alert("app.js")
-
-//SIMULA UNA FORM che invia comandi POST
-/*
-function sendRequestData( params, method) {
- var hostAddr = "http://localhost:8083/sonar";
-   method = method || "post"; // il metodo POST � usato di default
-    console.log(" sendRequestData  params=" + params + " method=" + method);
-    var form = document.createElement("form");
-    form.setAttribute("method", method);
-    form.setAttribute("action", hostAddr);
-    var hiddenField = document.createElement("input");
-        hiddenField.setAttribute("type", "hidden");
-        hiddenField.setAttribute("name", "move");
-        hiddenField.setAttribute("value", params);
-     	//console.log(" sendRequestData " + hiddenField.getAttribute("name") + " " + hiddenField.getAttribute("value"));
-        form.appendChild(hiddenField);
-    document.body.appendChild(form);
-    console.log("body children num= "+document.body.children.length );
-    form.submit();
-    document.body.removeChild(form);
-    console.log("body children num= "+document.body.children.length );
-}
-*/
-
-
 function setConnected(connected) {
 console.log(" %%% app setConnected:" + connected );
     $("#connect").prop("disabled", connected);
@@ -74,8 +48,6 @@ function connect() {
     });
 }
 
-
-
 function disconnect() {
     if (stompClient !== null) {
         stompClient.disconnect();
@@ -84,15 +56,9 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendUpdateRequest(){
-	console.log(" sendUpdateRequest "  );
-    stompClient.send("/app/update", {}, JSON.stringify({'name': 'update' }));
-}
-
 function showMsg(message, outputId) {
 console.log(message );
     $("#"+outputId).html( "<pre>"+message.replace(/\n/g,"<br/>")+"</pre>" );
-    //$("#applmsgintable").append("<tr><td>" + message + "</td></tr>");
 }
 
 function checkBtn(value){
@@ -108,23 +74,7 @@ function checkBtn(value){
         document.getElementById("resumebtn").disabled = true // nonattivo
         document.getElementById("stopbtn").disabled = true   //non attivo
     }
-
 }
-
-$(function () {
-    $("form").on('submit', function (e) {
-         console.log(" ------- form " + e );
-         //e.preventDefault();
-    });
-    $( "#connect" ).click(function() { connect(); });
-    $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendRequestData(); });
-
-
-//USED BY POST-BASED GUI
-//$( "#sonarvalue" ).click(function() { sendRequestData( "w") });
-
-});
 
 
 

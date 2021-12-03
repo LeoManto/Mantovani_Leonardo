@@ -9,7 +9,7 @@ System parkingservice
  */    
     
 //DECOMMENTARE se si usa il sonar fisico    
-//mqttBroker "broker.hivemq.com" : 1883 eventTopic "parkingArea/feedback"    
+mqttBroker "broker.hivemq.com" : 1883 eventTopic "parkingArea/feedback"    
     
 Request reqenter 		: reqenter(V)
 Reply slotsnum 			: slotsnum(SLOTNUM)
@@ -30,7 +30,6 @@ Dispatch pickup : pickup(OUTDOORTOKEN)
 //------------------------------------------------------------------------------------------------
 Dispatch startManager : start(V)
 Dispatch systemready : ready(V)
-Dispatch asd : asd(V)
 //-------------------------------------------------------------------------------------------------
 Dispatch startthermometer : thermometer(V)
 Dispatch startsonar : sonar(V)
@@ -75,17 +74,17 @@ CodedQActor fan context ctxParkingservice className "fanSimulator"
  * • Final SPRINT
  * ------------------------------------------------------------------
 */  
-/* 
+ /* 
 QActor client context ctxParkingservice{
 	State s0 initial{
 		
 	}Transition t0
-		whenTime 10000 -> work
+		whenTime 5000 -> work
 	
 	State work{
-		request parkingmanagerservice -m reqenter:reqenter(Jim)
-		delay 5000
-		request parkingmanagerservice -m carenter:carenter(Jim)
+		//request parkingmanagerservice -m reqenter:reqenter(Jim)
+		//delay 5000
+		//request parkingmanagerservice -m carenter:carenter(Jim)
 
 	}
 }
@@ -108,13 +107,19 @@ QActor parkingmanagerservice context ctxParkingservice{
 	var CARSLOTNUM =  0
 	
 	var GOAL 	   = ""
-	var trolleyPos = ""
+	var TROLLEYPOS = ""
 	
-	var simulatedsonar = true //false
-	
+	var simulatedsonar = true
 	#]
 	 
 	State s0 initial{
+		
+		solve( consult("outsonarConfigKb.pl"))
+ 		solve( simulatedsonar(X) )
+ 		[# 
+		   simulatedsonar = ( getCurSol("X").toString() == "on")	
+		#] 
+		println("@@@ simulatedsonar = $simulatedsonar @@@")
 		[#
 		if(simulatedsonar){
 			outSonarActor   = sysUtil.getActor("outsonar")!!
@@ -131,26 +136,24 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	
 	State setup{
-		delay 2000
-		forward thermometer -m startthermometer : thermometer(on)
-		forward sonarhandler -m startsonar : sonar(on)
-				
-		updateResource[# "systemready(start)" #]		 
-		updateResource [# "freeslots(${FREESLOTS})" #]
-	
+		delay 1000		
+					
+		forward sonarhandler -m startsonar : sonar(ON)
+		forward thermometer -m startthermometer : thermometer(ON)
+		forward trolley -m systemready : ready(system)			
+					
+		[# val W = "0 KG" #]
 		forward guiupdater -m updateGui : indoorStatus(FREE)
 		forward guiupdater -m updateGui : outdoorStatus(FREE)
 		forward guiupdater -m updateGui : slotLiberi($FREESLOTS)
 		forward guiupdater -m updateGui : fan(OFF)
-		[# val W = "0 KG" #]
 		forward guiupdater -m updateGui : weight($W)
 		
-/* 
-		updateResource [# "{\"slotLiberi\":\"$freeSlots\"}"  #]
-		updateResource [# "{\"indoorStatus\":\"FREE\"}" #]
-		updateResource [# "{\"outdoorStatus\":\"FREE\"}"  #]
-*/
-		forward trolley -m systemready : ready(system)
+		updateResource [# "indoorAtStart(FREE)" #]		//test
+		updateResource [# "outdoorAtStart(FREE)" #]		//test
+		updateResource [# "freeslots(${FREESLOTS})" #]	//test
+		updateResource [# "posRobot(0,0)" #]			//test
+
 		println("Park System START | SERVICE")
 	}Goto check
 	
@@ -169,7 +172,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 	 	else readyOnlyReqEnter
 				
 	
-	State checkOutdoor{ //IL tasto della pikcup deve sempre essere cliccabile
+	State checkOutdoor{
 	}Goto readyOnlyOutdoor if [# `it.unibo`.utils.ParkingSlotsKb.outdoorFree &&
 								unibo.robot.TrolleyKb.trolleyStatus != `it.unibo`.utils.TrolleyStatus.STOPPED #]
 		else notReady
@@ -178,7 +181,7 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State ready{
 		println("INDOOR and OUTDOOR Avaiable | SERVICE")
 	}Transition t0 
-					whenTime 	5000     -> moveToHome
+					whenTime 	7000     -> moveToHome
 					whenRequest reqenter -> acceptin
 					whenMsg		pickup	 -> acceptout
 				
@@ -186,14 +189,14 @@ QActor parkingmanagerservice context ctxParkingservice{
 	State readyOnlyReqEnter{
 		println("INDOOR Avaiable | SERVICE")
 	}Transition t0
-					whenTime 10000	     -> moveToHome
+					whenTime 7000	     -> moveToHome
 					whenRequest reqenter -> acceptin
 				
 	
 	State readyOnlyOutdoor{
 		println("OUTDOOR Avaiable | SERVICE")
 	}Transition t0
-					whenTime 5000	     -> moveToHome
+					whenTime 7000	     -> moveToHome
 					whenMsg		pickup	 -> acceptout
 					
 					
@@ -203,13 +206,17 @@ QActor parkingmanagerservice context ctxParkingservice{
 					
 					
 	State moveToHome{
-		[# if(unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.IDLE  && GOAL != "home") { #]
+		[# val POSX = itunibo.planner.plannerUtil.getPosX() #]
+		[# val POSY = itunibo.planner.plannerUtil.getPosY() #]
+		[# if(unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.IDLE  && GOAL != "home" && 
+			POSX !=0 && POSY!=0 ) { #]
 			println("##### IN MOVE TO HOME ##########")
 		println("Moving Trolley to HOME")
 		[# GOAL = "home" #]
 		forward trolley -m move : move($GOAL) 
+		updateResource [# "movingTo(HOME)" #]		//TEST
 		[# } #]
-	} Goto check				
+	} Goto check
 	
  	 
 	State acceptin{
@@ -220,11 +227,11 @@ QActor parkingmanagerservice context ctxParkingservice{
 					unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.STOPPED
 			){ #]
 				replyTo reqenter with waitIndoor : slotsnum ($SLOTNUM)
-				updateResource [# "waitindoor(${SLOTNUM})" #]
+				updateResource [# "waitindoor(${SLOTNUM})" #]		//TEST
 			[# } #]
 			[# else {#]
 			//================[ informIN ]=====================
-			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)
+			replyTo reqenter with slotsnum : slotsnum ($SLOTNUM)	//TEST
 			println("SLOTNUM = $SLOTNUM | SERVICE" )
 			updateResource [# "slotnum(${SLOTNUM})" #]
 			[# } #]	
@@ -257,9 +264,9 @@ QActor parkingmanagerservice context ctxParkingservice{
 				println("Weight: " + WEIGHT)
 			#]
 			}
-	} Goto waitTrolleyIndoor if [# WEIGHT > 0 #] else weightError	//qui credo ci vada un when event finished(GOAL) e poi nello stato dopo un controllo sul weight		
-		
-		
+	} Goto waitTrolleyIndoor if [# WEIGHT > 0 #] else weightError
+	
+	 
 	State waitTrolleyIndoor{
 	} Transition t0
 			whenEvent finished -> receipt  //waits until Trolley is in INDOOR
@@ -273,16 +280,17 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	State receipt{ 
 		onMsg(finished : finished(GOAL)){
-				[# trolleyPos = payloadArg(0) #]
+				[# TROLLEYPOS = payloadArg(0) #]
+			updateResource [# "posRobot(${TROLLEYPOS})" #]		//test
 			}
-			[# if(trolleyPos == "indoor") { #]
+			[# if(TROLLEYPOS == "indoor") { #]
 				println("Trolley is in INDOOR| SERVICE")
 				[# 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM) #]
 				//==========[receipt]==========
 				replyTo carenter with receipt : receipt($INDOORTOKEN)
-				updateResource [# "receipt(${INDOORTOKEN})" #]
+				updateResource [# "receipt(${INDOORTOKEN})" #]		//test
 		[# } #]
-	} Goto moveToSlotIn if [# trolleyPos == "indoor"#]
+	} Goto moveToSlotIn if [# TROLLEYPOS == "indoor"#]
 						else waitTrolleyIndoor
 			
 			
@@ -297,22 +305,22 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	State checkPark{
 		onMsg(finished : finished(GOAL)){
-				[# trolleyPos = payloadArg(0) #]
+				[# TROLLEYPOS = payloadArg(0) #]
+				updateResource [# "posRobot(${TROLLEYPOS})" #]		//test
 			}
-	} Goto parkedCar if [# trolleyPos == GOAL #]
+	} Goto parkedCar if [# TROLLEYPOS == GOAL #]
 		else parkingError
 		
 		
 	State parkedCar{
 		println("Car is parked at p$SLOTNUM")
 		[# FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots() #]
-		forward guiupdater -m updateGui : slotLiberi($FREESLOTS)
-		////updateResource [# "{\"slotLiberi\":\"$FREESLOTS\"}"  #]
-		updateResource [# "freeslots(${FREESLOTS})" #]
+		forward guiupdater -m updateGui : slotLiberi($FREESLOTS)	//GUI
+		updateResource [# "freeslots(${FREESLOTS})" #]				//TEST
 	} Transition t0
 			whenTime 500 -> check
-	
-	
+
+
 	State parkingError{
 		println("Parking Error")
 	} Goto check
@@ -322,8 +330,10 @@ QActor parkingmanagerservice context ctxParkingservice{
 		//===========[ acceptOUT ]=====================
 		//===========[ findSlot ]=====================
 			onMsg (pickup : pickup(OUTDOORTOKEN)){
-				[#  OUTDOORTOKEN = payloadArg(0).toString() #]}
+				[#  OUTDOORTOKEN = payloadArg(0).toString() #]
+				}
 				[# 	CARSLOTNUM = `it.unibo`.utils.ParkingSlotsKb.checkToken(OUTDOORTOKEN) #]
+				updateResource [# "carslotnum(${CARSLOTNUM})" #]
 	} Goto picking if [# CARSLOTNUM > 0 #] else tokenError
 	
 	
@@ -341,12 +351,11 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	
 	State checkCarPicked{
-		onMsg(finished : finished(W)){
-			[# 
-				trolleyPos = payloadArg(0)
-			#]
+		onMsg(finished : finished(GOAL)){
+			[# TROLLEYPOS = payloadArg(0) #]
+			updateResource [# "posRobot(${TROLLEYPOS})" #]		//test
 			}
-	} Goto moveToOut if[# trolleyPos == GOAL #]
+	} Goto moveToOut if[# TROLLEYPOS == GOAL #]
 		else trolleyToPickingSlot
 		
 		
@@ -366,20 +375,22 @@ QActor parkingmanagerservice context ctxParkingservice{
 	
 	
 	State carInOutdoor{
-		onMsg(finished : finished(W)){
-			[# trolleyPos = payloadArg(0) #]
+		onMsg(finished : finished(GOAL)){
+			[# TROLLEYPOS = payloadArg(0) #]
+			updateResource [# "posRobot(${TROLLEYPOS})" #]		//test
 			}
 		[# if(simulatedsonar){#]	
-			[# if (trolleyPos == "outdoor") {#]	
-			emit caroutdoorarrival : coa(car_arrived)  //questo lo deve catturare il outsonar
-			[# FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots() #]
-			forward guiupdater -m updateGui : slotLiberi($FREESLOTS)
-			////updateResource [# "{\"slotLiberi\":\"$FREESLOTS\"}"  #]
-			updateResource [# "freeslots(${FREESLOTS})" #]
-			println("Car is in Outdoor area | SERVICE")
+			[# if (TROLLEYPOS == "outdoor") {#]	
+			if [# simulatedsonar #]{
+				emit caroutdoorarrival : coa(car_arrived)  //questo lo deve catturare il outsonar
+			}
 			[# } 
 		} #]
-	} Goto check if [# trolleyPos == "outdoor" #]
+		[# FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots() #]
+		updateResource [# "freeslots(${FREESLOTS})" #]
+		forward guiupdater -m updateGui : slotLiberi($FREESLOTS)
+		println("Car is in Outdoor area | SERVICE")
+	} Goto check if [# TROLLEYPOS == "outdoor" #]
 		else outdoorError
 	
 	
@@ -405,12 +416,15 @@ QActor sonarhandler context ctxParkingservice{
 	
 	State s0 initial {
 		println("OUTDOOR SONAR INIT | SONAR")
-	}Transition t0 whenMsg startsonar -> start
+	}Transition t0 
+			whenMsg startsonar -> start
 	
 	
 	State start {
+		updateResource [# "sonarOutdoor(FREE)" #]
 		println("OUTDOOR SONAR START | SONAR")
-	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
+	}Transition t0
+			whenEvent sonaroutdoor -> handleSonarData
 	
 	
 	State handleSonarData{
@@ -421,15 +435,14 @@ QActor sonarhandler context ctxParkingservice{
 				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
 				#]
 				forward guiupdater -m updateGui : outdoorStatus(BUSY)
-				////updateResource [# "{\"outdoorStatus\":\"BUSY\"}" #]
 				updateResource [# "outdoor(BUSY)" #]
+				updateResource [# "sonarOutdoor(FREE)" #]
 				forward outdoortimer -m starttimer : timer(on) 
 				println("Car in OUTDOOR | SONAR")
 			[# }
 			else if(distance >= 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
 				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true #]
 				forward guiupdater -m updateGui : outdoorStatus(FREE)
-				////updateResource [# "{\"outdoorStatus\":\"FREE\"}" #]
 				updateResource [# "outdoor(FREE)" #]
 				forward outdoortimer -m stoptimer : timer(off) 
 				[# } #]
@@ -478,21 +491,18 @@ QActor trolley context ctxParkingservice{
   val planner = `it.unibo`.utils.TrolleySupport
 #]  
  	State s0 initial { 	      
- 		println("basicrobot | START")	
  		qrun unibo.robot.robotSupport.create(myself,"basicrobotConfig.json")	
  		[# RobotType = unibo.robot.robotSupport.robotKind #]
  		
  		run itunibo.planner.plannerUtil.loadRoomMap("$mapname")
  		run itunibo.planner.plannerUtil.initAI()
-
 		run itunibo.planner.plannerUtil.showCurrentRobotState()  	
-     	//run pathexecutil.register( Myself )
- 
  		run unibo.robot.robotSupport.move( "h" )
  		delay 1000 
+ 		
    		run unibo.robot.robotSupport.move( "l" )
 		run unibo.robot.robotSupport.move( "r" )
- 		discardMsg Off  //WE want receive any msg
+ 		discardMsg Off 
  		
      	run itunibo.planner.plannerUtil.showMap()
      	run itunibo.planner.plannerUtil.showCurrentRobotState()
@@ -503,38 +513,32 @@ QActor trolley context ctxParkingservice{
  			
  			
  	State setup{
+ 		println("TROLLEY STARTS | TROLLEYCMD")	
 		[# val DIR =  itunibo.planner.plannerUtil.getDirection() #]
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE #]
 		[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
-		forward guiupdater -m updateGui : robotPos(0,0)
-		forward guiupdater -m updateGui : direction($DIR)
- 		////updateResource [# "{\"robotPos\":\"0,0\"}" #]
-     	////updateResource [# "{\"direction\":\"$DIR\"}" #]
-     	updateResource [# "posRobot(0,0)" #]
-     	updateResource [# "dirRobot(${DIR})" #]
+		forward guiupdater -m updateGui : robotPos(0,0)		//gui
+		forward guiupdater -m updateGui : direction($DIR)	//gui
  	}Goto work
 	
 
 	State work{
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE #]
 		[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
-		forward guiupdater -m updateGui : status($STATUS)
-		////updateResource [# "{\"status\":\"$STATUS\"}" #]
-		updateResource [# "trolleystatus(${STATUS})" #]
-		println("basicrobot waiting ... | TROLLEY")  
+		forward guiupdater -m updateGui : status($STATUS)  //GUI
+		//updateResource [# "trolleystatus(${STATUS})" #]		//TEST
+		println("trolley waiting ... | TROLLEY")  
 	}Transition t0
 		whenMsg move -> path
-		whenMsg stopTrolley -> stopped	  
+		whenMsg stopTrolley -> stopped
 		
 		
 	State stopped{
 		run unibo.robot.robotSupport.move( "h" )
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.STOPPED #]
 		[# val STATUS =  unibo.robot.TrolleyKb.trolleyStatus #]
-		forward guiupdater -m updateGui : status($STATUS)
-		////updateResource [# "{\"status\":\"$STATUS\"}" #]
-		updateResource [# "trolleystatus(${STATUS})" #] //test
-		
+		forward guiupdater -m updateGui : status($STATUS)	//GUI
+		/////////////////////updateResource [# "trolleystatus(${STATUS})" #] //test
 	} Transition t0
 			whenMsg resumeTrolley -> resume
 	
@@ -543,9 +547,7 @@ QActor trolley context ctxParkingservice{
 		onMsg(move : move(GOAL)){
 			[# GOAL = payloadArg(0) #]
 			forward guiupdater -m updateGui : curDest($GOAL)
-			////updateResource [# "{\"curDest\":\"$GOAL\"}" #]
-			updateResource [# "curDest(${GOAL}) "#] //test
-			
+			//updateResource [# "curDest(${GOAL}) "#] //test	
 			println("GOAL = $GOAL | TROLLEY")
 			run planner.getPathPlan(GOAL)
 			[# CurPath = itunibo.planner.plannerUtil.getActions().toString() #]
@@ -553,9 +555,8 @@ QActor trolley context ctxParkingservice{
 		[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
 		[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
 		forward guiupdater -m updateGui : status($STATUS)
-		////updateResource [# "{\"status\":\"$STATUS\"}" #]
-		updateResource [# "trolleystatus(${STATUS})" #]
-	} Goto execPlannedMoves if [# GOAL != "home" #] //test
+		////////////////////////////updateResource [# "trolleystatus(${STATUS})" #]	//test
+	} Goto execPlannedMoves if [# GOAL != "home" #] 
 		else checkInterrupt
 		
 		
@@ -598,12 +599,8 @@ QActor trolley context ctxParkingservice{
 		[# val POSX = itunibo.planner.plannerUtil.getPosX() #]
 		[# val POSY = itunibo.planner.plannerUtil.getPosY() #]
 		[# val DIR =  itunibo.planner.plannerUtil.getDirection() #]
-		forward guiupdater -m updateGui : robotPos($POSX,$POSY)
-		forward guiupdater -m updateGui : direction($DIR)
-     	////updateResource [# "{\"robotPos\":\"$posX,$posY\"}" #]
-     	////updateResource [# "{\"direction\":\"DIR\"}" #]
- 		updateResource [# "posRobot(${POSX},${POSY})" #]
-     	updateResource [# "dirRobot(${DIR})" #]
+		forward guiupdater -m updateGui : robotPos($POSX,$POSY)	//gui
+		forward guiupdater -m updateGui : direction($DIR)		//gui
   	} Transition t0
   				whenTime 100 -> checkHomeGoal 
   				whenMsg stopTrolley -> stopped
@@ -615,13 +612,14 @@ QActor trolley context ctxParkingservice{
  	
  	 
  	State endPath{
+ 		
 		[# var timeDelay = #] run planner.exactDir(GOAL)
 		[# delay(timeDelay) #] 
- 		println("path finished | TROLLEY")
  		run itunibo.planner.plannerUtil.showCurrentRobotState()
- 		updateResource [# "endPath(${GOAL})" #]	//test
- 		emit finished : finished($GOAL) 
- 		println("finished($GOAL) | TROLLEY")
+ 		if [# GOAL != "home" #]{
+ 			emit finished : finished($GOAL)
+ 			println("finished($GOAL) | TROLLEY")
+}
  		[# GOAL = "" #]
  	} Goto work
  	
@@ -643,8 +641,7 @@ QActor trolley context ctxParkingservice{
 			[# unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING #]
 			[# STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString() #]
 			forward guiupdater -m updateGui : status($STATUS)
-			////updateResource [# "{\"status\":\"$STATUS\"}" #]
-			updateResource [# "trolleystatus(${STATUS})" #]
+			///////////////////////////updateResource [# "trolleystatus(${STATUS})" #]
 	} Goto execPlannedMoves if [# GOAL != "home" #]
 		else checkInterrupt
 		

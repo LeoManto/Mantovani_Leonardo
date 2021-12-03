@@ -33,13 +33,17 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 			var CARSLOTNUM =  0
 			
 			var GOAL 	   = ""
-			var trolleyPos = ""
+			var TROLLEYPOS = ""
 			
-			var simulatedsonar = true //false
-			
+			var simulatedsonar = true
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						solve("consult('outsonarConfigKb.pl')","") //set resVar	
+						solve("simulatedsonar(X)","") //set resVar	
+						 
+								   simulatedsonar = ( getCurSol("X").toString() == "on")	
+						println("@@@ simulatedsonar = $simulatedsonar @@@")
 						
 								if(simulatedsonar){
 									outSonarActor   = sysUtil.getActor("outsonar")!!
@@ -54,20 +58,24 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("setup") { //this:State
 					action { //it:State
-						delay(2000) 
-						forward("startthermometer", "thermometer(on)" ,"thermometer" ) 
-						forward("startsonar", "sonar(on)" ,"sonarhandler" ) 
-						updateResourceRep( "systemready(start)"  
-						)
-						updateResourceRep( "freeslots(${FREESLOTS})"  
-						)
+						delay(1000) 
+						forward("startsonar", "sonar(ON)" ,"sonarhandler" ) 
+						forward("startthermometer", "thermometer(ON)" ,"thermometer" ) 
+						forward("systemready", "ready(system)" ,"trolley" ) 
+						 val W = "0 KG"  
 						forward("updateGui", "indoorStatus(FREE)" ,"guiupdater" ) 
 						forward("updateGui", "outdoorStatus(FREE)" ,"guiupdater" ) 
 						forward("updateGui", "slotLiberi($FREESLOTS)" ,"guiupdater" ) 
 						forward("updateGui", "fan(OFF)" ,"guiupdater" ) 
-						 val W = "0 KG"  
 						forward("updateGui", "weight($W)" ,"guiupdater" ) 
-						forward("systemready", "ready(system)" ,"trolley" ) 
+						updateResourceRep( "indoorAtStart(FREE)"  
+						)
+						updateResourceRep( "outdoorAtStart(FREE)"  
+						)
+						updateResourceRep( "freeslots(${FREESLOTS})"  
+						)
+						updateResourceRep( "posRobot(0,0)"  
+						)
 						println("Park System START | SERVICE")
 					}
 					 transition( edgeName="goto",targetState="check", cond=doswitch() )
@@ -105,7 +113,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("INDOOR and OUTDOOR Avaiable | SERVICE")
 						stateTimer = TimerActor("timer_ready", 
-							scope, context!!, "local_tout_parkingmanagerservice_ready", 5000.toLong() )
+							scope, context!!, "local_tout_parkingmanagerservice_ready", 7000.toLong() )
 					}
 					 transition(edgeName="t01",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_ready"))   
 					transition(edgeName="t02",targetState="acceptin",cond=whenRequest("reqenter"))
@@ -115,7 +123,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("INDOOR Avaiable | SERVICE")
 						stateTimer = TimerActor("timer_readyOnlyReqEnter", 
-							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyReqEnter", 10000.toLong() )
+							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyReqEnter", 7000.toLong() )
 					}
 					 transition(edgeName="t04",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyReqEnter"))   
 					transition(edgeName="t05",targetState="acceptin",cond=whenRequest("reqenter"))
@@ -124,7 +132,7 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						println("OUTDOOR Avaiable | SERVICE")
 						stateTimer = TimerActor("timer_readyOnlyOutdoor", 
-							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyOutdoor", 5000.toLong() )
+							scope, context!!, "local_tout_parkingmanagerservice_readyOnlyOutdoor", 7000.toLong() )
 					}
 					 transition(edgeName="t06",targetState="moveToHome",cond=whenTimeout("local_tout_parkingmanagerservice_readyOnlyOutdoor"))   
 					transition(edgeName="t07",targetState="acceptout",cond=whenDispatch("pickup"))
@@ -138,11 +146,16 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("moveToHome") { //this:State
 					action { //it:State
-						 if(unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.IDLE  && GOAL != "home") {  
+						 val POSX = itunibo.planner.plannerUtil.getPosX()  
+						 val POSY = itunibo.planner.plannerUtil.getPosY()  
+						 if(unibo.robot.TrolleyKb.trolleyStatus == `it.unibo`.utils.TrolleyStatus.IDLE  && GOAL != "home" && 
+									POSX !=0 && POSY!=0 ) {  
 						println("##### IN MOVE TO HOME ##########")
 						println("Moving Trolley to HOME")
 						 GOAL = "home"  
 						forward("move", "move($GOAL)" ,"trolley" ) 
+						updateResourceRep( "movingTo(HOME)"  
+						)
 						 }  
 					}
 					 transition( edgeName="goto",targetState="check", cond=doswitch() )
@@ -216,9 +229,11 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("finished(V)"), Term.createTerm("finished(GOAL)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 trolleyPos = payloadArg(0)  
+								 TROLLEYPOS = payloadArg(0)  
+								updateResourceRep( "posRobot(${TROLLEYPOS})"  
+								)
 						}
-						 if(trolleyPos == "indoor") {  
+						 if(TROLLEYPOS == "indoor") {  
 						println("Trolley is in INDOOR| SERVICE")
 						 	INDOORTOKEN = `it.unibo`.utils.ParkingSlotsKb.generateToken(SLOTNUM)  
 						answer("carenter", "receipt", "receipt($INDOORTOKEN)"   )  
@@ -226,9 +241,9 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 						)
 						 }  
 					}
-					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitchGuarded({ trolleyPos == "indoor" 
+					 transition( edgeName="goto",targetState="moveToSlotIn", cond=doswitchGuarded({ TROLLEYPOS == "indoor" 
 					}) )
-					transition( edgeName="goto",targetState="waitTrolleyIndoor", cond=doswitchGuarded({! ( trolleyPos == "indoor" 
+					transition( edgeName="goto",targetState="waitTrolleyIndoor", cond=doswitchGuarded({! ( TROLLEYPOS == "indoor" 
 					) }) )
 				}	 
 				state("moveToSlotIn") { //this:State
@@ -243,12 +258,14 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("finished(V)"), Term.createTerm("finished(GOAL)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 trolleyPos = payloadArg(0)  
+								 TROLLEYPOS = payloadArg(0)  
+								updateResourceRep( "posRobot(${TROLLEYPOS})"  
+								)
 						}
 					}
-					 transition( edgeName="goto",targetState="parkedCar", cond=doswitchGuarded({ trolleyPos == GOAL  
+					 transition( edgeName="goto",targetState="parkedCar", cond=doswitchGuarded({ TROLLEYPOS == GOAL  
 					}) )
-					transition( edgeName="goto",targetState="parkingError", cond=doswitchGuarded({! ( trolleyPos == GOAL  
+					transition( edgeName="goto",targetState="parkingError", cond=doswitchGuarded({! ( TROLLEYPOS == GOAL  
 					) }) )
 				}	 
 				state("parkedCar") { //this:State
@@ -276,6 +293,8 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 								  OUTDOORTOKEN = payloadArg(0).toString()  
 						}
 						 	CARSLOTNUM = `it.unibo`.utils.ParkingSlotsKb.checkToken(OUTDOORTOKEN)  
+						updateResourceRep( "carslotnum(${CARSLOTNUM})"  
+						)
 					}
 					 transition( edgeName="goto",targetState="picking", cond=doswitchGuarded({ CARSLOTNUM > 0  
 					}) )
@@ -294,15 +313,16 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("checkCarPicked") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("finished(V)"), Term.createTerm("finished(W)"), 
+						if( checkMsgContent( Term.createTerm("finished(V)"), Term.createTerm("finished(GOAL)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 
-												trolleyPos = payloadArg(0)
+								 TROLLEYPOS = payloadArg(0)  
+								updateResourceRep( "posRobot(${TROLLEYPOS})"  
+								)
 						}
 					}
-					 transition( edgeName="goto",targetState="moveToOut", cond=doswitchGuarded({ trolleyPos == GOAL  
+					 transition( edgeName="goto",targetState="moveToOut", cond=doswitchGuarded({ TROLLEYPOS == GOAL  
 					}) )
-					transition( edgeName="goto",targetState="trolleyToPickingSlot", cond=doswitchGuarded({! ( trolleyPos == GOAL  
+					transition( edgeName="goto",targetState="trolleyToPickingSlot", cond=doswitchGuarded({! ( TROLLEYPOS == GOAL  
 					) }) )
 				}	 
 				state("trolleyToPickingSlot") { //this:State
@@ -323,24 +343,28 @@ class Parkingmanagerservice ( name: String, scope: CoroutineScope  ) : ActorBasi
 				}	 
 				state("carInOutdoor") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("finished(V)"), Term.createTerm("finished(W)"), 
+						if( checkMsgContent( Term.createTerm("finished(V)"), Term.createTerm("finished(GOAL)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 trolleyPos = payloadArg(0)  
+								 TROLLEYPOS = payloadArg(0)  
+								updateResourceRep( "posRobot(${TROLLEYPOS})"  
+								)
 						}
 						 if(simulatedsonar){ 
-						 if (trolleyPos == "outdoor") { 
-						emit("caroutdoorarrival", "coa(car_arrived)" ) 
-						 FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots()  
-						forward("updateGui", "slotLiberi($FREESLOTS)" ,"guiupdater" ) 
-						updateResourceRep( "freeslots(${FREESLOTS})"  
-						)
-						println("Car is in Outdoor area | SERVICE")
+						 if (TROLLEYPOS == "outdoor") { 
+						if(  simulatedsonar  
+						 ){emit("caroutdoorarrival", "coa(car_arrived)" ) 
+						}
 						 } 
 								}  
+						 FREESLOTS = `it.unibo`.utils.ParkingSlotsKb.checkSlots()  
+						updateResourceRep( "freeslots(${FREESLOTS})"  
+						)
+						forward("updateGui", "slotLiberi($FREESLOTS)" ,"guiupdater" ) 
+						println("Car is in Outdoor area | SERVICE")
 					}
-					 transition( edgeName="goto",targetState="check", cond=doswitchGuarded({ trolleyPos == "outdoor"  
+					 transition( edgeName="goto",targetState="check", cond=doswitchGuarded({ TROLLEYPOS == "outdoor"  
 					}) )
-					transition( edgeName="goto",targetState="outdoorError", cond=doswitchGuarded({! ( trolleyPos == "outdoor"  
+					transition( edgeName="goto",targetState="outdoorError", cond=doswitchGuarded({! ( TROLLEYPOS == "outdoor"  
 					) }) )
 				}	 
 				state("outdoorError") { //this:State

@@ -12,7 +12,6 @@ import java.net.*
 import java.util.concurrent.TimeUnit
 
 class Client : Runnable {
-
     lateinit var controller : HumanInterfaceController
     private var socket: Socket? = null
     private var input: BufferedReader? = null
@@ -44,8 +43,7 @@ class Client : Runnable {
                     println("slot: $msgArg")
                     TimeUnit.MILLISECONDS.sleep(500L)
                     controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, slotRep)
-                    //AClientApacheHttp.doPostWithParams("http://localhost:8081/slot","slotnum",msgArg)
-                    //ClientResource.setCurrentSlot(msgArg)
+
                 }
                 else if(id == "receipt"){
 
@@ -54,8 +52,7 @@ class Client : Runnable {
                     var jsonContent : JSONObject = JSONObject(jsonMsg)
                     val tokenRep = ResourceRep("" + HtmlUtils.htmlEscape( "t"+jsonContent.getString("tokenid")) )
                     controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, tokenRep)
-                    //AClientApacheHttp.doPostWithParams("http://localhost:8081/token","tokenid",msgArg)
-                    //ClientResource.setCurrentToken(msgArg)
+
                 }
                 else if(id == "waitIndoor"){
                     val jsonMsg = "{\"waitIndoor\":\"$msgArg\"}"
@@ -90,15 +87,10 @@ class Client : Runnable {
         }.start()
     }
 
-
-
     companion object {
         const val SERVER_IP = "localhost" //ip del parkingmanagerservice
         const val SERVERPORT = 5683
     }
-
-
-
 }
 
 

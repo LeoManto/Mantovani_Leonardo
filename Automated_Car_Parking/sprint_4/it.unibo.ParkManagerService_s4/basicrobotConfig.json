@@ -1,1 +1,1 @@
-{"type":"virtual", "port":"8090", "ipvirtualrobot":"localhost"}
+{"type":"virtual", "port":"8090", "ipvirtualrobot":"localhost", "timeforstep":"350"}

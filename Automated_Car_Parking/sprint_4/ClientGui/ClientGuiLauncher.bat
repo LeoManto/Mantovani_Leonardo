@@ -1,0 +1,1 @@
+start cmd.exe /k "cd .\out\artifacts\ClientGui_main_jar & java -Dserver.port=8081 -jar ClientGui.main.jar"

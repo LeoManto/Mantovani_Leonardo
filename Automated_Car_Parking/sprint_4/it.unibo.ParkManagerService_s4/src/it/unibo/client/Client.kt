@@ -20,15 +20,12 @@ class Client ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sco
 				state("s0") { //this:State
 					action { //it:State
 						stateTimer = TimerActor("timer_s0", 
-							scope, context!!, "local_tout_client_s0", 10000.toLong() )
+							scope, context!!, "local_tout_client_s0", 5000.toLong() )
 					}
 					 transition(edgeName="t00",targetState="work",cond=whenTimeout("local_tout_client_s0"))   
 				}	 
 				state("work") { //this:State
 					action { //it:State
-						request("reqenter", "reqenter(Jim)" ,"parkingmanagerservice" )  
-						delay(5000) 
-						request("carenter", "carenter(Jim)" ,"parkingmanagerservice" )  
 					}
 				}	 
 			}

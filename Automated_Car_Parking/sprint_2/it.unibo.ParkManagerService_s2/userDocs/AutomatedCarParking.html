@@ -1800,7 +1800,77 @@ fun testWorkflow5(){
 							It is tested that when the fan is not running all the values measured by the <b>thermometer</b> are increasing.<br>
 							When the <b>fan</b> is running, it is checked that the temperature values decrease.
 						
-
+					<table>
+						<tr>
+							<td>
+								<pre>Unit Testing: FAN, THERMOMETER
+============================*/	
+	//@Test
+	fun testThermometerAndFan(){
+		`it.unibo`.utils.ParkingSlotsKb.setArea(true,true,true,true,true,true)
+ 		`it.unibo`.utils.ParkingSlotsKb.indoorFree   = true
+		`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = true
+		
+		runBlocking{
+			
+			val channelForUnitTesting = Channel<String>()
+			testingObserver!!.addObserver(channelForUnitTesting, "null")
+			var result = ""
+			
+			val thermoObs = CoapObserverForTesting("obsthermometer","ctxparkingservice", "thermometer", "5683")
+			val fanObs = CoapObserverForTesting("obsfan","ctxparkingservice", "fan", "5683")
+			thermoObs!!.addObserver(channelForUnitTesting, "temp")
+			fanObs!!.addObserver(channelForUnitTesting, "fan")
+			
+			var fanON = false
+			var tmp   = 0
+			while(!fanON){
+				result = channelForUnitTesting.receive()
+				println("result = $result")
+				if(result != "fan(ON)"){
+					var temperature = 
+						result.substringAfter("(",result).substringBefore(")",result).toInt()
+					assertTrue(temperature >= tmp)
+					tmp = temperature
+					delay(1000)
+				}
+				else{
+					fanON = true
+				}
+			}
+			while(fanON){
+				result = channelForUnitTesting.receive()
+				println("result = $result")
+				if(result != "fan(OFF)"){
+					var temperature = 
+						result.substringAfter("(",result).substringBefore(")",result).toInt()
+					assertTrue(temperature &lt= tmp)
+					tmp = temperature
+					delay(1000)
+				}
+				else{
+					fanON = false
+				}
+			}
+			
+		}</pre>
+							</td>
+							<td>
+								<p>
+									In this test plan, two morw observers are added:<br>
+									<b>thermoObs</b> and <b>fanObs</b>. In this test, the initial condition are:
+									<ul>
+										<li>temp = 0°C
+										<li>fan  = OFF
+									</ul>
+									The test consists in increasing gradually the temperature and verify if the 
+									temperature increases correcly until cooler system starts it-self. The it's verified if
+									the temperature decreasing correcly until fan goes OFF.
+								</p>
+							</td>
+						</tr>
+					</table>
+					
 					</div>
 			</ul>
 
@@ -1812,7 +1882,7 @@ fun testWorkflow5(){
 			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_2">Github repository</a>.
 
 		<h2>Maintenance</h2>
-		This is the first Sprint, more features will be released in the next (Second) Sprint.
+		This is the second SPRINT, more features will be released in the next (third) SPRINT.
 		<br /><br />
 	</div>
 

@@ -34,7 +34,7 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree  = false
 		     forward("updateGui", "outdoorStatus(BUSY)" ,"guiupdater" )
 		 	////updateResourceRep( "{\"outdoorStatus\":\"BUSY\"}")
-		 	updateResourceRep( "outdoor(BUSY)") //test
+		 	updateResourceRep( "outdoorS(BUSY)") //test
 		 	mainScope = CoroutineScope(Dispatchers.Default)
 		    startTimer()
 		}
@@ -46,7 +46,7 @@ private var mainScope = CoroutineScope(Dispatchers.Default)
 		 	`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true
 		 	forward("updateGui", "outdoorStatus(FREE)" ,"guiupdater" )
 		 	////updateResourceRep( "{\"outdoorStatus\":\"FREE\"}")
-		 	updateResourceRep( "outdoor(FREE)") //test
+		 	updateResourceRep( "outdoorS(FREE)") //test
 		    mainScope.cancel()
 		    tmp = DTFREE
 		}

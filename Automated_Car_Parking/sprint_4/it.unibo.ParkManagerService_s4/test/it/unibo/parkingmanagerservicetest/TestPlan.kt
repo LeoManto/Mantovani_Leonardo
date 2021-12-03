@@ -32,13 +32,12 @@ class TestPlan {
 	 
 		companion object tester {
 
-		var parkingObserver 		: CoapObserverForTesting ? = null	
 		var parkingserviceObserver 	: CoapObserverForTesting ? = null	  
 		var weightObserver   		: CoapObserverForTesting ? = null
 		var trolleyObserver   		: CoapObserverForTesting ? = null	
 		var sonarhandlerObserver   	: CoapObserverForTesting ? = null	
 		var sonarsimulatorObserver  : CoapObserverForTesting ? = null	
-			
+		var outdoottimerObserver	: CoapObserverForTesting ? = null	
 		
 		var systemStarted         = false
 		val channelSyncStart      = Channel<String>()
@@ -55,8 +54,11 @@ class TestPlan {
 		//@Throws(InterruptedException::class, UnknownHostException::class, IOException::class)
 		
 		fun init() {
+			
 			GlobalScope.launch{
-				it.unibo.ctxParkingservice.main()
+				
+			it.unibo.ctxParkingservice.main()
+				
 			}
 			GlobalScope.launch{
 				myactor = QakContext.getActor("parkingmanagerservice")
@@ -89,6 +91,7 @@ class TestPlan {
 		weightObserver   		= CoapObserverForTesting("testingWeightobs","ctxparkingservice","weightsensor","5683")
 		trolleyObserver   		= CoapObserverForTesting("testingTrolleyobs","ctxparkingservice","trolley","5683")
 		sonarhandlerObserver   	= CoapObserverForTesting("testingSonarhandlerobs","ctxparkingservice","sonarhandler","5683")
+		outdoottimerObserver	= CoapObserverForTesting("testingTimerobs","ctxparkingservice","outdoortimer","5683")
 		sonarsimulatorObserver 	= CoapObserverForTesting("testingSonarsimulatorobs","ctxparkingservice","outsonar","5683")
 			
 		
@@ -99,16 +102,20 @@ class TestPlan {
 			    println("+++++++++ checkSystemStarted resumed ")
 			}
 		} 
-		if( parkingObserver == null)
-			parkingObserver = CoapObserverForTesting("obstesting${counter++}")
   	}
 	
 	@After
 	fun removeObs(){
-		println("+++++++++ AFTERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR  ${parkingObserver!!.name}")
-
-		parkingObserver!!.terminate()
-		parkingObserver = null
+		println("+++++++++ AFTERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR")
+		
+		parkingserviceObserver!!.terminate()
+		parkingserviceObserver = null
+		weightObserver!!.terminate()
+		weightObserver = null
+		trolleyObserver!!.terminate()
+		trolleyObserver = null
+		sonarhandlerObserver!!.terminate()
+		sonarhandlerObserver = null
 		runBlocking{
 			delay(2000)
 		}
@@ -122,323 +129,205 @@ class TestPlan {
  -  COMPLETE WORKFLOW
 ===========================*/
 	
-	@Test
+	//@Test
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
 	fun completeWorkflow(){
 		
 		runBlocking{
+			
+			val channelForIndoorStart	= Channel<String>()
+			val channelForOutdoorStart	= Channel<String>()
+			val channelForTrolleyPosStart= Channel<String>()
 			val channelForIndoor 		= Channel<String>()
 			val channelForOutdoor 		= Channel<String>()
 			val channelForParkingOp 	= Channel<String>()
 			val channelForWeight 		= Channel<String>()
 			val channelForSlots 		= Channel<String>()
-			val channelForTrolleyStat 	= Channel<String>()
-			val channelForTrolleyPos	= Channel<String>()
-			val channelForSystem		= Channel<String>()
-
-			parkingserviceObserver!!.addObserver(channelForSystem, "systemready")
-			parkingserviceObserver!!.addObserver(channelForSlots, "freeslots")
-			parkingserviceObserver!!.addObserver(channelForParkingOp, "slotnum")
-			parkingserviceObserver!!.addObserver(channelForIndoor, "indoor")
-			
-			delay(10000)
-			
-			val s = arrayOf("cmd.exe", "/c", ".\\test.bat")
-			Runtime.getRuntime().exec(s)						
-			
-			/*
-			val processBuilder : ProcessBuilder = ProcessBuilder(".\\test.bat")
-			processBuilder.start().waitFor()
-			*/
-			
-			//clientactor!!.forward("startManager","system(ready)","parkingmanagerservice")
-
-			
-			println("TEST ${channelForSystem.receive()}")
-			
-			delay(3000)
-	
-			//clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
-			
-			var slotsfree 		= channelForSlots.receive().substringAfter("(","-").substringBefore(")","-").toInt()
-			println("TEST slotsfree: $slotsfree")
-			assertTrue(slotsfree > 0 && slotsfree < 7)
-			
-			var slotnum 		= channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
-			assertTrue(slotnum > 0 && slotnum < 7)
-			println("TEST slotnum: $slotnum")
-			
-			delay(3000)
-			//--------------------------------------------------------------------------------
-			
-			//clientactor!!.request("carenter","carenter(ok)","parkingmanagerservice")
-			
-			weightObserver!!.addObserver(channelForIndoor, "indoor")
-			weightObserver!!.addObserver(channelForWeight, "carWeight")
-			trolleyObserver!!.addObserver(channelForTrolleyPos, "endPath")
-			parkingserviceObserver!!.addObserver(channelForParkingOp, "receipt")
-			
-			var weight	= channelForWeight.receive().substringAfter("(","").substringBefore(")","").toInt()
-			assertTrue(weight > 0)
-			println("TEST weight: $weight")
-			
-			var indoor 		= channelForIndoor.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(indoor.equals("BUSY"))
-			println("TEST indoor: $indoor")
-			
-			
-			var posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(posRobot.equals("indoor"))
-			println("TEST pos Robo2t: $posRobot")
-			
-			var token = channelForParkingOp.receive().substringAfter("(","").substringBefore(")","").toInt()
-			assertTrue(token > 10000 && token < 70000 )
-			println("TEST token: $token")
-			
-			posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(posRobot.equals("p${slotnum.toString()[0]}"))
-			println("TEST pos Robot3: $posRobot")
-
-			
-			delay(5000)
-			println("FINISH PARKING OP")
-			//FINISH PARKING OP
-			//----------------------------------------------------------------------------------
-
-			try{
-				sonarsimulatorObserver!!.addObserver(channelForOutdoor,"outdoor")
-			}catch(e: NullPointerException){
-				null
-			}
-			sonarhandlerObserver!!.addObserver(channelForOutdoor, "outdoor")
-			
-			clientactor!!.forward("pickup","pickup($token)","parkingmanagerservice")
-			
-			posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(posRobot.equals("p${token.toString()[0]}"))
-			
-			posRobot = channelForTrolleyPos.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(posRobot.equals("outdoor"))
-			
-			var outdoor 		= channelForOutdoor.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(outdoor.equals("BUSY"))
-			
-			outdoor 		= channelForOutdoor.receive().substringAfter("(","").substringBefore(")","").toString()
-			assertTrue(outdoor.equals("FREE"))
-			
-			delay(4000)			
-			
-	  	}
- 	}
-	
-/*========================
- -	Type: Unit Test
- -  SINGLE MOVE 
-===========================*/
-	
-	//@Test
- 	@kotlinx.coroutines.ObsoleteCoroutinesApi
-	fun singleMove(){
-		
-		runBlocking{
-			val channelTmp = Channel<String>()
- 
-			val move = "w"
-			
-			delay(3000)
-			
-			delay(robotSupport.move(move))
-			robotSupport.move("h")
+			//val channelForTrolleyStat 	= Channel<String>()
+			val channelForRobotPos		= Channel<String>()
+			val channelForHome			= Channel<String>()
+			val channelForAlarm			= Channel<String>()
 			
 			delay(1000)
 			
-			plannerUtil.updateMap(  "$move" )
+			parkingserviceObserver!!.addObserver(channelForIndoorStart, "indoorAtStart")
+			parkingserviceObserver!!.addObserver(channelForOutdoorStart, "outdoorAtStart")
+			parkingserviceObserver!!.addObserver(channelForSlots, "freeslots")
+			parkingserviceObserver!!.addObserver(channelForRobotPos, "posRobot")
+			parkingserviceObserver!!.addObserver(channelForParkingOp, "slotnum")
+			parkingserviceObserver!!.addObserver(channelForParkingOp, "receipt")
+			parkingserviceObserver!!.addObserver(channelForHome, "movingTo")
 			
-			println("+++++++++ testSingleMove ")	
+			weightObserver!!.addObserver(channelForIndoor, "indoorS")
+			weightObserver!!.addObserver(channelForWeight, "carWeight")
 			
-			var curPos = plannerUtil.get_curPos().toString()
+			sonarhandlerObserver!!.addObserver(channelForOutdoor, "outdoorS")
 			
-			parkingserviceObserver!!.addObserver(channelTmp,"null")
-			trolleyObserver!!.addObserver(channelTmp,"null")
+			outdoottimerObserver!!.addObserver(channelForAlarm, "alarm")
 			
-			assertEquals(curPos,"(0, 1)")			
-	  	}
- 	}
+			parkingserviceObserver!!.addObserver(channelForParkingOp, "carslotnum")
+		
+			delay(5000)
+			
+			/*
+			val processBuilder : ProcessBuilder = ProcessBuilder("pause.bat")
+			processBuilder.start().waitFor()
+			*/
+										
+//clientactor!!.forward("startManager","system(ready)","parkingmanagerservice")
+			
+			delay(20000)
+			
+			
+			var indoorStatus = channelForIndoorStart.receive().substringAfter("(","-").substringBefore(")","-")
+			println("TEST indoorAtStart: $indoorStatus")
+			assertTrue(indoorStatus.equals("FREE"))
+			
+			var outdoorStatus = channelForOutdoorStart.receive().substringAfter("(","-").substringBefore(")","-")
+			println("TEST outdoorStatus: $outdoorStatus")
+			assertTrue(outdoorStatus.equals("FREE"))
+			
+			var slotsfree 		= channelForSlots.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			println("TEST slotsfree: $slotsfree")
+			assertTrue(slotsfree == 6)
+			
+			var robotPosition = channelForRobotPos.receive().substringAfter("(","-").substringBefore(")","-")
+			println("TEST robotPosition: $robotPosition")
+			assertTrue(robotPosition.equals("0,0"))
+			
+			delay(3000)
 	
-/*========================
- -	Type: Unit Test
- -  TRAVEL TO ONE DESTINATION
-===========================*/
-	
-	//@Test
- 	@kotlinx.coroutines.ObsoleteCoroutinesApi
-	fun travelToDestination(){
-
-		runBlocking{
-			val channelTmp  = Channel<String>()
-			val channelForObserver  = Channel<String>()
-			val channelForObserver2 = Channel<String>()
-
+//clientactor!!.request("reqenter","reqenter(bob)","parkingmanagerservice")
+			
+			
+			var slotnum 		= channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			println("TEST slotnum: $slotnum")
+			assertTrue(slotnum > 0 && slotnum < 7)
+			
 			delay(3000)
 			
-			myactor!!.forward("move","move(p5)","trolley")
-			trolleyObserver!!.addObserver(channelForObserver, "path")
-			trolleyObserver!!.addObserver(channelForObserver2, "stepdone")
+//clientactor!!.request("carenter","carenter(ok)","parkingmanagerservice")		
 			
-			println("+++++++++ testTraveToDestination ")	
+			var weight	= channelForWeight.receive().substringAfter("(","").substringBefore(")","").toInt()
+			println("TEST weight: $weight")
+			assertTrue(weight > 0)
+			println("TEST weight: SUCCESS")
 			
-			var result = channelForObserver.receive()
-			var expectedpath : String = result.substringAfter("(",result).substringBefore(")",result).toString()
-			expectedpath = expectedpath.replace("[","").replace("]","").replace(",","").replace(" ","")
-			println("EXP__PATHHHHHHHH: $expectedpath")
-			//--------------------------------------------------------------------------------
 			
-			var realpath = ""
-			var len = expectedpath.length
-			println("LENGTH....$len")
-			for(i in 1..expectedpath.length) {	
-			result = channelForObserver2.receive()
-			result = result.substringAfter("(",result).substringBefore(")",result)
-			realpath = realpath.plus( result )
+			indoorStatus 		= channelForIndoor.receive().substringAfter("(","").substringBefore(")","")
+			println("TEST indoorStatus: $indoorStatus")
+			assertTrue(indoorStatus.equals("BUSY"))
+			println("TEST indoorStatus SUCCESS")
+			
+			var result = channelForRobotPos.receive()
+			robotPosition = result.substringAfter("(","").substringBefore(")","")
+			println("TEST robotPosition: $robotPosition")
+			assertTrue(robotPosition.equals("indoor"))
+			println("TEST robotPosition SUCCESS")
+			
+			result = channelForIndoor.receive()
+			indoorStatus 		= result.substringAfter("(","").substringBefore(")","")
+			println("TEST indoorStatus: $indoorStatus")
+			assertTrue(indoorStatus.equals("FREE"))
+			println("TEST indoorStatus SUCCESS")
+			
+			var receipt 		= channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			println("TEST receipt: $receipt")
+			assertTrue(receipt > 10000 && receipt < 70000)		
+			
+			result = channelForRobotPos.receive()
+			robotPosition = result.substringAfter("(","").substringBefore(")","")
+			println("TEST robotPosition: $robotPosition")
+			assertTrue(robotPosition.equals("p$slotnum"))
+			
+			
+			slotsfree 		= channelForSlots.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			println("TEST slotsfree: $slotsfree")
+			assertTrue(slotsfree == 5)
+			
+			
+			delay(2000)
+			
+			var home 		= channelForHome.receive().substringAfter("(","-").substringBefore(")","-")
+			println("TEST moving to HOME: $home")
+			assertTrue(home.equals("HOME"))
+			
+			println("FINISH PARKING OP")
+
+			delay(4000)
+			
+//clientactor!!.forward("pickup","pickup($receipt)","parkingmanagerservice")
+			
+			var carslotnum = channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+			println("TEST carslotnum: $carslotnum")
+			assertTrue(carslotnum.equals(slotnum))
+			println("TEST carslotnum SUCCESS")
+			
+			result = channelForRobotPos.receive()
+			robotPosition = result.substringAfter("(","").substringBefore(")","")
+			println("TEST robotPosition: $robotPosition")
+			assertTrue(robotPosition.equals("p$carslotnum"))
+			
+			result = channelForRobotPos.receive()
+			robotPosition = result.substringAfter("(","").substringBefore(")","")
+			println("TEST robotPosition: $robotPosition")
+			assertTrue(robotPosition.equals("outdoor"))
+			
+			outdoorStatus = channelForOutdoor.receive().substringAfter("(","").substringBefore(")","")
+			println("TEST outdoorStatus: $outdoorStatus")
+			assertTrue(outdoorStatus.equals("BUSY"))
+			
+			outdoorStatus = channelForOutdoor.receive().substringAfter("(","").substringBefore(")","")
+			println("TEST outdoorStatus: $outdoorStatus")
+			if(outdoorStatus.equals("FREE")){
+				assertTrue(outdoorStatus.equals("FREE"))
+			}
+			else{
+				var alarm = channelForAlarm.receive().substringAfter("(","").substringBefore(")","")
+				assertTrue(alarm.equals("TIMEOUT"))
 			}
 			
-			println("REAL__PATHHHHHHHH: $realpath")
- 			parkingserviceObserver!!.addObserver(channelTmp,"null")
-			assertEquals(expectedpath, realpath)
+			home = channelForHome.receive().substringAfter("(","-").substringBefore(")","-")
+			println("TEST moving to HOME: $home")
+			assertTrue(home.equals("HOME"))
 			
-	  	}
- 	}
-	
-/*========================
- -	Type: Unit Test
- -  DIRECTION TEST
-===========================*/
-	
-	//@Test
- 	@kotlinx.coroutines.ObsoleteCoroutinesApi
-	fun directionTest(){
-		
- 		
-	
-		runBlocking{
-			
-			val channelForObserver = Channel<String>()
-			val channelForObserver2 = Channel<String>()
-			
-			parkingserviceObserver!!.addObserver(channelForObserver2, "receipt")
-			trolleyObserver!!.addObserver(channelForObserver, "finished")
-			
-			
-			myactor!!.forward("move","move(indoor)","trolley")
-			
-			
-			var result = channelForObserver.receive()
-			var direction = plannerUtil.getDirection()
-			println("+++++++++ trolleyInIndoor RESULT=$result - DIRECTION=$direction+++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("indoor", position)
-			assertEquals("downDir", plannerUtil.getDirection())
-			
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			myactor!!.forward("move","move(p1)","trolley")
-			
-			
-			result = channelForObserver.receive()
-			direction = plannerUtil.getDirection()
-			println("+++++++++ trolleyInP1 RESULT=$result - DIRECTION=$direction+++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("p1", position)
-			assertEquals("leftDir", plannerUtil.getDirection())
-			
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			myactor!!.forward("move","move(outdoor)","trolley")
-			
-			
-			result = channelForObserver.receive()
-			direction = plannerUtil.getDirection()
-			println("+++++++++ trolleyInOutdoor RESULT=$result - DIRECTION=$direction+++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("outdoor", position)
-			assertEquals("upDir", plannerUtil.getDirection())
-			
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			myactor!!.forward("move","move(p2)","trolley")
-			
-			result = channelForObserver.receive()
-			direction = plannerUtil.getDirection()
-			println("+++++++++ trolleyInP2 RESULT=$result - DIRECTION=$direction+++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("p2", position)
-			assertEquals("rightDir", plannerUtil.getDirection())
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			myactor!!.forward("move","move(home)","trolley")
-			
-			result = channelForObserver.receive()
-			direction = plannerUtil.getDirection()
-			println("+++++++++ trolleyInHome RESULT=$result - DIRECTION=$direction+++++++++")
-			position = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("home", position)
-			assertEquals("downDir", plannerUtil.getDirection())
-	  	}
- 	}
-	
-/*========================
- -	Type: Unit Test
- -  STATUS CHECK
-===========================*/
+			println("FINISH PICKING OP")
 
-	//@Test
+					
+		}
+ 	}
+
+	
+//=========================================================================================================================	
+
+@Test
  	@kotlinx.coroutines.ObsoleteCoroutinesApi
-	fun statusCheck(){
+	fun sonarTest(){
 		
 		runBlocking{
+			var channelForSonar = Channel<String>()
+			var channelForTimer = Channel<String>()
+			sonarhandlerObserver!!.addObserver(channelForSonar, "sonarOutdoor")
+			outdoottimerObserver!!.addObserver(channelForTimer, "alarm")
 			
-			val channelForObserver = Channel<String>()
-			val channelForObserver2 = Channel<String>()
+			delay(5000)
 			
-			parkingserviceObserver!!.addObserver(channelForObserver2, "receipt")
-			trolleyObserver!!.addObserver(channelForObserver, "status")
+			myactor!!.forward("startsonar","start(sonar)","sonarhandler")
+					 
+			var outdoorStatus = channelForSonar.receive().substringAfter("(","-").substringBefore(")","-")
+			assertTrue(outdoorStatus=="FREE")
+			println("TEST outdoorStatus: $outdoorStatus")
 			
-			var result = channelForObserver.receive()
-			println("+++++++++ trolleyInitialState RESULT=$result+++++++++")
-			status = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("IDLE", status)
+			outdoorStatus = channelForSonar.receive().substringAfter("(","-").substringBefore(")","-")
+			assertTrue(outdoorStatus.equals("BUSY"))
+			println("TEST outdoorStatus: $outdoorStatus")
 			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			myactor!!.forward("move","move(indoor)","trolley")
-			
-			
-			result = channelForObserver.receive()
-			println("+++++++++ trolleyWorkingState RESULT=$result+++++++++")
-			status = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("WORKING", status)
-			
-			
-			delay(4000)
-			//----------------------------------------------------------------------------------
-			
-			result = channelForObserver.receive()
-			println("+++++++++ trolleyEndWorkState RESULT=$result+++++++++")
-			status = result.substringAfter("(",result).substringBefore(")",result)
-			assertEquals("IDLE", status)
-			
-	  	}
- 	}
- 	
-}	
-
+			var alarm = channelForTimer.receive().substringAfter("(","-").substringBefore(")","-")
+			assertTrue(alarm.equals("TIMEOUT"))
+			println("TEST alarm: $alarm")
+		
+		}
+ 	}	
+}
 
 

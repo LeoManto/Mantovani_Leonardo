@@ -1,6 +1,5 @@
 ##FROM java:8
-FROM openjdk:12.0.2
-
+FROM openjdk:12.0.2 //1.8.0
 ADD ./build/distributions/ClientGui-1.0.1.tar  /
 #ADD ./build/distributions/clientGui-boot-1.0.1.tar  /
 

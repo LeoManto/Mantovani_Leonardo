@@ -54,8 +54,9 @@ private var timerScope = CoroutineScope(Dispatchers.Default)
 			  	tmp = tmp - 1 
 			  	delay(1000)
 	  }
-	  forward("updateGui", "alarm(TIMEOUT)" ,"guiupdater" )
-	  ////updateResourceRep( "{\"alarm\":\"TIMEOUT\"}")
+			updateResourceRep( "outdoor(BUSY)")
+			updateResourceRep( "alarm(TIMEOUT)")
+			forward("updateGui", "alarm(TIMEOUT)" ,"guiupdater" )
 		}	
 }
 

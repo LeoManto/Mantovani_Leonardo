@@ -652,7 +652,9 @@
                     temperature.
                 <li>
                     <ks>clientGUI:</ks> it will create a graphic interface which implements a service that allows the
-                    clients to start parking or picking operations, and to obtain informations about them.
+                    clients to start parking or picking operations, and to obtain informations about them.<br>
+                    Obviously, more then one <b>client</b> will can forward request to <b>parkingmanagerservice</b> and receive reply, so 
+                    this interaction could be intended as <i>Client-Server Pattern</i>.  
                 <li>
                     <ks>managerGUI:</ks> it will create a graphic interface which implements a service that has the goal
                     to show to manager all informations about the system state.

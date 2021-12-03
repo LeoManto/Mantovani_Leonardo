@@ -1,6 +1,7 @@
 %====================================================================================
 % parkingservice description   
 %====================================================================================
+mqttBroker("broker.hivemq.com", "1883", "parkingArea/feedback").
 context(ctxparkingservice, "localhost",  "TCP", "5683").
  qactor( outsonar, ctxparkingservice, "sonarSimulator").
   qactor( outdoortimer, ctxparkingservice, "outdoorTimer").

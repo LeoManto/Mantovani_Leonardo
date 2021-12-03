@@ -1,0 +1,1 @@
+start cmd.exe /k "npx playwright test manager.spec.js --config=my.config.js --workers=1 & npx playwright test client.spec.js --config=my.config.js --workers=1" 

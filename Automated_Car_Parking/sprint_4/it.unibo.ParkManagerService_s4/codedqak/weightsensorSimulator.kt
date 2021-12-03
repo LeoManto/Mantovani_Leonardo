@@ -25,19 +25,21 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 			simulateWeight()
 		}
   		else if( msg.msgId() == "finished" && msg.msgType() == "event" && msg.msgContent() == "finished(indoor)"){
+  			carMoved()
+		}
+	}
+	
+@kotlinx.coroutines.ObsoleteCoroutinesApi
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+	suspend fun carMoved(){
 			w = 0
 			forward("updateGui", "weight($w KG)" ,"guiupdater" )
-			////updateResourceRep( "{\"weight\":\"$w KG\"}")
-			updateResourceRep( "carWeight($w)" )
-			println("trolley in INDOOR | WEIGHT")
 			`it.unibo`.utils.ParkingSlotsKb.indoorFree  = true
 			forward("updateGui", "indoorStatus(FREE)" ,"guiupdater" )
-			////updateResourceRep( "{\"indoorStatus\":\"FREE\"}")
-			updateResourceRep( "indoor(FREE)")
+			updateResourceRep( "indoorS(FREE)" )
 
 			//val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		   //emit(m4)
-		}
  	}
 	
 @kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -47,12 +49,10 @@ class weightsensorSimulator (name : String ) : ActorBasic( name ) {
 		    val m4 = MsgUtil.buildEvent(name, "weightsensor", "weight($w)")
 		    emit(m4)
 		    forward("updateGui", "weight($w KG)" ,"guiupdater" )
-		    ////updateResourceRep( "{\"weight\":\"$w KG\"}")
+		    updateResourceRep( "carWeight($w)")
 		    if(w>0)
 				`it.unibo`.utils.ParkingSlotsKb.indoorFree  = false
 				forward("updateGui", "indoorStatus(BUSY)" ,"guiupdater" )
-				////updateResourceRep( "{\"indoorStatus\":\"BUSY\"}")
-				updateResourceRep( "indoor(BUSY)")
-				
+				updateResourceRep( "indoorS(BUSY)")
 	}
 } 

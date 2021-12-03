@@ -455,8 +455,6 @@
     <p>In our system, position of obstacles are setted a priori, because they represent boundary wall and the parking slot,
       whose position is fixed and cannot change over time. However, through one of the available tool, it is given the possibility
       to modify a specific cell of the map in case occurs.</p>
-    <p>The map that is necessary to proper functioning of the system, is build througth an ad hoc handmade function that automatically creates
-      the specific map file that it will be used by our system. This function can be modified in case which, in future, the parking structure change.</p>
     
     <h4>Trolley</h4>
       In this version will be added the <k>Trolley</k>. It's a software component that simulates the behavior of a real robot. This component was provided to us by the customer within the project 
@@ -1198,7 +1196,8 @@ fun mapConfiguring() : Boolean{
 							<li><ks>exactDir(goal : String)</ks>: according to the cell, representing one of known destinations of our environment, we are in,
 								 this function permits to make the trolley assume the correct direction.
 							<li><ks>checkObstacle(x : Int, y : Int)</ks> and <ks>getObstaclePos(x : Int, y : Int)</ks>: permit us to check if an obstacle is unxepected or not. If it is unxepected, it updates the map.
-							<li><ks>mapConfiguring()</ks>: is the function that allowed us to create our custom environment map accordind to requirements.
+							<li><ks>mapConfiguring()</ks>: This is the function that allowed us to create our custom environment map accordind to requirements and it will be used by our system. 
+								This function can be modified in case which, in future, the parking structure change.
 						</ul> 
 
 					</td>

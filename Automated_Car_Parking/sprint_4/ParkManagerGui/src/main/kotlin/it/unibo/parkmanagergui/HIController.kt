@@ -61,9 +61,6 @@ class HIController {
             SenderToPark.send("start")
             systemStarted = true
         }
-        else {
-            ValuesForGui.updateLastValues()
-        }
         return  "ManagerGui"
     }
 

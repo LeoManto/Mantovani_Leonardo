@@ -30,7 +30,6 @@ object ClientResource {
             "carenter" -> clientThread!!.forward(carenter)
             "pickup"   -> clientThread!!.forward(pickupmsg.replace("TOKENID", token))
         }
-
     }
 
     fun setCurrentSlot(slot: String) {

@@ -469,7 +469,7 @@
 				and a real Manager can supervise the parking status and at the occurrence <k>STOPPING</k> or <k>RESUMING</k> the Trolley work.
 				<br>
 				<br>
-				We have also implemented a real HC-SR04 Sonar which allow to detect the effective presence or absence of a real car during the pickup phase.
+				We also want to implement a real HC-SR04 Sonar which will allow to detect the effective presence or absence of a real car during the pickup phase.
 			</div>
 			 		
 			<h4>Client GUI</h4>
@@ -510,6 +510,7 @@
 					<li><ks>OUTDOOR status</ks>: here is indicated if the OUTDOOR is <k>FREE</k> or if it is <k>BUSY</k>
 					<li><ks>Current weight</ks>: show the weight of the car placed on INDOOR
 					<li><ks>Alarm status</ks>: show if the alarm is activated or not
+					<li><ks>Free Slots</ks>: show actual free slots in the parking area
 				</ul>
 				<h5>Regarding to Environment</h5>
 				<ul>
@@ -579,7 +580,7 @@
 							<center>
 								<ks>parkingmanagerservice: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/src/parkingservice.qak">parkingservice.qak: </a></center><br>
+							<br>
 							This QActor represents the system. It handles, checking also if several conditions are satisfied, and elabotares all client's requests: <tt>reqenter</tt>,
 							<tt>carenter</tt> and <tt>pickup</tt>.
 							It provides the clients the <em>SLOTNUM</em> and the <em>TOKENID</em>. <br>
@@ -595,7 +596,7 @@
 						<td><center>
 							<ks>trolley: </ks>
 						</center>
-						<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/src/parkingservice.qak">parkingservice.qak: </a></center><br>
+						<br>
 						This QActor works as an intermediary between the system and the remote virtual robot.<br>
 						It can receive from <b>parkingmmanagerservice</b> dispatch <tt>move:move(GOAL)</tt>, where
 						<i>GOAL</i> represents the location that must be reached by the Trolley inside the
@@ -621,8 +622,7 @@
 							<center>
 								<ks>weightsensor: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/codedqak/weightsensorSimulator.kt">weightsensorSimulator.kt: </a>
-							</center><br>
+							<br>
 							This mock-actor generates a random value that represents the weight of car in entrance and propagates it by emitting an event <tt>weightsensor</tt>.<br>
 							This actor has the task of updating <em>INDOOR-area</em> status.<br>
 							It starts the simulation when perceives the <k>carindoorarrival</k> event, emitted by
@@ -638,8 +638,7 @@
 							<center>
 								<ks>thermometer: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/codedqak/thermometerSimulator.kt">thermometerSimulator.kt: </a>
-							</center><br>
+							<br>
 							This mock-actor is activated immediately, during the initialization of
 							<b>parkingmanagerserive</b>. It performs two different tasks:
 							<ul>
@@ -665,7 +664,7 @@
 							<center>
 								<ks>fan: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/codedqak/fanSimulator.kt">fanSimulator.kt: </a></center><br>
+							<br>
 							This mock-actor is strictly related with thermometer actor. It evaluates every
 							<tt>temp</tt> event that thermometer emit and check if the temperature of the
 							environment
@@ -685,14 +684,14 @@
 							<center>
 								<ks>trolleystopper: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/src/parkingservice.qak">parkingservice.qak: </a></center><br>
+							<br>
 							This actor has the goal to stop or resume <b>trolley</b>, forwarding to it a command directly received from ManagerGUI.
 						</td>
 						<td>
 							<center>
 								<ks>outdoortimer: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/codedqak/outdoorTimer.kt">parkingservice.qak: </a></center><br>
+							<br>
 							<p>
 							When it's used real sonar, it cannot have a internal timer to manage the countdown, so it's necessary create this mock-actor.
 							It has the goal to start the countdown when it receives <tt>starttimer</tt> from <b>sonarhandler</b>. It can stop this countdown when 
@@ -706,7 +705,7 @@
 							<center>
 								<ks>sonar:</ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.sonar/src/sonaronrasp.qak">sonaronrasp.qak: </a></center><br>
+							<br>
 							<p>
 								It's an actor in a different context and on a different device, probably (but not necessary) connected at same network of the system.
 								It is the last actor of a pipe, in which every mock.actor has a differt task, like removing wrong data and showing
@@ -718,7 +717,7 @@
 							<center>
 								<ks>sonarhandler: </ks>
 							</center>
-							<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/src/parkingservice.qak">parkingservice.qak: </a></center><br>
+							<br>
 							<p>
 								<b>sonarhandler</b> is used only if it's used real sonar.
 								It perceives every <tt>sonaroutdoor</tt> event, in which is indicated the distance detected in <em>OUTDOOR</em> area by the sensor. If distance received is under certain limit and the 
@@ -732,7 +731,7 @@
 						<td><center>
 							<ks>ClientGUI: </ks>
 						</center>
-						<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_4/ClientGui">ClientGUI: </a></center><br>
+						<br>
 						<p>
 							It's the graphic interface at client's disposal, with which he can perform all preliminary actions in order parking and picking operations.<br>
 							On it <b>client</b> can see <em>SLOTNUM</em> and <em>TOKENID</em> received from parking system. Using it <b>client</b> can also enter his <em>TOKENID</em>
@@ -742,7 +741,7 @@
 						<td><center>
 							<ks>ManagerGUI: </ks>
 						</center>
-						<center> <a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_4/ParkManagerGui">ParkManagerGUI: </a></center><br>
+						<br>
 						<p>
 							It's the graphic interface at ParkingManager's disposal. Using it He can monitor many values about <b>parking</b> and <b>trolley</b> status.<br>
 							On thi GUI there are also two buttons to STOP and RESUME, when necessary, <b>trolley</b> operations.
@@ -806,29 +805,854 @@
 			</div>
 
 		<h2>Project</h2>
+		Now, we preoceed to the last project phase, during which it will be implemented the final version of all component, before releasing of prototype.<br>
+		In particular, we will implement some solutions proposed during <a>problem analysis</a> but may be possible we adopt others solution, if necessary.<br>
+		<div class=remark>
+			<h3>SONAR</h3>
+			<table>
+				<tr>
+					<td>
+						 <center><b><u>SONAR</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.sonar/src/sonaronrasp.qak">sonaronrasp.qak</a></center>
+						<pre>QActor sonar context ctxsonaronrasp {     
+[# 
+   lateinit var firstActorInPipe : ActorBasic 
+#]
+ 	State s0 initial {  		 
+ 		println("sonar START")
+ 		discardMsg On	
+ 		
+ 		solve( consult("sysRules.pl")	 )
+ 		solve( consult("sonaronrasp.pl") )
+ 		solve( showSystemConfiguration   )
+		
+		firstActorInPipe  = sysUtil.getActor("sonardatasource")!!
+ 			firstActorInPipe.
+				subscribeLocalActor("datacleaner"). 
+				subscribeLocalActor("datalogger").
+  				subscribeLocalActor("sonar").
+ 			
+  				subscribeLocalActor( "sonar")  
+		#]    
+  
+		forward sonardatasource -m sonarstart : sonarstart(ok) }
+	
+	delay 5000
+  	}  
+  	Transition t0  whenEvent sonar -> sendSonarData  
+			 		  
+  	State sendSonarData{
+  		printCurrentMessage
+  		 onMsg( sonar : distance(D) ){ 
+  		 	[# val D = payloadArg(0) #] 
+  		 	emit sonaroutdoor : distance($D)
+  		 	}
+  	}
+   	Transition t0 whenEvent sonar -> sendSonarData</pre>
+					</td>
+					<td>
+						This QAktor is in another context <tt>ctxsonaronrasp</tt> which runs on a remote device, a <b>Raspberry Pi</b> that is euipped with
+						a sonar <i>HCSR04</i>. The PORT of this contex is <b>8028</b>.<br>
+						The implementation of this component is obtained starting from another component already at our disposal, into the project <a>it.unibo.rasp2021</a>.<br><br>
+						Before emitting <tt>sonaroutdoor</tt> event, which will be perceives by <b>sonarhandler</b> QAktor on <tt>ctxParkingservice</tt>, the data
+						collected by sonar are taken, cleaned and showed, respectively thanks to three mock-actor: <b>sonardatasource</b>, <b>datalogger</b> and <b>datacleaner</b>.
+						This kind of structure can be inteded as <i>Pipeline Design Pattern</i>.
+						<br>The emitted events can be perceived also in another context because this context is registred on a topic of a MTTQ Broker, in particular: <br>
+						<pre>mqttBroker "broker.hivemq.com" : 1883 
+eventTopic "parkingArea/feedback"</pre>
+						<center><img src="./img/sonaronrasp.png" width='50%'></center>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						 <center><b><u>SONARHANDLER</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/src/parkingservice.qak">parkingmanagerservice.qak</a></center>
+						<pre>QActor sonarhandler context ctxParkingservice{
+	[#
+		var distance	= 2000
+	#]
+	
+	State s0 initial {
+		println("OUTDOOR SONAR INIT | SONAR")
+	}Transition t0 whenMsg startsonar -> start
+	
+	
+	State start {
+		println("OUTDOOR SONAR START | SONAR")
+	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
+	
+	
+	State handleSonarData{
+		onMsg(sonaroutdoor : distance(W)){
+			[# distance = payloadArg(0).toInt() #]
+			}
+		[# if(distance &lt 30 && `it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
+				`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
+				#]
+				forward guiupdater -m updateGui : outdoorStatus(BUSY)
+				////updateResource [# "{\"outdoorStatus\":\"BUSY\"}" #]
+				updateResource [# "outdoor(BUSY)" #]
+				forward outdoortimer -m starttimer : timer(on) 
+				println("Car in OUTDOOR | SONAR")
+			[# }
+		else if(distance &lt = 30 && !`it.unibo`.utils.ParkingSlotsKb.outdoorFree) {
+			`it.unibo`.utils.ParkingSlotsKb.outdoorFree = true #]
+			forward guiupdater -m updateGui : outdoorStatus(FREE)
+			////updateResource [# "{\"outdoorStatus\":\"FREE\"}" #]
+			updateResource [# "outdoor(FREE)" #]
+			forward outdoortimer -m stoptimer : timer(off) 
+			[# } #]
+	}Transition t0 whenEvent sonaroutdoor -> handleSonarData
+}</pre>
+					</td>
+					<td>
+						This QAktor, in the same context of <b>parkingmanagerserive</b> has the task to manage informations received by the <b>real sonar</b>, which it's deployed
+						on another device, a <i>Raspberry Pi</i>. <br> The behaviour of thi actor is simple: 
+						<ul>
+						<li>it starts his work when it receives a dispatch <tt>sonarstart</tt>
+						<li>then it keep in waiting for the event <tt>sonaroutdoor</tt>, that is emitted by <b>real sonar</b>, and takes payload of perceives event
+						<li>perform a check to verify if the value of distance received by the event is less then the fixed threshold <k>distance</k>
+						<li>if distance is less it sets to FALSE the state of <em>OUTDOOR</em> area and send a dispatch <tt>starttimer</tt> to mock-actor <b>outdoortimer</b>, which actives
+						the countdown.
+						<li>when distance is greater the threshold, the status of <em>OUTDOOR</em> area is setted to TRUE and it sends to <b>outdoortimer</b> a dispatch <tt>stoptimer</tt>.
+						<li>then it returns in waiting for <tt>sonaroutdoor</tt> event.
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<center><b><u>OUTDOORTIMER</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/codedqak/outdoorTimer.kt">outdoorTimer.kt</a></center>
+						<pre>private var timerScope = CoroutineScope(Dispatchers.Default)
+
+@kotlinx.coroutines.ObsoleteCoroutinesApi
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+    override suspend fun actorBody(msg: ApplMessage) {
+		if( msg.msgId() == "startimer" &&  msg.msgType() == "dispatch") {
+			timerScope = CoroutineScope(Dispatchers.Default)
+			startTimer()
+		}
+	  	else if ( msg.msgId() == "stoptimer" &&  msg.msgType() == "dispatch") {
+	  		stopTimer()
+		}
+ 	}
+
+	
+@kotlinx.coroutines.ObsoleteCoroutinesApi
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+	  suspend fun stopTimer(){
+		    timerScope.cancel()
+		    tmp = DTFREE
+		}
+	
+@kotlinx.coroutines.ObsoleteCoroutinesApi
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+ 	fun startTimer(){
+		timerScope.launch{
+			  tmp = DTFREE
+			  while( tmp > 0){  		
+			  	tmp = tmp - 1 
+			  	delay(1000)
+	  }
+	  forward("updateGui", "alarm(TIMEOUT)" ,"guiupdater" )
+		}	
+}</pre>
+					</td>
+					<td>
+						This is the mock-actor that has the goal to perform the countdown when a car is located in <em>OUTDOOR</em> area.<br>
+						It receives <t>startimer</t> or <tt>stoptimer</tt> dispatch in order to activating or stopping countdown from <k>DTFREE</k> seconds to zero.
+						This countdown is implemented using a <i>CoroutineScope</i> called timerScope.<br>
+						If countdown expires, it sended a <tt>alarm</tt> dispatch to <b>guiupdater</b>, which functioning will be described after.
+					</td>
+				</tr>
+			</table>
+			<h3>Manager GUI</h3>
+			This graphic inteface, like the client's one, is created using Spring Boot, referring to an existing project <i><a href="https://github.com/anatali/issLab2021/tree/main/sonarguispring">sonarguispring</a></i>.<br>
+			<br>
+			<table>
+				<tr>
+					<td >
+						<center><b><u>MANAGER GUI</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_4/ParkManagerGui">ParkManagerGui</a></center>
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/src/main/kotlin/it/unibo/parkmanagergui/HIController.kt">HIController.kt</a>
+						<br>
+<pre>
+@Controller
+class HIController {
+	@Value("\${human.logo}")
+	var appName: String?    = null
+	var systemStarted = false
+	val url = "coap://localhost:5683"
+
+	var coapForGUI = CoapSupport(url, "ctxparkingservice/guiupdater")
+
+	@Autowired
+	var simpMessagingTemplate : SimpMessagingTemplate? = null
+
+	init{
+		SenderToPark.start(this)
+		sysUtil.colorPrint("HumanInterfaceController | INIT", Color.GREEN)
+		coapForGUI.observeResource(ParkingCoapHandler(this) )
+	}
+
+	@GetMapping("/")    
+	fun entry(model: Model): String {
+		model.addAttribute("arg", appName )
+		sysUtil.colorPrint("HIController | entry model=$model", Color.GREEN)
+			SenderToPark.send("start")
+			systemStarted = true
+		return  "ManagerGui"
+	}
+
+	@PostMapping("/stop")
+		fun sendStop(model: Model) : String {
+		SenderToPark.send("stop")
+	return  "ManagerGui"
+	}
+
+	@PostMapping("/resume")
+		fun sendResume(model: Model) : String {
+		SenderToPark.send("resume")
+		return  "ManagerGui"
+	}
+}
+</pre>
+					</td>
+					<td>
+						This class represents the controller of our Spring App for <b>ManagerGUI</b>, which follow <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC pattern</a>.<br>
+						Initially, it's created <b>coapForGUI</b>, which will observe the updating of <b>guiUpdater</b> in <tt>ctxParkigservice</tt>.<br>
+						After loading of View, it's sended to <b>parkingmanagerservice</b> a dispatch <tt>startManager</tt>, so the system starts updating resources.
+						<br><br>
+						There are also two <i>@PostMapping</i> that have the aim to send <tt>stop</tt>/<tt>resume</tt>
+						when the Manager presses on <k>STOP Trolley</k> or <k>RESUME Trolley</k> buttons. The messages that ManagerGUI sends to
+						<b>parkingmanagerservice</b> are sending via WS, opened and managed by object 
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/src/main/kotlin/it/unibo/parkmanagergui/SenderToPark.kt">SenderToPark.kt</a>.	
+								
+					</td>
+				</tr>
+				<tr>
+					<td id="managerguicoap">
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/src/main/kotlin/it/unibo/parkmanagergui/ParkingCoapHandler.kt">ParkingCoapHandler.kt</a>
+						<br>
+<pre>
+class ParkingCoapHandler(val controller: HIController) : CoapHandler {
+override fun onLoad(response: CoapResponse) {
+	val content: String = response.getResponseText()
+	sysUtil.colorPrint("ParkingCoapHandler | response content=$content", Color.GREEN )
+	val resourceName = content.substringAfter("\"","-").substringBefore("\"","-")
+	try{
+	 val jsonContent = JSONObject(content)
+	 when(resourceName) {
+	 "indoorStatus" -> {
+	 	val indoorRep = 
+			ResourceRep("indoorStatus" + HtmlUtils.htmlEscape(jsonContent.getString("indoorStatus")))
+		sysUtil.colorPrint("ParkingCoapHandler | indoor value=${indoorRep.content}", Color.BLUE)
+		ValuesForGui.indoor = indoorRep
+		controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, indoorRep)
+		}
+	 "outdoorStatus" -> {
+		val outdoorRep = 
+			ResourceRep("outdoorStatus" + HtmlUtils.htmlEscape(jsonContent.getString("outdoorStatus")))
+		sysUtil.colorPrint("ParkingCoapHandler | outdoor value=${outdoorRep.content}", Color.BLUE)
+		ValuesForGui.outdoor = outdoorRep
+		controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, outdoorRep)
+	}
+	[...]
+</pre>
+					</td>
+					<td>
+						An instance of this class is passed as argument to the constructor of <k>coapForGUI</k> into the HIController.<br> 
+						It has a method <i>onLoad</i>, in which are handled several type of updating perceived by CoapObserver.
+						In particular, for each kind of resouce updated, it's called a method <k>convertAndSend()</k> of a <i>simpMessagingTemplate</i>,
+						initialized into the controller, which sends to browser <a href="https://spring.io/guides/gs/messaging-stomp-websocket/">via WebSocket</a> the current resource value, on a specific topic <k>/topic/infodisplay</k>, 
+						specified in <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/src/main/kotlin/it/unibo/parkmanagergui/WebSocketConfig.kt">WebSocketConfig.kt</a>.
+						<br><br>
+						The updating of resources sending via WebSocket to browser are handled by <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/src/main/resources/static/app.js">app.js</a>, in which is opened a socket on the same 
+						STOMP end-point path (<i>/it-unibo-iss</i>) used in <i>WebSocketConfig</i>. Then the client are subscibed to same STOMP topic (<i>/topic/infodisplay</i>)
+						updated by the server.<br>
+						At the end, for each kind of messages sent on Socket is modified a different field of HTML file <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/src/main/resources/templates/ManagerGui.html">ManagerGui.html</a> 
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<center><b><u>GUIUPDATER</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/codedqak/guiUpdater.kt">guiUpdater.kt</a></center>
+						<pre> 
+class guiUpdater (name : String ) : ActorBasic( name ) {
+
+@kotlinx.coroutines.ObsoleteCoroutinesApi
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+    override suspend fun actorBody(msg: ApplMessage) {
+		if( msg.msgId() == "updateGui" &&  msg.msgType() == "dispatch") {
+			update(msg.msgContent().replace("'",""))
+		}
+}
+
+	fun update(res : String){
+		val resourceName = res.substringBefore("(","-")
+		val resourceValue = res.substringAfter("(","-").substringBefore(")","-")
+		updateResourceRep( "${convertToJSON(resourceName, resourceValue)}")
+		}
+	
+	fun convertToJSON(name: String, value: String) : String {
+		val jsonRes = "{\"$name\":\"$value\"}"
+		return jsonRes	
+	}
+}</pre>
+					</td>
+					<td>
+						During the project phase, it has proved necessary to have only a QAktor with the goal of updating all resources, so that the <b>managerGUI</b> could detect them.<br>
+						So, whenever a component modifies any resource, a dispatch <tt>updateGui:resourceName(VALUE)</tt> is sent to <b>guiUpdater</b> mock-actor.<br>
+						Then, this actor elaborates received message, converting it in JSON format and use it to update the corresponding resource.<br>
+						
+					</td>
+				</tr>
+				<tr>
+					<td colspan=2>
+						<img src="img/guiUpdater.png" width="40%" style="float:left ; padding-top:50px; padding-right:130px">
+						<img src="img/managerGUI.png" width="40%" >
+					</td>
+				</tr>
+					<td>
+						<center><b><u>TROLLEYSTOPPER</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/src/parkingservice.qak">parkingservice.qak</a></center>
+						<pre>QActor trolleystopper context ctxParkingservice{
+	
+	State s0 initial {
+	}Goto work
+	 
+	State work{
+	}Transition t0
+			whenMsg stopTrolley -> stopped
+			
+	State stopped{
+		forward trolley -m stopTrolley : stop(manager)
+	} Transition t0
+		whenMsg resumeTrolley -> resumed
+		
+    State resumed{
+    	forward trolley -m resumeTrolley : resume(manager)
+    }Goto work
+}</pre>
+					</td>
+					<td>
+						This is a QAktor which as an intermediary between <b>managerGUI</b> and <b>trolley</b>. Its task is to avoid that <b>managerGUI</b> sends <tt>stopTrolley</tt>
+						ans <tt>resumeTrolley</tt> messages directly to <b>Trolley</b>.<br> So, <b>trolleystopper</b> receives this kind of dispatches from <b>managerGUI</b> and
+						forward them to <b>trolley</b>.
+					</td>
+				</tr>
+			</table>
+			<h3>Client GUI</h3>
+			<table>
+				<tr>
+					<td>
+						<center><b><u>CLIENTGUI</u></b></center>
+						<center><a href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_4/ClientGui">ClientGui</a></center>
+						<br>
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/HumanInterfaceController.kt">HumanInterfaceController.kt</a>
+<pre>
+@Controller
+class HumanInterfaceController {
+
+	@Value("Gui for interaction")
+    var appName: String?    = null
+
+    var applicationModelRep = "waiting"
+
+    @Autowired
+    var  simpMessagingTemplate : SimpMessagingTemplate? = null
+
+	init {
+		ClientResource.start(this)
+	}
+
+	@GetMapping("/")    //defines that the method handles GET requests.
+	fun entry(model: Model): String {
+		model.addAttribute("arg", appName)
+		model.addAttribute("advise", "Welcome in the best automated parking ever, Click on \"Enter Request to start\"")
+		println("HumanInterfaceController | entry model=$model")
+		return "clientRobotGui"
+	}
+
+	@GetMapping("/model")
+	@ResponseBody   //With this annotation, the String returned by the methods is sent to the browser as plain text.
+	fun  homePage( model: Model) : String{
+		model.addAttribute("arg", appName)
+		sysUtil.colorPrint("HumanInterfaceController | homePage model=$model", Color.GREEN)
+		return String.format("HumanInterfaceController text normal state= $applicationModelRep"  );
+	}
+
+	@PostMapping("/reqenter")
+	fun req_enter(viewmodel : Model) : String {
+		sysUtil.colorPrint("HumanInterfaceController | requestType: reqenter ", Color.GREEN)
+		ClientResource.send("reqenter")
+		var advise = "Please wait until your car is parked"
+		viewmodel.addAttribute("advise", advise)
+		return "clientRobotGui"
+	}
+}
+</pre>
+					</td>
+					<td>
+						This <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/HumanInterfaceController.kt">class</a> 
+						represent controller of <b>ClientGUI</b>. 
+						Initally a <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/ClientResource.kt">ClientResource</a> 
+						instance is created, and his goal is to prepare messages that has to be forwarded to <b>parkingManagerService</b>.<br><br>
+						For each phase of parking/picking process there are a @PostMapping with the aim to send request related to the button that the <b>Client</b> presses.
+						The messages that ClientGUI sends to <b>parkingmanagerservice</b> are sending via WS, opened and managed by object 
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/Client.kt">Client</a>.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/ClientResource.kt">ClientResource.kt</a>
+<pre>
+fun send(type: String) {
+	when (type) {
+		"reqenter" -> clientThread!!.forward(reqenter)
+		"carenter" -> clientThread!!.forward(carenter)
+	}
+}
+
+fun send(type: String, token: String) {
+	when (type) {
+		"reqenter" -> clientThread!!.forward(reqenter)
+		"carenter" -> clientThread!!.forward(carenter)
+		"pickup"   -> clientThread!!.forward(pickupmsg.replace("TOKENID", token))
+	}
+}
+</pre>
+					</td>
+					<td>
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/ClientResource.kt">ClientResource</a> is a <k>companion object</k>
+						with the goal to prepare messages that have to be sended by 
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/Client.kt">Client</a> via WS.		
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/Client.kt">Client.kt</a>
+<pre>
+while (!Thread.currentThread().isInterrupted) {
+
+	input = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+	val message = input!!.readLine()
+
+	val content = message.substringAfter("(",message).substringBefore(")",message)
+	var lines = content.split(",").toTypedArray();
+	val id          = lines[0]
+	val type        = lines[1]
+	val sender      = lines[2];
+	val dest        = lines[3]
+	val msg         = lines[4]+")"
+	val msgArg      = msg?.substringAfter("(",msg)?.substringBefore(")",msg)
+	println("%%%%% Reveived: $message")
+
+	if(id == "slotsnum"){
+
+		val jsonMsg = "{\"slotnum\":\"$msgArg\"}"
+		var jsonContent = JSONObject(jsonMsg)
+		val slotRep = ResourceRep("" + HtmlUtils.htmlEscape( "s"+jsonContent.getString("slotnum")))
+		println("slot: $msgArg")
+		TimeUnit.MILLISECONDS.sleep(500L)
+		controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, slotRep)
+		
+	}
+	else if(id == "receipt"){
+
+		println("token: $msgArg")
+		val jsonMsg : String = "{\"tokenid\":\"$msgArg\"}"
+		var jsonContent : JSONObject = JSONObject(jsonMsg)
+		val tokenRep = ResourceRep("" + HtmlUtils.htmlEscape( "t"+jsonContent.getString("tokenid")))
+		controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, tokenRep)
+		
+	}
+	else if(id == "waitIndoor"){
+		val jsonMsg = "{\"waitIndoor\":\"$msgArg\"}"
+		var jsonContent = JSONObject(jsonMsg)
+		val waitIndoorRep = 
+			ResourceRep("" + HtmlUtils.htmlEscape( "s"+jsonContent.getString("waitIndoor")))
+		println("waitIndoor: $msgArg")
+		TimeUnit.MILLISECONDS.sleep(500L)
+		controller.simpMessagingTemplate?.convertAndSend(WebSocketConfig.topicForClient, waitIndoorRep)
+	}
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+
+fun forward(message: String?) {
+	Thread {
+		try {
+			if (null != socket) {
+				val out = PrintWriter(
+					BufferedWriter(
+						OutputStreamWriter(socket!!.getOutputStream())), true
+				)
+				out.println(message)
+				println(message)
+			}
+		} catch (e: Exception) {
+			e.printStackTrace()
+		}
+	}.start()
+}
+</pre>
+					</td>
+					<td>
+						In <a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/src/main/kotlin/it/unibo/clientGui/Client.kt">Client</a> class is created and handled
+						a WS connection, there are one function for send messages on this WS and one to receive and give informations from the reply.
+						<br><br>
+						When a reply is received, informations is extracted and depending on <k>id</k> value a different actions could be performed. For example when a <tt>slotnum</tt> reply is received,
+						it is used same tecnique of <a href="#managerguicoap"><b>ManagerGUI</b></a> to update the GUI with current value via <a href="https://spring.io/guides/gs/messaging-stomp-websocket/">WebSocket</a>.
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<center><img src="img/ClientGUI.png" width="40%"></center>
+					</td>
+				</tr>
+
+			</table>
+		</div>
 
 		<h2>Testing</h2>
-			Tests is built using CoapObserver provided by the costumer in the project <ks>it.unibo.qak21.basicrobot
-				</ks> (<a
-					href="../test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">CoapObserverForTesting.kt</a>).
-				<br>
-				In this SPRINT we have added only the <k>Trolley</k> compared to the previous SPRINT, so for the correct
-				functioning of the <b>parkingmanagerservice</b> the tests done in the
-				previous sprint are sufficient.
-				In this phase, the tests will be limited to verify the correct functioning of the <k>Trolley</k> in
-				different situations. <br>
-				In order to observe trolley movements, we will use the virtual enviroment provided by costumer. To start
-				this eviroments, it's necessary launch a <i>.yaml</i> file with <b>Docker</b>,
-				in particular running:
-				<pre> docker-compose -f basicrobotVirtual.yaml up </pre>
+			<p>Tests is built using CoapObserver provided by the costumer in the project <ks>it.unibo.qak21.basicrobot. </ks> 
+				(<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/test/it/unibo/parkingmanagerservice/test/utils/CoapObserverForTesting.kt">
+					CoapObserverForTesting.kt
+				</a>).
+			</p>
+			
+			<p>
+				Instead, for <b>ClientGUI</b> and <b>ManagerGUI</b> is used a tool for for web automation
+				and web testing based on JS, called <a href="https://playwright.dev/docs/intro"><ks>PlayWright</ks></a>.<br>
+				In particular this kind of test are runned with command below.
+				<pre>npx playwright test --config=my.config.js</pre>
+			</p>
+				<kc>TestPlans goals:</kc>
+			<div class="remark">
+				
+			<ul>
+				<li>Ensure that new components work properly individually. <k><b>(unit testing)</b></k> <br>
+					<div class=remark2>
+						<h3>Real Sonar and related components</h3>
+						<p>
+							We want to test if real sonar, into <tt>ctxSonaronrasp</tt> context, works properly sending to system the measured data.<br>
+							Those data have to be received by a specific QAktor <b>sonarhandler</b>, which handles them setting the status of <em>OUTDOOR area</em> and
+							triggering/stopping the countdown performed by <b>outdoortimer</b>.  
+						</p>
+						<table>
+							<tr>
+								<td>
+									<pre>@Test
+ 	@kotlinx.coroutines.ObsoleteCoroutinesApi
+	fun sonarTest(){
+		
+		runBlocking{
+			var channelForSonar = Channel<String>()
+			var channelForTimer = Channel<String>()
+			sonarhandlerObserver!!.addObserver(channelForSonar, "sonarOutdoor")
+			outdoottimerObserver!!.addObserver(channelForTimer, "alarm")
+			
+			delay(5000)
+			
+			myactor!!.forward("startsonar","start(sonar)","sonarhandler")
+					 
+			var outdoorStatus = channelForSonar.receive().substringAfter("(","-").substringBefore(")","-")
+			assertTrue(outdoorStatus=="FREE")
+			println("TEST outdoorStatus: $outdoorStatus")
+			
+			outdoorStatus = channelForSonar.receive().substringAfter("(","-").substringBefore(")","-")
+			assertTrue(outdoorStatus.equals("BUSY"))
+			println("TEST outdoorStatus: $outdoorStatus")
+			
+			var alarm = channelForTimer.receive().substringAfter("(","-").substringBefore(")","-")
+			assertTrue(alarm.equals("TIMEOUT"))
+			println("TEST alarm: $alarm")
+		
+		}
+ 	}	</pre>
+								</td>
+								<td>
+									<p>
+										In this test we want to check if, when <b>realsonar</b> detects and sends a distance less then threshold, <b>sonarhandler</b>
+										changes, in a correct way, the value of <em>OUTDOOR</em> area.<br>
+										Initally we assume that <em>OUTDOOR</em> is FREE and then an object is put in front of sonar, so this value should be BUSY.
+										Then, <em>OUTDOOR</em> status is keept to BUSY for <em>DTFREE</em> time, so <b>outdoortimer</b> emits the alarm and in this test it's
+										checked if that is correctly emitted.
+ 									</p>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class=remark2>
+						<h3>Client GUI</h3>
+						<p>
+							This test consists of checking if the <b>clientGUI</b> exchange messages with <b>parkingmanagerserive</b> correctly.
+						</p>
+						<table>
+							<tr>
+								<td>
+									<pre>const { test, expect } = require('@playwright/test');
+test('CLIENT GUI test', async ({ page }) => { 
+  await page.goto('http://localhost:8081/');
+  await page.waitForTimeout(3000)
+  await page.click('button:has-text("Enter Request")');
+
+  const slot = await page.locator('//*[@id="infoDisplay"]');
+await expect(slot).toContainText('SLOTNUM:');
+  
+  await page.waitForTimeout(4000)
+  await page.click('button:has-text("CarEnter Request")'); //carenter
+  await page.waitForTimeout(8000)
+  const value = await page.evaluate(() => document.getElementById("infoDisplay").textContent) 
+	
+	token = value.slice(7)
+	const tok = await page.locator('//*[@id="infoDisplay"]');
+await expect(tok).toContainText('TOKEN:');
+  
+	await page.fill('//*[@id="tokenid"]', token);
+
+  await page.waitForTimeout(3000)
+  await page.click('button:has-text("Submit your TOKENID")');
+  
+	const after = await page.locator('//*[@id="adv"]');
+await expect(after).toContainText('Token sended');
+  
+
+});
+</pre>
+								</td>
+								<td>
+									During this test, it's opened the page <i>https//:localhost:8081</i> of browser, then are automatically performed all the action 
+									necessary to a parking and a picking operation.<br>
+									It's verified also if <b>clientGUI</b> receives and shows correctly <em>SLOTNUM</em> and <em>TOKENID</em> values.
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class=remark2>
+						<h3>ManagerGUI</h3>
+						<p>
+							We wanto to check if <k>STOP/RESUME</k> buttons work properly.  
+						</p>
+						<table>
+							<tr>
+								<td>
+									<pre>const { test, expect } = require('@playwright/test');
+test('ManagerGUI test', async ({ page }) => { 
+  await page.goto('http://localhost:8083');
+  
+  await page.waitForTimeout(1000)
+  
+  const stopbtn 		= await page.locator('button:has-text("STOP Trolley")');  
+  const resumebtn 		= await page.locator('button:has-text("RESUME Trolley")');  
+  const trolleystatus 	= await page.locator('//*[@id="statusDisplay"]') //trolleyStatus
+  const temp 			= await page.locator('//*[@id="tempDisplay"]')   //temperature
+  
+  await page.waitForFunction(() => {
+	return document.querySelector('#stopbtn').hasAttribute('disabled')==false
+	});
+  await page.waitForTimeout(500)
+  stopbtn.click()
+  await page.waitForTimeout(1000)
+  await expect(trolleystatus).toContainText('STOPPED')
+  
+  await page.waitForFunction(() => {
+	return document.querySelector('#resumebtn').hasAttribute('disabled')==false
+	});
+  await page.waitForTimeout(500)
+  await resumebtn.click()
+  await page.waitForTimeout(1000)
+  await expect(trolleystatus).not.toContainText('STOPPED')
+  
+
+});</pre>
+								</td>
+								<td>
+									During this test, it's opened the page <i>https//:localhost:8081</i> of browser, then it's waited until <em>STOP</em> button is enabled, so
+									it is pressed. Then the value of Trolley status is verified: it has to be "STOPPED".<br>
+									As soon as the <em>RESUME</em> button becomes enabled, also it's pressed and verified if, after that, Trolley status is 
+									different by "STOPPED" (IDLE or WORKING).
+								</td>
+							</tr>
+						</table>
+					</div>
+					
+					
+				<li>Ensure that the workflow of the system meets a set of requirements <k><b>(integration testing)</b>
+					</k>. <br> <br>
+
+					<div class=remark2>
+						<h3>Workflow</h3>
+						During this test, it's verified the correct behaviour of the system.<br>
+						In particular, it will be runned the entire system, including distributed components, and it will be checked if the system it's able
+						to perform all parking and picking operations in the correct way.
+						<table>
+							<tr>
+								<td>
+									<center><b><u>WORKFLOW TEST PLAN</u></b></center>
+									<center><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/it.unibo.ParkManagerService_s4/test/it/unibo/parkingmanagerservicetest/TestPlan.kt">TestPlan.kt</a></center>
+<pre>
+var indoorStatus = channelForIndoorStart.receive().substringAfter("(","-").substringBefore(")","-")
+println("TEST indoorAtStart: $indoorStatus")
+assertTrue(indoorStatus.equals("FREE"))
+
+var outdoorStatus = channelForOutdoorStart.receive().substringAfter("(","-").substringBefore(")","-")
+println("TEST outdoorStatus: $outdoorStatus")
+assertTrue(outdoorStatus.equals("FREE"))
+
+var slotsfree 		= channelForSlots.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+println("TEST slotsfree: $slotsfree")
+assertTrue(slotsfree == 6)
+
+var robotPosition = channelForRobotPos.receive().substringAfter("(","-").substringBefore(")","-")
+println("TEST robotPosition: $robotPosition")
+assertTrue(robotPosition.equals("0,0"))
+
+delay(3000)
+
+var slotnum = channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+println("TEST slotnum: $slotnum")
+assertTrue(slotnum > 0 && slotnum &lt 7)
+
+delay(3000)
+
+var weight	= channelForWeight.receive().substringAfter("(","").substringBefore(")","").toInt()
+println("TEST weight: $weight")
+assertTrue(weight > 0)
+println("TEST weight: SUCCESS")
+
+indoorStatus = channelForIndoor.receive().substringAfter("(","").substringBefore(")","")
+println("TEST indoorStatus: $indoorStatus")
+assertTrue(indoorStatus.equals("BUSY"))
+println("TEST indoorStatus SUCCESS")
+
+var result = channelForRobotPos.receive()
+robotPosition = result.substringAfter("(","").substringBefore(")","")
+println("TEST robotPosition: $robotPosition")
+assertTrue(robotPosition.equals("indoor"))
+println("TEST robotPosition SUCCESS")
+
+result = channelForIndoor.receive()
+indoorStatus 		= result.substringAfter("(","").substringBefore(")","")
+println("TEST indoorStatus: $indoorStatus")
+assertTrue(indoorStatus.equals("FREE"))
+println("TEST indoorStatus SUCCESS")
+
+var receipt = channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+println("TEST receipt: $receipt")
+assertTrue(receipt > 10000 && receipt &lt 70000)		
+
+result = channelForRobotPos.receive()
+robotPosition = result.substringAfter("(","").substringBefore(")","")
+println("TEST robotPosition: $robotPosition")
+assertTrue(robotPosition.equals("p$slotnum"))
+
+slotsfree = channelForSlots.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+println("TEST slotsfree: $slotsfree")
+assertTrue(slotsfree == 5)
+
+delay(2000)
+
+var home = channelForHome.receive().substringAfter("(","-").substringBefore(")","-")
+println("TEST moving to HOME: $home")
+assertTrue(home.equals("HOME"))
+
+println("FINISH PARKING OP")
+
+delay(4000)
+
+/*----------------------------------------------------------------------------------------------------*/
+
+var carslotnum = channelForParkingOp.receive().substringAfter("(","-").substringBefore(")","-").toInt()
+println("TEST carslotnum: $carslotnum")
+assertTrue(carslotnum.equals(slotnum))
+println("TEST carslotnum SUCCESS")
+
+delay(5000)
+
+result = channelForRobotPos.receive()
+robotPosition = result.substringAfter("(","").substringBefore(")","")
+println("TEST robotPosition: $robotPosition")
+assertTrue(robotPosition.equals("p$carslotnum"))
+
+delay(5000)
+
+result = channelForRobotPos.receive()
+robotPosition = result.substringAfter("(","").substringBefore(")","")
+println("TEST robotPosition: $robotPosition")
+assertTrue(robotPosition.equals("outdoor"))
+
+outdoorStatus = channelForOutdoor.receive().substringAfter("(","").substringBefore(")","")
+println("TEST outdoorStatus: $outdoorStatus")
+assertTrue(outdoorStatus.equals("BUSY"))
+
+delay(10000)
+
+outdoorStatus = channelForOutdoor.receive().substringAfter("(","").substringBefore(")","")
+println("TEST outdoorStatus: $outdoorStatus")
+if(outdoorStatus.equals("FREE")){
+	assertTrue(outdoorStatus.equals("FREE"))
+}
+else{
+	var alarm = channelForAlarm.receive().substringAfter("(","").substringBefore(")","")
+	assertTrue(alarm.equals("TIMEOUT"))
+}
+
+home = channelForHome.receive().substringAfter("(","-").substringBefore(")","-")
+println("TEST moving to HOME: $home")
+assertTrue(home.equals("HOME"))
+
+println("FINISH PIKING OP")
+</pre>
+								</td>
+								<td>
+									In this test it's checked, step by step, all values during parking and picking process. Values that it's checked are:
+									<ul>
+										<li><ks>indoorStatus</ks>: in different situations it is checked if the <em>INDOOR</em> status is <k>FREE</k> or <k>BUSY</k> 
+										<li><ks>outdoorStatus</ks>: in different situations it is checked if the <em>OUTDOOR</em> status is <k>FREE</k> or <k>BUSY</k>
+										<li><ks>slotsFree</ks>: it is checked the actual free parking slots of the entire system
+										<li><ks>robotPosition</ks>: it is checked that the final position of the <b>Trolley</b> after a work is correct
+										<li><ks>slotnum</ks>: it is checked the <em>SLOTNUM</em> that which has been assigned to the current client
+										<li><ks>receipt</ks>: it is checked that its value is between <k>10000</k> and <k>69999</k>
+										<li><ks>home</ks>: it is checked that <b>Trolley</b> has effectively reached its <k>HOME</k> 
+										<li><ks>carslotnum</ks>: it is checked if the <em>TOKEID</em> provide by client <tt>piking</tt> request is equal to the one assigned to he.
+										<li><ks>alarm</ks>: it is checket if after 10 seconds the <em>OUTDOOR</em> is not yet <k>FREE</k> that the <em>alarm</em> has been correctly activated.
+									</ul> 
+								</td>
+							</tr>
+						</table>
+					</div>
+			</ul>
+			</div>
+
 			</p>
 		
 		<h2>Deployment</h2>
 		The deployment of SPRINT 4 consists in a release on a <a
-			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_3">Github repository</a>.
+			href="https://github.com/P-damicis/Automated_Car_Parking/tree/main/sprint_4">Github repository</a>.<br><br>
+
+		Every component are deployed with a runnable distribution in order to obtain a stand alone application.
+		<ul>
+			<li>
+				<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/launch_bat.vbs">launch_bat.vbs</a>
+				<ul>
+					<li>
+						<a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/starter.bat">starter.bat</a>
+						<ul>
+							<li><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/robot.bat">robot.bat</a></li>
+							<li>it.unibo.ParkManagerService_s4.bat</li>
+							<li><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ClientGui/out/artifacts/ClientGui_main_jar/ClientGui.main.jar">ClientGui.main.jar</a></li>
+							<li><a href="https://github.com/P-damicis/Automated_Car_Parking/blob/main/sprint_4/ParkManagerGui/out/artifacts/ParkManagerGui_main_jar/ParkManagerGui.main.jar">ParkManagerGui.main.jar</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
 
 		<h2>Maintenance</h2>
-		This is the fourth and final SPRINT!!!!!!!!!!!!!!
+			This is the first complete working prototype release of the system. Every bug or problem will be resolved over time.
 		<br /><br />
 	</div>
 

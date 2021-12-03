@@ -27,6 +27,8 @@ class Sonarhandler ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 				}	 
 				state("start") { //this:State
 					action { //it:State
+						updateResourceRep( "sonarOutdoor(FREE)"  
+						)
 						println("OUTDOOR SONAR START | SONAR")
 					}
 					 transition(edgeName="t020",targetState="handleSonarData",cond=whenEvent("sonaroutdoor"))
@@ -41,6 +43,8 @@ class Sonarhandler ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( nam
 										`it.unibo`.utils.ParkingSlotsKb.outdoorFree = false
 						forward("updateGui", "outdoorStatus(BUSY)" ,"guiupdater" ) 
 						updateResourceRep( "outdoor(BUSY)"  
+						)
+						updateResourceRep( "sonarOutdoor(FREE)"  
 						)
 						forward("starttimer", "timer(on)" ,"outdoortimer" ) 
 						println("Car in OUTDOOR | SONAR")

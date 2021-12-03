@@ -35,7 +35,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						println("basicrobot | START")
 						unibo.robot.robotSupport.create(myself ,"basicrobotConfig.json" )
 						 RobotType = unibo.robot.robotSupport.robotKind  
 						itunibo.planner.plannerUtil.loadRoomMap( "$mapname"  )
@@ -53,15 +52,12 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 				}	 
 				state("setup") { //this:State
 					action { //it:State
+						println("TROLLEY STARTS | TROLLEYCMD")
 						 val DIR =  itunibo.planner.plannerUtil.getDirection()  
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE  
 						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						forward("updateGui", "robotPos(0,0)" ,"guiupdater" ) 
 						forward("updateGui", "direction($DIR)" ,"guiupdater" ) 
-						updateResourceRep( "posRobot(0,0)"  
-						)
-						updateResourceRep( "dirRobot(${DIR})"  
-						)
 					}
 					 transition( edgeName="goto",targetState="work", cond=doswitch() )
 				}	 
@@ -70,9 +66,7 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.IDLE  
 						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						forward("updateGui", "status($STATUS)" ,"guiupdater" ) 
-						updateResourceRep( "trolleystatus(${STATUS})"  
-						)
-						println("basicrobot waiting ... | TROLLEY")
+						println("trolley waiting ... | TROLLEY")
 					}
 					 transition(edgeName="t025",targetState="path",cond=whenDispatch("move"))
 					transition(edgeName="t026",targetState="stopped",cond=whenDispatch("stopTrolley"))
@@ -83,8 +77,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.STOPPED  
 						 val STATUS =  unibo.robot.TrolleyKb.trolleyStatus  
 						forward("updateGui", "status($STATUS)" ,"guiupdater" ) 
-						updateResourceRep( "trolleystatus(${STATUS})"  
-						)
 					}
 					 transition(edgeName="t027",targetState="resume",cond=whenDispatch("resumeTrolley"))
 				}	 
@@ -94,8 +86,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 GOAL = payloadArg(0)  
 								forward("updateGui", "curDest($GOAL)" ,"guiupdater" ) 
-								updateResourceRep( "curDest(${GOAL}) " 
-								)
 								println("GOAL = $GOAL | TROLLEY")
 								planner.getPathPlan( GOAL  )
 								 CurPath = itunibo.planner.plannerUtil.getActions().toString()  
@@ -103,8 +93,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING  
 						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						forward("updateGui", "status($STATUS)" ,"guiupdater" ) 
-						updateResourceRep( "trolleystatus(${STATUS})"  
-						)
 					}
 					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitchGuarded({ GOAL != "home"  
 					}) )
@@ -159,10 +147,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						 val DIR =  itunibo.planner.plannerUtil.getDirection()  
 						forward("updateGui", "robotPos($POSX,$POSY)" ,"guiupdater" ) 
 						forward("updateGui", "direction($DIR)" ,"guiupdater" ) 
-						updateResourceRep( "posRobot(${POSX},${POSY})"  
-						)
-						updateResourceRep( "dirRobot(${DIR})"  
-						)
 						stateTimer = TimerActor("timer_stepDone", 
 							scope, context!!, "local_tout_trolley_stepDone", 100.toLong() )
 					}
@@ -182,12 +166,11 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						 var timeDelay =  
 						planner.exactDir( GOAL  )
 						 delay(timeDelay)  
-						println("path finished | TROLLEY")
 						itunibo.planner.plannerUtil.showCurrentRobotState(  )
-						updateResourceRep( "endPath(${GOAL})"  
-						)
-						emit("finished", "finished($GOAL)" ) 
+						if(  GOAL != "home"  
+						 ){emit("finished", "finished($GOAL)" ) 
 						println("finished($GOAL) | TROLLEY")
+						}
 						 GOAL = ""  
 					}
 					 transition( edgeName="goto",targetState="work", cond=doswitch() )
@@ -216,8 +199,6 @@ class Trolley ( name: String, scope: CoroutineScope  ) : ActorBasicFsm( name, sc
 						 unibo.robot.TrolleyKb.trolleyStatus = `it.unibo`.utils.TrolleyStatus.WORKING  
 						 STATUS = unibo.robot.TrolleyKb.trolleyStatus.toString()  
 						forward("updateGui", "status($STATUS)" ,"guiupdater" ) 
-						updateResourceRep( "trolleystatus(${STATUS})"  
-						)
 					}
 					 transition( edgeName="goto",targetState="execPlannedMoves", cond=doswitchGuarded({ GOAL != "home"  
 					}) )

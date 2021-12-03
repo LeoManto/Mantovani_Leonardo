@@ -1,40 +1,9 @@
 # Automated_Car_Parking
 
+<p>
+  This is the repository in which is deployed and described the <b>Automated_Car_Parking</b> project, developed as part of ISS-2021 course at UNIBO.
+</p>
 
 ## WorkPlan
-
-## Sprint 1
-First meeting: 16/6/2021
-<br>
-Second meeting: 23/06/2021 h 15,00
-<br>
-First meeting with costumer : 24/06/2021 h 15,00
-<br>
-First Meeting: 29/06/2021 h 15,00 (Sprint 1 review)
-
-## Sprint 2 
-------------------------------
-01/07/2021 h.15.00
-<br>
-06/07/2021 h 15.00
-<br>
-10/07/2021 h 15.00 (TestPlans s1/s2)
-<br>
-13/07/2021 h 10.00
-<br>
-13/07/2021 h 15.00
-<br>
-
-## Sprint 3
-------------------------------
-16/07/2021 h 15.00 (Trolley and generic TestPlans)
-<br>
-22/07/2021 h 15.00
-<br>
-26/07/2021 h 15.00
-<br>
-29/07/2021 h 15.00
-<br>
-03/08/2021 h 11.30
-
+<img src="./SCRUM_chart.png" width="60%">
 

@@ -16,6 +16,7 @@ import it.unibo.kactor.MsgUtil
 import it.unibo.kactor.ApplMessage
 import it.unibo.supports.IssWsHttpKotlinSupport
 import it.unibo.interaction.MsgRobotUtil
+import java.io.File
 
  //A support for using the virtual robot
  
@@ -28,7 +29,12 @@ object virtualrobotSupport2021 {
 	private lateinit var hostName : String 	
 	private lateinit var support21 : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
 	private lateinit var support21ws : IssWsHttpKotlinSupport 	//see project it.unibo.kotlinSupports
-    private val forwardlongtimeMsg  = "{\"robotmove\":\"moveForward\", \"time\":  150}" //149
+	
+	val jsonObject   = JSONObject( File("basicrobotConfig.json").readText(Charsets.UTF_8) )
+	val timeforstep    = jsonObject.getString("timeforstep").toInt()
+	
+	
+    private val forwardlongtimeMsg  = "{\"robotmove\":\"moveForward\", \"time\":  ${timeforstep}}" //149
     private val backwardlongtimeMsg = "{\"robotmove\":\"moveBackward\", \"time\": 350}"
 
 	var traceOn = false
